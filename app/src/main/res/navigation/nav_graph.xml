@@ -9,29 +9,14 @@
         android:id="@+id/FirstFragment"
         android:name="com.example.ecoapp.FirstFragment"
         android:label="@string/first_fragment_label"
-        tools:layout="@layout/fragment_first">
-
-        <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/SecondFragment"
-        android:name="com.example.ecoapp.SecondFragment"
-        android:label="@string/second_fragment_label"
-        tools:layout="@layout/fragment_second">
-
-        <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_first"/>
     <fragment
         android:id="@id/questFragment"
         android:name="com.example.ecoapp.QuestFragment"
         android:label="@string/title_quest"
         tools:layout="@layout/fragment_quest" />
     <fragment
-        android:id="@id/profileFragment"
+        android:id="@+id/profileFragment"
         android:name="com.example.ecoapp.ProfileFragment"
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" />
