@@ -19,10 +19,19 @@
         android:id="@+id/profileFragment"
         android:name="com.example.ecoapp.ProfileFragment"
         android:label="@string/title_profile"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile">
+        <action
+            android:id="@+id/action_profileFragment_to_friendsFragment"
+            app:destination="@id/friendsFragment" />
+    </fragment>
     <fragment
         android:id="@id/settingsFragment"
         android:name="com.example.ecoapp.SettingsFragment"
         android:label="@string/title_settings"
         tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/friendsFragment"
+        android:name="com.example.ecoapp.FriendsFragment"
+        android:label="I Miei Amici"
+        tools:layout="@layout/fragment_friends" />
 </navigation>
