@@ -117,6 +117,7 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/total_points_value"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/profile_total_points_value"
@@ -135,6 +136,7 @@
                         android:gravity="center"
                         android:orientation="vertical">
                         <TextView
+                            android:id="@+id/co2_saved_value"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/profile_co2_saved_value"

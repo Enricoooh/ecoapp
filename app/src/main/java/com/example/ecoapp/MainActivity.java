@@ -1,7 +1,10 @@
 package com.example.ecoapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 
+import com.ecoapp.android.auth.AuthManager;
+import com.ecoapp.android.auth.LoginActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +26,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Controllo autenticazione
+        AuthManager authManager = AuthManager.getInstance(this);
+        if (!authManager.isAuthenticated()) {
+            // Utente non autenticato, vai a LoginActivity
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
 
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
