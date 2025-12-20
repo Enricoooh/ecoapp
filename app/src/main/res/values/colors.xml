@@ -2,4 +2,16 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!-- Eco Gaming Palette (Duolingo-inspired) -->
+    <color name="eco_green_primary">#58CC02</color>
+    <color name="eco_green_dark">#46A302</color>
+    <color name="eco_green_light">#89E219</color>
+    <color name="eco_blue">#1CB0F6</color>
+    <color name="eco_yellow">#FFC800</color>
+    <color name="eco_orange">#FF9600</color>
+    <color name="eco_background">#F0F8F0</color>
+    <color name="eco_card">#FFFFFF</color>
+    <color name="eco_text_dark">#2B3D2B</color>
+    <color name="eco_text_light">#6B7C6B</color>
 </resources>

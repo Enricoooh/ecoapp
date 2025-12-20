@@ -4,24 +4,37 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="?attr/colorPrimaryContainer">
+    android:background="@color/eco_background">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="24dp">
 
+        <!-- Placeholder per illustrazione eco/mascotte -->
+        <!-- Sostituisci android:src con la tua immagine custom -->
+        <ImageView
+            android:id="@+id/imageViewLogo"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="32dp"
+            android:src="@android:drawable/ic_dialog_info"
+            android:contentDescription="Eco mascotte"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
         <!-- Logo/Title -->
         <TextView
             android:id="@+id/textViewTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="EcoApp"
-            android:textSize="32sp"
+            android:text="🌱 EcoApp"
+            android:textSize="36sp"
             android:textStyle="bold"
-            android:textColor="?attr/colorPrimary"
-            android:layout_marginTop="48dp"
-            app:layout_constraintTop_toTopOf="parent"
+            android:textColor="@color/eco_green_primary"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/imageViewLogo"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -29,65 +42,98 @@
             android:id="@+id/textViewSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Accedi al tuo account"
-            android:textSize="16sp"
+            android:text="Bentornato! 🎮"
+            android:textSize="18sp"
+            android:textColor="@color/eco_text_light"
             android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@id/textViewTitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Email Input -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInputLayoutEmail"
+        <!-- Email Input Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardEmail"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Email"
-            android:layout_marginTop="48dp"
-            app:startIconDrawable="@android:drawable/ic_dialog_email"
+            android:layout_marginTop="32dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/eco_card"
             app:layout_constraintTop_toBottomOf="@id/textViewSubtitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editTextEmail"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayoutEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textEmailAddress"
-                android:maxLines="1" />
+                android:hint="📧 Email"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:hintTextColor="@color/eco_green_primary">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editTextEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textEmailAddress"
+                    android:maxLines="1"
+                    android:textColor="@color/eco_text_dark"
+                    android:padding="16dp" />
 
-        <!-- Password Input -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInputLayoutPassword"
+            </com.google.android.material.textfield.TextInputLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Password Input Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardPassword"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Password"
             android:layout_marginTop="16dp"
-            app:passwordToggleEnabled="true"
-            app:startIconDrawable="@android:drawable/ic_lock_idle_lock"
-            app:layout_constraintTop_toBottomOf="@id/textInputLayoutEmail"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/eco_card"
+            app:layout_constraintTop_toBottomOf="@id/cardEmail"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editTextPassword"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayoutPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPassword"
-                android:maxLines="1" />
+                android:hint="🔒 Password"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                app:passwordToggleEnabled="true"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:hintTextColor="@color/eco_green_primary">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editTextPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword"
+                    android:maxLines="1"
+                    android:textColor="@color/eco_text_dark"
+                    android:padding="16dp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Login Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonLogin"
             android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:text="Accedi"
-            android:textSize="16sp"
+            android:layout_height="64dp"
+            android:text="Accedi 🚀"
+            android:textSize="18sp"
+            android:textStyle="bold"
             android:layout_marginTop="24dp"
-            app:layout_constraintTop_toBottomOf="@id/textInputLayoutPassword"
+            app:cornerRadius="32dp"
+            app:backgroundTint="@color/eco_green_primary"
+            app:elevation="8dp"
+            app:layout_constraintTop_toBottomOf="@id/cardPassword"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -97,6 +143,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
+            android:indeterminateTint="@color/eco_green_primary"
             app:layout_constraintTop_toTopOf="@id/buttonLogin"
             app:layout_constraintBottom_toBottomOf="@id/buttonLogin"
             app:layout_constraintStart_toStartOf="parent"
@@ -107,9 +154,10 @@
             android:id="@+id/textViewRegisterLink"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Non hai un account? Registrati"
-            android:textSize="14sp"
-            android:textColor="?attr/colorPrimary"
+            android:text="Non hai un account? 🌟 Registrati"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/eco_blue"
             android:padding="16dp"
             android:layout_marginTop="16dp"
             app:layout_constraintTop_toBottomOf="@id/buttonLogin"
