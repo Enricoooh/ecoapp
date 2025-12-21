@@ -182,7 +182,8 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void celebrateWithConfetti() {
-        Party party = new PartyFactory(new EmitterConfig(2, TimeUnit.SECONDS))
+        EmitterConfig emitterConfig = new Emitter(5L, TimeUnit.SECONDS).max(100);
+        Party party = new PartyFactory(emitterConfig)
                 .shapes(Arrays.asList(Shape.Circle.INSTANCE, Shape.Square.INSTANCE))
                 .colors(Arrays.asList(0xFF58CC02, 0xFF1CB0F6, 0xFFFFC800, 0xFFFF9600))
                 .setSpeedBetween(0f, 30f)
