@@ -2,6 +2,8 @@ package com.ecoapp.android.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Toast;
@@ -14,6 +16,15 @@ import com.ecoapp.android.auth.models.RegisterRequest;
 import com.example.ecoapp.MainActivity;
 import com.example.ecoapp.databinding.ActivityRegisterBinding;
 import com.google.gson.Gson;
+
+import nl.dionsegijn.konfetti.core.Party;
+import nl.dionsegijn.konfetti.core.PartyFactory;
+import nl.dionsegijn.konfetti.core.emitter.Emitter;
+import nl.dionsegijn.konfetti.core.emitter.EmitterConfig;
+import nl.dionsegijn.konfetti.core.models.Shape;
+
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -69,8 +80,14 @@ public class RegisterActivity extends AppCompatActivity {
                     // Salva token e dati utente
                     authManager.saveAuthData(authResponse.getToken(), authResponse.getUser());
                     
-                    Toast.makeText(RegisterActivity.this, "Registrazione completata!", Toast.LENGTH_SHORT).show();
-                    navigateToMain();
+                    // Celebrazione con confetti!
+                    Toast.makeText(RegisterActivity.this, 
+                            "🎉 Benvenuto " + authResponse.getUser().getName() + "!", 
+                            Toast.LENGTH_LONG).show();
+                    celebrateWithConfetti();
+                    
+                    // Naviga dopo 2 secondi per godersi i confetti
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> navigateToMain(), 2000);
                 } else {
                     // Gestione errore
                     String errorMessage = "Errore di registrazione";
@@ -162,6 +179,17 @@ public class RegisterActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
+    }
+
+    private void celebrateWithConfetti() {
+        Party party = new PartyFactory(new EmitterConfig(2, TimeUnit.SECONDS))
+                .shapes(Arrays.asList(Shape.Circle.INSTANCE, Shape.Square.INSTANCE))
+                .colors(Arrays.asList(0xFF58CC02, 0xFF1CB0F6, 0xFFFFC800, 0xFFFF9600))
+                .setSpeedBetween(0f, 30f)
+                .position(0.5, 0.0, 1.0, 0.0)
+                .build();
+        
+        binding.konfettiView.start(party);
     }
 
     @Override
