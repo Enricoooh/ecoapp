@@ -10,11 +10,8 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
-    // TODO: Sostituisci con l'URL del tuo backend Render.com dopo il deploy
-    // Esempio: https://ecoapp-api.onrender.com
-    private static final String BASE_URL = "http://10.0.2.2:3000"; // Per emulatore Android (localhost)
-    // Per dispositivo fisico usa: "http://TUO_IP_LOCALE:3000"
-    // Per produzione usa: "https://ecoapp-api.onrender.com"
+    // Backend su Render.com
+    private static final String BASE_URL = "https://ecoapp-p5gp.onrender.com";
     
     private static Retrofit retrofit = null;
     private static AuthService authService = null;
