@@ -38,7 +38,9 @@ public class QuestAdapter extends RecyclerView.Adapter<QuestAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Quest q = questList.get(position);
         holder.txtName.setText(q.getName());
-        holder.progress.setProgress(q.getProgress());
+        holder.progress.setMax(q.getMaxProgress());
+        holder.progress.setProgress(q.getActualProgress());
+        holder.txtMaxProgress.setText(String.valueOf(q.getMaxProgress()));
         holder.img.setImageResource(q.getImageResId());
 
         holder.itemView.setOnClickListener(v -> listener.onClick(q.getId()));
@@ -52,6 +54,7 @@ public class QuestAdapter extends RecyclerView.Adapter<QuestAdapter.ViewHolder> 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView img;
         TextView txtName;
+        TextView txtMaxProgress;
         ProgressBar progress;
 
         ViewHolder(View v) {
@@ -59,6 +62,7 @@ public class QuestAdapter extends RecyclerView.Adapter<QuestAdapter.ViewHolder> 
             img = v.findViewById(R.id.imgQuest);
             txtName = v.findViewById(R.id.txtQuestName);
             progress = v.findViewById(R.id.progressQuest);
+            txtMaxProgress = v.findViewById(R.id.txtMaxProgress);
         }
     }
 }
