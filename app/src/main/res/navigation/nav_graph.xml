@@ -23,6 +23,9 @@
         <action
             android:id="@+id/action_profileFragment_to_friendsFragment"
             app:destination="@id/friendsFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
     </fragment>
     <fragment
         android:id="@id/settingsFragment"
@@ -34,4 +37,9 @@
         android:name="com.example.ecoapp.FriendsFragment"
         android:label="I Miei Amici"
         tools:layout="@layout/fragment_friends" />
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.example.ecoapp.EditProfileFragment"
+        android:label="Modifica Profilo"
+        tools:layout="@layout/fragment_edit_profile" />
 </navigation>
