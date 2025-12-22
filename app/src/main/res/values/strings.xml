@@ -38,5 +38,13 @@
     <string name="profile_my_friends_title">I Miei Amici (12)</string>
     <string name="profile_view_all">Vedi</string>
 
+    <!-- Quest -->
+    <string name="quest_fragment_label">Quest Fragment</string>
+    <string name="quest_detail_label">Quest Detail Fragment</string>
+    <string name="quest_detail">Dettagli quest %1$d</string>
+    <string name="quest_image_desc">Immagine della quest</string>
+    <string name="quest_name_placeholder">Quest Name</string>
+
+
     <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus dui nec risus. Maecenas non sodales nisi, vel dictum dolor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.</string>
 </resources>

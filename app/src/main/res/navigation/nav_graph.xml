@@ -11,10 +11,19 @@
         android:label="@string/first_fragment_label"
         tools:layout="@layout/fragment_first"/>
     <fragment
-        android:id="@id/questFragment"
-        android:name="com.example.ecoapp.QuestFragment"
-        android:label="@string/title_quest"
-        tools:layout="@layout/fragment_quest" />
+        android:id="@+id/questFragment"
+        android:name="com.example.ecoapp.quest_files.QuestFragment"
+        android:label="@string/quest_fragment_label"
+        tools:layout="@layout/fragment_quest" >
+        <action
+            android:id="@+id/action_questFragment_to_questDetailFragment"
+            app:destination="@id/questDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/questDetailFragment"
+        android:name="com.example.ecoapp.quest_files.QuestDetailFragment"
+        android:label="@string/quest_detail_label"
+        tools:layout="@layout/fragment_quest_detail" />
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.ecoapp.ProfileFragment"
