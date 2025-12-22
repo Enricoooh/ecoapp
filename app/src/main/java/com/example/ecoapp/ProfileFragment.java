@@ -8,6 +8,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -43,7 +44,7 @@ public class ProfileFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         binding.viewFriends.setOnClickListener(v -> {
@@ -77,52 +78,61 @@ public class ProfileFragment extends Fragment {
     private void setupOngoingQuests() {
         binding.ongoingQuestsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         List<Quest> ongoing = new ArrayList<>();
-        ongoing.add(new Quest(1, "Pianta 5 Alberi", 40, 0));
-        ongoing.add(new Quest(2, "Settimana senza plastica", 70, 0));
+        // Aggiornato con il nuovo costruttore di Quest
+        ongoing.add(new Quest(1, "Pianta 5 Alberi", "ecology", 2, 5, 0, "Pianta degli alberi per aiutare il pianeta", null, 100));
+        ongoing.add(new Quest(2, "Settimana senza plastica", "recycle", 5, 7, 0, "Evita l'uso di plastica monouso", null, 150));
         
-        OngoingQuestsAdapter adapter = new OngoingQuestsAdapter(ongoing, quest -> 
-            showDetailSheet(quest.getName(), "Progresso attuale: " + quest.getProgress() + "%"));
+        OngoingQuestsAdapter adapter = new OngoingQuestsAdapter(ongoing, quest -> {
+            int percentage = (quest.getActualProgress() * 100) / quest.getMaxProgress();
+            showDetailSheet(quest.getName(), quest.getDescription() + "\nProgresso attuale: " + percentage + "%");
+        });
         binding.ongoingQuestsRecyclerView.setAdapter(adapter);
     }
     
     private void setupCompletedQuests() {
         binding.completedQuestsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         List<Quest> completed = new ArrayList<>();
-        completed.add(new Quest(5, "Riciclo Plastica", 100, 0));
-        completed.add(new Quest(3, "Mobilità Sostenibile", 100, 0));
+        // Aggiornato con il nuovo costruttore di Quest (progress = max)
+        completed.add(new Quest(5, "Riciclo Plastica", "recycle", 10, 10, 0, "Hai riciclato correttamente la plastica", null, 50));
+        completed.add(new Quest(3, "Mobilità Sostenibile", "mobility", 5, 5, 0, "Hai usato i mezzi pubblici", null, 30));
         
         CompletedQuestsAdapter adapter = new CompletedQuestsAdapter(completed, quest -> 
-            showDetailSheet(quest.getName(), "Sfida completata con successo!"));
+            showDetailSheet(quest.getName(), quest.getDescription() + "\nSfida completata con successo!"));
         binding.completedQuestsRecyclerView.setAdapter(adapter);
     }
 
     private void showCO2DetailSheet() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("- Riciclo Plastica: 5.2 kg\n");
-        sb.append("- Mobilità Sostenibile: 8.0 kg\n");
-        sb.append("- Risparmio Energetico: 2.2 kg\n\n");
-        sb.append("Totale calcolato in base alle sfide completate.");
+        String detail = "- Riciclo Plastica: 5.2 kg\n" +
+                "- Mobilità Sostenibile: 8.0 kg\n" +
+                "- Risparmio Energetico: 2.2 kg\n\n" +
+                "Totale calcolato in base alle sfide completate.";
         
-        showDetailSheet("Dettaglio CO2 Salvata", sb.toString());
+        showDetailSheet("Dettaglio CO2 Salvata", detail);
     }
 
     private void showDetailSheet(String title, String description) {
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
         View view = getLayoutInflater().inflate(R.layout.layout_item_detail_sheet, null);
-        ((TextView)view.findViewById(R.id.sheet_title)).setText(title);
-        ((TextView)view.findViewById(R.id.sheet_description)).setText(description);
-        view.findViewById(R.id.sheet_close_button).setOnClickListener(v -> bottomSheetDialog.dismiss());
-        bottomSheetDialog.setContentView(view);
-        bottomSheetDialog.show();
+        if (view != null) {
+            ((TextView)view.findViewById(R.id.sheet_title)).setText(title);
+            ((TextView)view.findViewById(R.id.sheet_description)).setText(description);
+            view.findViewById(R.id.sheet_close_button).setOnClickListener(v -> bottomSheetDialog.dismiss());
+            bottomSheetDialog.setContentView(view);
+            bottomSheetDialog.show();
+        }
     }
     
     private void loadUserProfile() {
         authService.getProfile().enqueue(new Callback<User>() {
             @Override
-            public void onResponse(Call<User> call, Response<User> response) {
+            public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
                 if (response.isSuccessful() && response.body() != null) updateUI(response.body());
             }
-            @Override public void onFailure(Call<User> call, Throwable t) {}
+            @Override public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
+                if (isAdded()) {
+                    Toast.makeText(requireContext(), "Errore di rete", Toast.LENGTH_SHORT).show();
+                }
+            }
         });
     }
     

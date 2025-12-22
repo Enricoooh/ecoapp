@@ -34,8 +34,15 @@ public class OngoingQuestsAdapter extends RecyclerView.Adapter<OngoingQuestsAdap
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Quest quest = quests.get(position);
         holder.binding.questName.setText(quest.getName());
-        holder.binding.questPercentage.setText(quest.getProgress() + "%");
-        holder.binding.questProgressBar.setProgress(quest.getProgress());
+        
+        // Calcolo della percentuale basato sui nuovi campi actual_progress e max_progress
+        int percentage = 0;
+        if (quest.getMaxProgress() > 0) {
+            percentage = (quest.getActualProgress() * 100) / quest.getMaxProgress();
+        }
+        
+        holder.binding.questPercentage.setText(percentage + "%");
+        holder.binding.questProgressBar.setProgress(percentage);
         
         holder.itemView.setOnClickListener(v -> listener.onQuestClick(quest));
     }

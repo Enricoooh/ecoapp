@@ -45,7 +45,7 @@ public class EditProfileFragment extends Fragment {
     private void loadUserProfile() {
         authService.getProfile().enqueue(new Callback<User>() {
             @Override
-            public void onResponse(Call<User> call, Response<User> response) {
+            public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     currentUser = response.body();
                     binding.editName.setText(currentUser.getName());
@@ -54,8 +54,10 @@ public class EditProfileFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<User> call, Throwable t) {
-                Toast.makeText(requireContext(), "Errore caricamento dati", Toast.LENGTH_SHORT).show();
+            public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
+                if (isAdded()) {
+                    Toast.makeText(requireContext(), "Errore caricamento dati", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -95,7 +97,7 @@ public class EditProfileFragment extends Fragment {
 
         authService.updateProfile(currentUser).enqueue(new Callback<User>() {
             @Override
-            public void onResponse(Call<User> call, Response<User> response) {
+            public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(requireContext(), "Profilo aggiornato con successo", Toast.LENGTH_SHORT).show();
                     NavHostFragment.findNavController(EditProfileFragment.this).navigateUp();
@@ -105,8 +107,10 @@ public class EditProfileFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<User> call, Throwable t) {
-                Toast.makeText(requireContext(), "Errore di rete", Toast.LENGTH_SHORT).show();
+            public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
+                if (isAdded()) {
+                    Toast.makeText(requireContext(), "Errore di rete", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
