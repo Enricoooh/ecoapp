@@ -37,7 +37,6 @@ public class EditProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Pre-carica i dati attuali
         loadUserProfile();
 
         binding.buttonSaveProfile.setOnClickListener(v -> saveProfile());
@@ -50,8 +49,7 @@ public class EditProfileFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     currentUser = response.body();
                     binding.editName.setText(currentUser.getName());
-                    // Nota: se il modello User non ha un campo "quote", qui potresti avere problemi.
-                    // Per ora usiamo il nome come esempio se la quote non esiste nel modello.
+                    binding.editEmail.setText(currentUser.getEmail());
                 }
             }
 
@@ -66,14 +64,34 @@ public class EditProfileFragment extends Fragment {
         if (currentUser == null) return;
 
         String newName = binding.editName.getText().toString().trim();
+        String newEmail = binding.editEmail.getText().toString().trim();
+        String newPassword = binding.editPassword.getText().toString();
+        String confirmPassword = binding.confirmPassword.getText().toString();
+
         if (newName.isEmpty()) {
             binding.layoutEditName.setError("Il nome non può essere vuoto");
             return;
         }
+        
+        if (newEmail.isEmpty()) {
+            binding.layoutEditEmail.setError("L'email non può essere vuota");
+            return;
+        }
+
+        // Controllo grafico password se inserita
+        if (!newPassword.isEmpty()) {
+            if (!newPassword.equals(confirmPassword)) {
+                binding.layoutConfirmPassword.setError("Le password non coincidono");
+                return;
+            }
+            // NOTA: Non possiamo salvare la password nell'oggetto User 
+            // perché il modello User.java non può essere modificato.
+            // In futuro, dovrai implementare un endpoint API specifico per il cambio password.
+            Toast.makeText(requireContext(), "Il cambio password richiede un endpoint dedicato", Toast.LENGTH_LONG).show();
+        }
 
         currentUser.setName(newName);
-        // Se aggiungi il campo quote al modello User, aggiornalo qui:
-        // currentUser.setQuote(binding.editQuote.getText().toString());
+        currentUser.setEmail(newEmail);
 
         authService.updateProfile(currentUser).enqueue(new Callback<User>() {
             @Override

@@ -11,13 +11,26 @@
     <string name="title_quest">Quest</string>
     <string name="title_profile">Profilo</string>
     <string name="title_settings">Settings</string>
+    
+    <string name="quest_fragment_label">Quest</string>
+    <string name="quest_detail_label">Dettaglio Quest</string>
+    <string name="quest_detail">Dettaglio della Quest numero %1$d</string>
+    <string name="quest_image_desc">Immagine Quest</string>
+    <string name="quest_name_placeholder">Nome Sfida</string>
+
+    <!-- Home Screen -->
+    <string name="welcome_user">Ciao, %1$s!</string>
+    <string name="daily_motto">Pronto a salvare il pianeta oggi?</string>
 
     <!-- Profile Screen -->
     <string name="profile_edit">Modifica</string>
     <string name="profile_user_avatar_description">User Avatar</string>
     <string name="profile_user_name_placeholder">Mario Rossi</string>
-    <string name="profile_user_level_placeholder">Livello: Eco-Warrior</string>
+    <string name="profile_user_nickname_placeholder">Nickname</string>
+    <string name="profile_user_real_name_placeholder">Nome Reale</string>
+    <string name="profile_user_bio_placeholder">Bio dell\'utente...</string>
     <string name="profile_user_quote_placeholder">\"Ogni gesto conta!\"</string>
+    <string name="profile_user_level_placeholder">Livello: Eco-Warrior</string>
     <string name="profile_impact_title">IL TUO IMPATTO (Statistiche)</string>
     <string name="profile_total_points_value">1250</string>
     <string name="profile_total_points_label">Punti Totali</string>
@@ -37,14 +50,14 @@
     <string name="profile_social_title">SOCIAL</string>
     <string name="profile_my_friends_title">I Miei Amici (12)</string>
     <string name="profile_view_all">Vedi</string>
-
-    <!-- Quest -->
-    <string name="quest_fragment_label">Quest Fragment</string>
-    <string name="quest_detail_label">Quest Detail Fragment</string>
-    <string name="quest_detail">Dettagli quest %1$d</string>
-    <string name="quest_image_desc">Immagine della quest</string>
-    <string name="quest_name_placeholder">Quest Name</string>
-
+    
+    <!-- Edit Profile Screen -->
+    <string name="title_edit_profile">Modifica Profilo</string>
+    <string name="hint_nickname">Nickname</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Nuova Password</string>
+    <string name="hint_confirm_password">Conferma Password</string>
+    <string name="button_save">Salva Modifiche</string>
 
     <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus dui nec risus. Maecenas non sodales nisi, vel dictum dolor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.</string>
 </resources>
