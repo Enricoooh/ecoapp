@@ -1,11 +1,20 @@
 package com.example.ecoapp;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -16,6 +25,9 @@ import com.ecoapp.android.auth.AuthService;
 import com.ecoapp.android.auth.models.User;
 import com.example.ecoapp.databinding.FragmentEditProfileBinding;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -25,6 +37,35 @@ public class EditProfileFragment extends Fragment {
     private FragmentEditProfileBinding binding;
     private AuthService authService;
     private User currentUser;
+    private String encodedImage;
+
+    // Launcher per la galleria
+    private final ActivityResultLauncher<Intent> galleryLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    Uri imageUri = result.getData().getData();
+                    startCrop(imageUri); // Avvia il ritaglio
+                }
+            }
+    );
+
+    // Launcher per il ritaglio (Crop)
+    private final ActivityResultLauncher<Intent> cropLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    Bundle extras = result.getData().getExtras();
+                    if (extras != null) {
+                        Bitmap bitmap = extras.getParcelable("data");
+                        if (bitmap != null) {
+                            binding.editProfileImagePreview.setImageBitmap(bitmap);
+                            encodedImage = encodeImage(bitmap);
+                        }
+                    }
+                }
+            }
+    );
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -39,7 +80,35 @@ public class EditProfileFragment extends Fragment {
 
         loadUserProfile();
 
+        binding.buttonChangePhoto.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            galleryLauncher.launch(intent);
+        });
+
         binding.buttonSaveProfile.setOnClickListener(v -> saveProfile());
+    }
+
+    private void startCrop(Uri uri) {
+        try {
+            Intent cropIntent = new Intent("com.android.camera.action.CROP");
+            cropIntent.setDataAndType(uri, "image/*");
+            cropIntent.putExtra("crop", "true");
+            cropIntent.putExtra("aspectX", 1);
+            cropIntent.putExtra("aspectY", 1);
+            cropIntent.putExtra("outputX", 300);
+            cropIntent.putExtra("outputY", 300);
+            cropIntent.putExtra("return-data", true);
+            cropLauncher.launch(cropIntent);
+        } catch (Exception e) {
+            // Se il sistema non ha un'app di ritaglio, carichiamo l'immagine originale
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), uri);
+                binding.editProfileImagePreview.setImageBitmap(bitmap);
+                encodedImage = encodeImage(bitmap);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
     private void loadUserProfile() {
@@ -48,52 +117,70 @@ public class EditProfileFragment extends Fragment {
             public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     currentUser = response.body();
-                    binding.editName.setText(currentUser.getName());
+                    binding.editName.setText(currentUser.getNickname() != null ? currentUser.getNickname() : "");
                     binding.editEmail.setText(currentUser.getEmail());
+                    binding.editBio.setText(currentUser.getBio() != null ? currentUser.getBio() : "");
+                    
+                    // Carica l'anteprima dell'immagine attuale
+                    String imageStr = currentUser.getUrlImmagineProfilo();
+                    if (imageStr != null && !imageStr.isEmpty() && !imageStr.startsWith("http")) {
+                        try {
+                            byte[] decodedString = Base64.decode(imageStr, Base64.DEFAULT);
+                            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                            if (decodedByte != null) {
+                                binding.editProfileImagePreview.setImageBitmap(decodedByte);
+                            }
+                        } catch (Exception e) { e.printStackTrace(); }
+                    }
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
-                if (isAdded()) {
-                    Toast.makeText(requireContext(), "Errore caricamento dati", Toast.LENGTH_SHORT).show();
-                }
+                if (isAdded()) Toast.makeText(requireContext(), "Errore caricamento dati", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private String encodeImage(Bitmap bitmap) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
+        byte[] bytes = byteArrayOutputStream.toByteArray();
+        return Base64.encodeToString(bytes, Base64.DEFAULT);
     }
 
     private void saveProfile() {
         if (currentUser == null) return;
 
-        String newName = binding.editName.getText().toString().trim();
+        String newNickname = binding.editName.getText().toString().trim();
         String newEmail = binding.editEmail.getText().toString().trim();
+        String newBio = binding.editBio.getText().toString().trim();
         String newPassword = binding.editPassword.getText().toString();
         String confirmPassword = binding.confirmPassword.getText().toString();
 
-        if (newName.isEmpty()) {
-            binding.layoutEditName.setError("Il nome non può essere vuoto");
+        if (newNickname.isEmpty()) {
+            binding.layoutEditName.setError("Il nickname non può essere vuoto");
             return;
         }
-        
         if (newEmail.isEmpty()) {
             binding.layoutEditEmail.setError("L'email non può essere vuota");
             return;
         }
 
-        // Controllo grafico password se inserita
         if (!newPassword.isEmpty()) {
             if (!newPassword.equals(confirmPassword)) {
                 binding.layoutConfirmPassword.setError("Le password non coincidono");
                 return;
             }
-            // NOTA: Non possiamo salvare la password nell'oggetto User 
-            // perché il modello User.java non può essere modificato.
-            // In futuro, dovrai implementare un endpoint API specifico per il cambio password.
-            Toast.makeText(requireContext(), "Il cambio password richiede un endpoint dedicato", Toast.LENGTH_LONG).show();
+            currentUser.setPassword(newPassword);
         }
 
-        currentUser.setName(newName);
+        currentUser.setNickname(newNickname);
         currentUser.setEmail(newEmail);
+        currentUser.setBio(newBio);
+        if (encodedImage != null) {
+            currentUser.setUrlImmagineProfilo(encodedImage);
+        }
 
         authService.updateProfile(currentUser).enqueue(new Callback<User>() {
             @Override
@@ -108,9 +195,7 @@ public class EditProfileFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
-                if (isAdded()) {
-                    Toast.makeText(requireContext(), "Errore di rete", Toast.LENGTH_SHORT).show();
-                }
+                if (isAdded()) Toast.makeText(requireContext(), "Errore di rete", Toast.LENGTH_SHORT).show();
             }
         });
     }

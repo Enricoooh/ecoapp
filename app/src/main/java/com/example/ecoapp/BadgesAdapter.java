@@ -4,20 +4,21 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.ecoapp.android.auth.models.Badge;
 import com.example.ecoapp.databinding.ItemBadgeBinding;
 import java.util.List;
 
 public class BadgesAdapter extends RecyclerView.Adapter<BadgesAdapter.ViewHolder> {
 
-    private final List<Integer> badgeResIds;
+    private final List<Badge> badges;
     private final OnBadgeClickListener listener;
 
     public interface OnBadgeClickListener {
-        void onBadgeClick(int badgeResId);
+        void onBadgeClick(Badge badge);
     }
 
-    public BadgesAdapter(List<Integer> badgeResIds, OnBadgeClickListener listener) {
-        this.badgeResIds = badgeResIds;
+    public BadgesAdapter(List<Badge> badges, OnBadgeClickListener listener) {
+        this.badges = badges;
         this.listener = listener;
     }
 
@@ -31,14 +32,16 @@ public class BadgesAdapter extends RecyclerView.Adapter<BadgesAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        int resId = badgeResIds.get(position);
-        holder.binding.badgeImage.setImageResource(resId);
-        holder.itemView.setOnClickListener(v -> listener.onBadgeClick(resId));
+        Badge badge = badges.get(position);
+        holder.binding.badgeImage.setImageResource(badge.getImageResId());
+        holder.binding.badgeName.setText(badge.getName());
+        
+        holder.itemView.setOnClickListener(v -> listener.onBadgeClick(badge));
     }
 
     @Override
     public int getItemCount() {
-        return badgeResIds.size();
+        return badges.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

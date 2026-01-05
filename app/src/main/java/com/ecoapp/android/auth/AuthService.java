@@ -5,6 +5,8 @@ import com.ecoapp.android.auth.models.LoginRequest;
 import com.ecoapp.android.auth.models.RegisterRequest;
 import com.ecoapp.android.auth.models.User;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -24,4 +26,7 @@ public interface AuthService {
 
     @PUT("/api/user/profile")
     Call<User> updateProfile(@Body User user);
+
+    @GET("/api/user/friends")
+    Call<List<User>> getFriends();
 }

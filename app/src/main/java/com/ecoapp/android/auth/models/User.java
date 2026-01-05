@@ -1,12 +1,21 @@
 package com.ecoapp.android.auth.models;
 
+import java.util.List;
+
 public class User {
     private String id;
     private String email;
+    private String password;
     private String name;
+    private String nickname;
+    private String bio;
+    private String urlImmagineProfilo;
     private String level;
     private int totalPoints;
     private double co2Saved;
+    private int followerCount;
+    private int followingCount;
+    private List<String> friends;
 
     // Constructors
     public User() {}
@@ -21,51 +30,42 @@ public class User {
     }
 
     // Getters and Setters
-    public String getId() {
-        return id;
-    }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public String getEmail() {
-        return email;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public String getName() {
-        return name;
-    }
+    public String getNickname() { return nickname; }
+    public void setNickname(String nickname) { this.nickname = nickname; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public String getBio() { return bio; }
+    public void setBio(String bio) { this.bio = bio; }
 
-    public String getLevel() {
-        return level;
-    }
+    public String getUrlImmagineProfilo() { return urlImmagineProfilo; }
+    public void setUrlImmagineProfilo(String urlImmagineProfilo) { this.urlImmagineProfilo = urlImmagineProfilo; }
 
-    public void setLevel(String level) {
-        this.level = level;
-    }
+    public String getLevel() { return level; }
+    public void setLevel(String level) { this.level = level; }
 
-    public int getTotalPoints() {
-        return totalPoints;
-    }
+    public int getTotalPoints() { return totalPoints; }
+    public void setTotalPoints(int totalPoints) { this.totalPoints = totalPoints; }
 
-    public void setTotalPoints(int totalPoints) {
-        this.totalPoints = totalPoints;
-    }
+    public double getCo2Saved() { return co2Saved; }
+    public void setCo2Saved(double co2Saved) { this.co2Saved = co2Saved; }
 
-    public double getCo2Saved() {
-        return co2Saved;
-    }
+    public int getFollowerCount() { return followerCount; }
+    public void setFollowerCount(int followerCount) { this.followerCount = followerCount; }
 
-    public void setCo2Saved(double co2Saved) {
-        this.co2Saved = co2Saved;
-    }
+    public int getFollowingCount() { return followingCount; }
+    public void setFollowingCount(int followingCount) { this.followingCount = followingCount; }
+
+    public List<String> getFriends() { return friends; }
+    public void setFriends(List<String> friends) { this.friends = friends; }
 }

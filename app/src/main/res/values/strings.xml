@@ -33,7 +33,7 @@
     <string name="profile_next_level_label">Prossimo Livello:</string>
     <string name="profile_next_level_percentage">75% completato</string>
     <string name="profile_recent_activity_title">ATTIVITÀ RECENTI</string>
-    <string name="profile_my_badges_title">I Miei Badge (3)</string>
+    <string name="profile_my_badges_title">I Miei Badge</string>
     <string name="profile_badge_description">Badge</string>
     <string name="profile_last_quests_title">Ultime Quest Completate</string>
     <string name="profile_quest_completed_description">Quest completata</string>
@@ -42,8 +42,8 @@
     <string name="profile_quest2_description">Mobilità Sostenibile (Ieri)</string>
     <string name="profile_quest2_points">+30 pt</string>
     <string name="profile_social_title">SOCIAL</string>
-    <string name="profile_my_friends_title">I Miei Amici (12)</string>
-    <string name="profile_view_all">Vedi</string>
+    <string name="profile_my_friends_title">I Miei Amici</string>
+    <string name="profile_view_all">VEDI TUTTI ></string>
 
     <!-- Quest -->
     <string name="quest_fragment_label">Quest</string>
