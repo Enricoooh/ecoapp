@@ -17,8 +17,75 @@ app.use(express.json());
 const DB_FILE = path.join(__dirname, 'users.json');
 
 // Initialize database file if not exists
+/*
 if (!fs.existsSync(DB_FILE)) {
   fs.writeFileSync(DB_FILE, JSON.stringify({ users: [] }, null, 2));
+}
+*/
+
+// Initialize database file with users AND quests if not exists
+if (!fs.existsSync(DB_FILE)) {
+  const initialData = {
+    users: [],
+    quests: [
+        {
+            id: "0",
+            name: "Usa la borraccia",
+            type: "Alimentation",
+            actual_progress: 0,
+            max_progress: 5,
+            imageID: 2131165271,
+            description: "Usa la borraccia per 5 giorni invece delle bottiglie di plastica.",
+            imagesEU: [2131165271, 2131165272],
+            reward_points: 50
+       },
+       {
+           id: "1",
+           name: "Mobilità Verde",
+           type: "Mobility",
+           actual_progress: 0,
+           max_progress: 10,
+           imageID: 2131165273,
+           description: "Percorri 10km a piedi o in bici per ridurre le emissioni.",
+           imagesEU: [],
+           reward_points: 100
+       },
+       {
+           id: "2",
+           name: "Doccia Breve",
+           type: "Home",
+           actual_progress: 0,
+           max_progress: 3,
+           imageID: 2131165274,
+           description: "Riduci il tempo della doccia a un massimo di 5 minuti per 3 volte.",
+           imagesEU: [],
+           reward_points: 30
+       },
+       {
+           id: "3",
+           name: "Cena a km 0",
+           type: "Alimentation",
+           actual_progress: 0,
+           max_progress: 1,
+           imageID: 2131165275,
+           description: "Prepara una cena usando solo prodotti locali o del tuo orto.",
+           imagesEU: [],
+           reward_points: 70
+       },
+       {
+           id: "4",
+           name: "Eroe del Riciclo",
+           type: "Waste",
+           actual_progress: 0,
+           max_progress: 20,
+           imageID: 2131165276,
+           description: "Differenzia correttamente 20 oggetti tra plastica, carta e vetro.",
+           imagesEU: [],
+           reward_points: 150
+       }
+    ]
+  };
+  fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2));
 }
 
 // Helper functions
@@ -238,5 +305,76 @@ app.post('/api/user/friends/add', authenticateToken, (req, res) => {
 
   res.json({ message: 'Amico aggiunto con successo', friend: friendToAdd.name });
 });
+
+
+
+// --- QUESTS ENDPOINTS ---
+
+// 1. Ottieni tutte le quest disponibili
+app.get('/api/quests', authenticateToken, (req, res) => {
+  const db = readDB();
+  res.json(db.quests);
+});
+
+// 2. Ottieni lo stato delle quest dell'utente (completate/in corso)
+app.get('/api/user/quests', authenticateToken, (req, res) => {
+  const db = readDB();
+  const user = db.users.find(u => u.id === req.user.id);
+
+  if (!user) return res.status(404).json({ error: 'Utente non trovato' });
+
+  // Se l'utente non ha ancora il campo quests, inizializzalo
+  const userQuests = user.userQuests || [];
+  res.json(userQuests);
+});
+
+// 3. Aggiorna il progresso di una quest per l'utente
+app.post('/api/user/quests/update', authenticateToken, (req, res) => {
+  const { questId, progressIncrement } = req.body;
+  const db = readDB();
+  const userIndex = db.users.findIndex(u => u.id === req.user.id);
+
+  if (userIndex === -1) return res.status(404).json({ error: 'Utente non trovato' });
+
+  const quest = db.quests.find(q => q.id === questId);
+  if (!quest) return res.status(404).json({ error: 'Quest non trovata' });
+
+  // Inizializza la lista quest dell'utente se vuota
+  if (!db.users[userIndex].userQuests) db.users[userIndex].userQuests = [];
+
+  let userQuest = db.users[userIndex].userQuests.find(q => q.questId === questId);
+
+  if (!userQuest) {// Prima volta che l'utente affronta questa quest
+    userQuest = {
+      questId: questId,
+      actual_progress: progressIncrement,
+      max_progress: quest.max_progress,
+      completed: false
+    };
+    db.users[userIndex].userQuests.push(userQuest);
+  } else {
+    // Incrementa progresso esistente
+    if (!userQuest.completed) {
+      userQuest.actual_progress += progressIncrement;
+      if (userQuest.actual_progress >= userQuest.max_progress) {
+        userQuest.actual_progress = userQuest.max_progress;
+        userQuest.completed = true;
+
+        // Assegna punti all'utente
+        db.users[userIndex].totalPoints += quest.reward_points;
+        // Esempio CO2 risparmiata (1kg per quest completata)
+        db.users[userIndex].co2Saved += 1.0;
+      }
+    }
+  }
+
+  writeDB(db);
+  res.json({
+    message: 'Progresso aggiornato',
+    userQuest,
+    totalPoints: db.users[userIndex].totalPoints
+  });
+});
+
 
 app.listen(PORT, () => console.log(`🚀 EcoApp Server [Beta] running on port ${PORT}`));
