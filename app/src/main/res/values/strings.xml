@@ -46,12 +46,20 @@
     <string name="profile_view_all">VEDI TUTTI ></string>
 
     <!-- Quest -->
-    <string name="quest_fragment_label">Quest</string>
-    <string name="quest_detail_label">Dettaglio Quest</string>
-    <string name="quest_detail">Dettaglio della Quest numero %1$d</string>
-    <string name="quest_image_desc">Immagine Quest</string>
-    <string name="quest_name_placeholder">Nome Sfida</string>
-    <string name="reward_label">Ricompensa: %1$d punti</string>
+    <!-- 1. attributi quests -->
+    <string name="quest_id">%1$d</string>
+    <string name="quest_name">QuestName</string>
+    <string name="quest_description">QuestDescription</string>
+    <string name="quest_type">QuestType</string>
+    <string name="quest_max_progress">%1$d</string>
+    <string name="quest_CO2_saved">CO2 Placeholder</string>
+    <string name="quest_reward_points">%1$d pts</string>
+    <string name="quest_image">Quest Image</string>
+
+    <!-- 2. necessario per nav_graph.xml -->
+    <string name="quest_fragment_label">Quest Fragment Label</string>
+    <string name="quest_detail_label">Quest Detail Label</string>
+
 
     <!-- Edit Profile Screen -->
     <string name="title_edit_profile">Modifica Profilo</string>

@@ -1,0 +1,18 @@
+{
+  "userID_0": [
+    {
+      "questId": 0,
+      "actual_progress": 2,
+      "times_completed": 0,
+      "is_currently_active": true
+    }
+  ],  
+  "userID_1": [
+    {
+      "questId": 1,
+      "actual_progress": 5,
+      "times_completed": 1,
+      "is_currently_active": true
+    }
+  ]
+}

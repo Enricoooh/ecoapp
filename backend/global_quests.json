@@ -1,0 +1,107 @@
+[
+  {
+    "id": 0,
+    "name": "Usa la borraccia",
+    "description": "Riduci l'uso di plastica monouso per 5 giorni invece delle bottiglie di plastica.",
+    "type": "Alimentation",
+    "max_progress": 5,
+    "CO2_saved": 0.5,
+    "reward_points": 50,
+    "quest_image": "ic_borraccia",
+    "images_eu_goals": ["goal_12", "goal_14"]
+  },
+  {
+    "id": 1,
+    "name": "Mobilità Verde",
+    "description": "Percorri 10km a piedi o in bici per ridurre le emissioni di gas serra.",
+    "type": "Mobility",
+    "max_progress": 10,
+    "CO2_saved": 2.1,
+    "reward_points": 100,
+    "quest_image": "ic_bike",
+    "images_eu_goals": ["goal_11", "goal_13"]
+  },
+  {
+    "id": 2,
+    "name": "Doccia Breve",
+    "description": "Riduci il tempo della doccia a un massimo di 5 minuti per 3 volte.",
+    "type": "Home",
+    "max_progress": 3,
+    "CO2_saved": 0.3,
+    "reward_points": 30,
+    "quest_image": "ic_shower",
+    "images_eu_goals": ["goal_6"]
+  },
+  {
+    "id": 3,
+    "name": "Cena a km 0",
+    "description": "Prepara una cena usando solo prodotti locali o del tuo orto.",
+    "type": "Alimentation",
+    "max_progress": 1,
+    "CO2_saved": 1.2,
+    "reward_points": 70,
+    "quest_image": "ic_local_food",
+    "images_eu_goals": ["goal_2", "goal_15"]
+  },
+  {
+    "id": 4,
+    "name": "Eroe del Riciclo",
+    "description": "Differenzia correttamente 20 oggetti tra plastica, carta e vetro.",
+    "type": "Waste",
+    "max_progress": 20,
+    "CO2_saved": 0.8,
+    "reward_points": 150,
+    "quest_image": "ic_recycle",
+    "images_eu_goals": ["goal_12"]
+  },
+  {
+    "id": 5,
+    "name": "Colazione Vegetariana",
+    "description": "Sostituisci la tua colazione abituale con una completamente vegetariana per 7 giorni consecutivi.",
+    "type": "Alimentation",
+    "max_progress": 7,
+    "CO2_saved": 1.4,
+    "reward_points": 60,
+    "quest_image": "ic_vegetarian_breakfast"
+  },
+  {
+    "id": 6,
+    "name": "Pendolarismo Eco",
+    "description": "Usa solo mezzi pubblici, bici o piedi per andare al lavoro o a scuola per 5 giorni.",
+    "type": "Mobility",
+    "max_progress": 5,
+    "CO2_saved": 3.0,
+    "reward_points": 120,
+    "quest_image": "ic_public_transport"
+  },
+  {
+    "id": 7,
+    "name": "Spegnere le luci",
+    "description": "Ricordati di spegnere tutte le luci inutili in casa per 10 volte consecutive.",
+    "type": "Home",
+    "max_progress": 10,
+    "CO2_saved": 0.7,
+    "reward_points": 40,
+    "quest_image": "ic_light_off"
+  },
+  {
+    "id": 8,
+    "name": "Acquisto Consapevole",
+    "description": "Acquista solo prodotti con packaging riciclabile o riutilizzabile per 5 volte.",
+    "type": "Waste",
+    "max_progress": 5,
+    "CO2_saved": 1.0,
+    "reward_points": 80,
+    "quest_image": "ic_reusable_bag"
+  },
+  {
+    "id": 9,
+    "name": "Giardino Urbano",
+    "description": "Coltiva almeno 3 piante aromatiche o ortaggi sul balcone o in giardino in 1 settimana.",
+    "type": "Home",
+    "max_progress": 1,
+    "CO2_saved": 0.5,
+    "reward_points": 50,
+    "quest_image": "ic_garden"
+  }
+]

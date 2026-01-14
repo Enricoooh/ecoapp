@@ -88,11 +88,12 @@ public class ProfileFragment extends Fragment {
     }
 
     private void setupOngoingQuests() {
+        /* //DA SISTEMARE
         if (binding == null) return;
         binding.ongoingQuestsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         List<Quest> ongoing = new ArrayList<>();
-        ongoing.add(new Quest(1, "Pianta 5 Alberi", "ecology", 2, 5, 0, "Pianta degli alberi per aiutare il pianeta", null, 100));
-        ongoing.add(new Quest(2, "Settimana senza plastica", "recycle", 5, 7, 0, "Evita l'uso di plastica monouso", null, 150));
+        ongoing.add(new Quest(1, "Pianta 5 Alberi", "ecology", 5, 0, "Pianta degli alberi per aiutare il pianeta", null, 100));
+        ongoing.add(new Quest(2, "Settimana senza plastica", "recycle", 7, 0, "Evita l'uso di plastica monouso", null, 150));
         
         OngoingQuestsAdapter adapter = new OngoingQuestsAdapter(ongoing, quest -> {
             if (quest.getMaxProgress() > 0) {
@@ -101,18 +102,21 @@ public class ProfileFragment extends Fragment {
             }
         });
         binding.ongoingQuestsRecyclerView.setAdapter(adapter);
+        */
     }
     
     private void setupCompletedQuests() {
+        /*
         if (binding == null) return;
         binding.completedQuestsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         List<Quest> completed = new ArrayList<>();
-        completed.add(new Quest(5, "Riciclo Plastica", "recycle", 10, 10, 0, "Hai riciclato correttamente la plastica", null, 50));
-        completed.add(new Quest(3, "Mobilità Sostenibile", "mobility", 5, 5, 0, "Hai usato i mezzi pubblici", null, 30));
+        completed.add(new Quest(5, "Riciclo Plastica", "recycle", 10, 0, "Hai riciclato correttamente la plastica", null, 50));
+        completed.add(new Quest(3, "Mobilità Sostenibile", "mobility", 5, 0, "Hai usato i mezzi pubblici", null, 30));
         
         CompletedQuestsAdapter adapter = new CompletedQuestsAdapter(completed, quest -> 
             showDetailSheet(quest.getName(), quest.getDescription() + "\nSfida completata con successo!"));
         binding.completedQuestsRecyclerView.setAdapter(adapter);
+        */
     }
 
     private void showCO2DetailSheet() {

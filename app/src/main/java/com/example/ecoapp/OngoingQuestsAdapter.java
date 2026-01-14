@@ -1,3 +1,4 @@
+/*
 package com.example.ecoapp;
 
 import android.view.LayoutInflater;
@@ -60,3 +61,4 @@ public class OngoingQuestsAdapter extends RecyclerView.Adapter<OngoingQuestsAdap
         }
     }
 }
+*/

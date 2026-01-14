@@ -18,38 +18,42 @@
             android:padding="16dp">
 
             <ImageView
-                android:id="@+id/imgDetailQuest"
+                android:id="@+id/questImage"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_launcher_background"
-                android:contentDescription="@null" /> <!-- da rimuovere successivamente -->
+                android:contentDescription="@string/quest_image" />
 
             <TextView
-                android:id="@+id/txtDetailName"
+                android:id="@+id/txtQuestName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="@string/quest_name"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:layout_marginTop="16dp" />
 
             <TextView
-                android:id="@+id/txtDetailDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" />
-
-            <TextView
-                android:id="@+id/txtDetailType"
+                android:id="@+id/txtQuestType"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:text="@string/quest_type"
+                android:layout_marginTop="6dp"
                 android:textStyle="italic" />
 
             <TextView
-                android:id="@+id/txtDetailPoints"
+                android:id="@+id/txtQuestDescription"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginTop="14dp"
+                android:text="@string/quest_description" />
+
+            <TextView
+                android:id="@+id/txtQuestRewardPoints"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="@string/quest_reward_points"
                 android:layout_marginTop="8dp"
                 android:textColor="#4CAF50" />
 
@@ -59,24 +63,43 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginTop="16dp" />
-
+            
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
+    <!-- Barra inferiore fissata in basso -->
     <LinearLayout
         android:id="@+id/fixedBottomBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
-        android:background="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:background="?android:attr/windowBackground"
+        android:elevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <ProgressBar
-            android:id="@+id/progressDetail"
-            style="?android:attr/progressBarStyleHorizontal"
+        <TextView
+            android:id="@+id/txtProgressStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0/0"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressBar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            app:indicatorColor="@android:color/holo_blue_dark"
+            app:trackColor="#E0E0E0"
+            app:trackCornerRadius="4dp"
+            app:trackThickness="4dp"
+            android:progress="0"/>
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

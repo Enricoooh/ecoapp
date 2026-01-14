@@ -15,77 +15,12 @@ app.use(express.json());
 
 // Database file path
 const DB_FILE = path.join(__dirname, 'users.json');
+const GLOBAL_QUESTS_FILE = path.join(__dirname, 'global_quests.json');
+const USER_QUESTS_FILE = path.join(__dirname, 'user_quest.json');
 
 // Initialize database file if not exists
-/*
 if (!fs.existsSync(DB_FILE)) {
   fs.writeFileSync(DB_FILE, JSON.stringify({ users: [] }, null, 2));
-}
-*/
-
-// Initialize database file with users AND quests if not exists
-if (!fs.existsSync(DB_FILE)) {
-  const initialData = {
-    users: [],
-    quests: [
-        {
-            id: "0",
-            name: "Usa la borraccia",
-            type: "Alimentation",
-            actual_progress: 0,
-            max_progress: 5,
-            imageID: 2131165271,
-            description: "Usa la borraccia per 5 giorni invece delle bottiglie di plastica.",
-            imagesEU: [2131165271, 2131165272],
-            reward_points: 50
-       },
-       {
-           id: "1",
-           name: "Mobilità Verde",
-           type: "Mobility",
-           actual_progress: 0,
-           max_progress: 10,
-           imageID: 2131165273,
-           description: "Percorri 10km a piedi o in bici per ridurre le emissioni.",
-           imagesEU: [],
-           reward_points: 100
-       },
-       {
-           id: "2",
-           name: "Doccia Breve",
-           type: "Home",
-           actual_progress: 0,
-           max_progress: 3,
-           imageID: 2131165274,
-           description: "Riduci il tempo della doccia a un massimo di 5 minuti per 3 volte.",
-           imagesEU: [],
-           reward_points: 30
-       },
-       {
-           id: "3",
-           name: "Cena a km 0",
-           type: "Alimentation",
-           actual_progress: 0,
-           max_progress: 1,
-           imageID: 2131165275,
-           description: "Prepara una cena usando solo prodotti locali o del tuo orto.",
-           imagesEU: [],
-           reward_points: 70
-       },
-       {
-           id: "4",
-           name: "Eroe del Riciclo",
-           type: "Waste",
-           actual_progress: 0,
-           max_progress: 20,
-           imageID: 2131165276,
-           description: "Differenzia correttamente 20 oggetti tra plastica, carta e vetro.",
-           imagesEU: [],
-           reward_points: 150
-       }
-    ]
-  };
-  fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2));
 }
 
 // Helper functions
@@ -156,6 +91,21 @@ app.post('/api/auth/register', async (req, res) => {
 
     db.users.push(newUser);
     writeDB(db);
+
+    // --- SINCRONIZZAZIONE CON USER_QUEST.JSON ---
+    // 1. Leggi il file user_quest.json (se non esiste, crea un oggetto vuoto)
+    let allProgress = {};
+    if (fs.existsSync(USER_QUESTS_FILE)) {
+        allProgress = JSON.parse(fs.readFileSync(USER_QUESTS_FILE, 'utf8'));
+    }
+
+    // 2. Inizializza l'ID del nuovo utente con un array vuoto di quest
+    allProgress[newUser.id] = []; 
+
+    // 3. Salva il file aggiornato
+    fs.writeFileSync(USER_QUESTS_FILE, JSON.stringify(allProgress, null, 2));
+
+
 
     const token = jwt.sign({ id: newUser.id, email: newUser.email }, JWT_SECRET, { expiresIn: '30d' });
 
@@ -310,10 +260,20 @@ app.post('/api/user/friends/add', authenticateToken, (req, res) => {
 
 // --- QUESTS ENDPOINTS ---
 
-// 1. Ottieni tutte le quest disponibili
+// 1. Ottieni tutte le quest dal file separato
 app.get('/api/quests', authenticateToken, (req, res) => {
-  const db = readDB();
-  res.json(db.quests);
+  try {
+    // Legge il file quests.json
+    const data = fs.readFileSync(GLOBAL_QUESTS_FILE, 'utf8');
+    const quests = JSON.parse(data);
+    
+    // Invia la lista delle quest all'app Android
+    res.json(quests);
+  }
+  catch (error) {
+    console.error("Errore lettura quests.json:", error);
+    res.status(500).json({ error: 'Errore nel caricamento delle missioni' });
+  }
 });
 
 // 2. Ottieni lo stato delle quest dell'utente (completate/in corso)
@@ -328,53 +288,89 @@ app.get('/api/user/quests', authenticateToken, (req, res) => {
   res.json(userQuests);
 });
 
-// 3. Aggiorna il progresso di una quest per l'utente
-app.post('/api/user/quests/update', authenticateToken, (req, res) => {
-  const { questId, progressIncrement } = req.body;
-  const db = readDB();
-  const userIndex = db.users.findIndex(u => u.id === req.user.id);
-
-  if (userIndex === -1) return res.status(404).json({ error: 'Utente non trovato' });
-
-  const quest = db.quests.find(q => q.id === questId);
-  if (!quest) return res.status(404).json({ error: 'Quest non trovata' });
-
-  // Inizializza la lista quest dell'utente se vuota
-  if (!db.users[userIndex].userQuests) db.users[userIndex].userQuests = [];
-
-  let userQuest = db.users[userIndex].userQuests.find(q => q.questId === questId);
-
-  if (!userQuest) {// Prima volta che l'utente affronta questa quest
-    userQuest = {
-      questId: questId,
-      actual_progress: progressIncrement,
-      max_progress: quest.max_progress,
-      completed: false
-    };
-    db.users[userIndex].userQuests.push(userQuest);
-  } else {
-    // Incrementa progresso esistente
-    if (!userQuest.completed) {
-      userQuest.actual_progress += progressIncrement;
-      if (userQuest.actual_progress >= userQuest.max_progress) {
-        userQuest.actual_progress = userQuest.max_progress;
-        userQuest.completed = true;
-
-        // Assegna punti all'utente
-        db.users[userIndex].totalPoints += quest.reward_points;
-        // Esempio CO2 risparmiata (1kg per quest completata)
-        db.users[userIndex].co2Saved += 1.0;
-      }
+// 2. Ottieni lo stato delle quest dell'utente dal file SEPARATO
+app.get('/api/user/quests', authenticateToken, (req, res) => {
+  try {
+    const userId = req.user.id;
+    let allProgress = {};
+    
+    if (fs.existsSync(USER_QUESTS_FILE)) {
+        allProgress = JSON.parse(fs.readFileSync(USER_QUESTS_FILE, 'utf8'));
     }
-  }
 
-  writeDB(db);
-  res.json({
-    message: 'Progresso aggiornato',
-    userQuest,
-    totalPoints: db.users[userIndex].totalPoints
-  });
+    // Restituisce le quest di questo specifico utente o un array vuoto
+    const userQuests = allProgress[userId] || [];
+    res.json(userQuests);
+  } catch (error) {
+    res.status(500).json({ error: 'Errore nel recupero progressi' });
+  }
 });
 
+// 3. Aggiorna il progresso di una quest salvandolo nel file SEPARATO user_quest.json
+app.post('/api/user/quests/update', authenticateToken, (req, res) => {
+    const { questId, progressIncrement } = req.body;
+    const userId = req.user.id; // Preso dal token JWT dell'utente loggato
 
-app.listen(PORT, () => console.log(`🚀 EcoApp Server [Beta] running on port ${PORT}`));
+    // 1. Leggi il file delle Quest Globali (per sapere il max_progress e i punti)
+    const questsData = JSON.parse(fs.readFileSync(GLOBAL_QUESTS_FILE, 'utf8'));
+    const globalQuest = questsData.find(q => q.id == questId);
+    if (!globalQuest) return res.status(404).json({ error: 'Quest globale non trovata' });
+
+    // 2. Leggi (o crea se non esiste) il file user_quest.json
+    let allProgress = {};
+    if (fs.existsSync(USER_QUESTS_FILE)) {
+        allProgress = JSON.parse(fs.readFileSync(USER_QUESTS_FILE, 'utf8'));
+    }
+
+    // 3. Inizializza la lista progressi per questo utente se è la prima volta
+    if (!allProgress[userId]) {
+        allProgress[userId] = [];
+    }
+
+    // 4. Cerca se l'utente ha già iniziato QUESTA specifica quest
+    let userQuest = allProgress[userId].find(q => q.questId == questId);
+
+    if (!userQuest) {
+        // Prima volta che l'utente fa questa missione
+        userQuest = {
+            questId: parseInt(questId),
+            actual_progress: progressIncrement,
+            times_completed: 0,
+            is_currently_active: true
+        };
+        allProgress[userId].push(userQuest);
+    } else {
+        // Incrementa il progresso esistente
+        userQuest.actual_progress += progressIncrement;
+
+        // Logica di completamento
+        if (userQuest.actual_progress >= globalQuest.max_progress) {
+            userQuest.times_completed += 1;
+            userQuest.actual_progress = 0; // Resetta per permettere di rifarla
+
+            // AGGIORNAMENTO PUNTI (Qui devi comunque aggiornare users.json)
+            const usersDb = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+            const userIdx = usersDb.users.findIndex(u => u.id === userId);
+            if (userIdx !== -1) {
+                usersDb.users[userIdx].totalPoints += globalQuest.reward_points;
+                usersDb.users[userIdx].co2Saved += globalQuest.CO2_saved;
+                fs.writeFileSync(DB_FILE, JSON.stringify(usersDb, null, 2));
+            }
+        }
+    }
+
+    // 5. Salva i progressi nel file separato
+    fs.writeFileSync(USER_QUESTS_FILE, JSON.stringify(allProgress, null, 2));
+
+    res.json({
+        message: 'Progresso aggiornato nel file separato',
+        userQuest
+    });
+
+});
+
+// Avvia il server
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 EcoApp Server [Beta] running on port ${PORT}`);
+});
+
