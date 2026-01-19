@@ -3,10 +3,12 @@ package com.ecoapp.android.auth.models;
 public class LoginRequest {
     private String email;
     private String password;
+    private boolean rememberMe;
 
-    public LoginRequest(String email, String password) {
+    public LoginRequest(String email, String password, boolean rememberMe) {
         this.email = email;
         this.password = password;
+        this.rememberMe = rememberMe;
     }
 
     // Getters and Setters
@@ -24,5 +26,13 @@ public class LoginRequest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean isRememberMe() {
+        return rememberMe;
+    }
+
+    public void setRememberMe(boolean rememberMe) {
+        this.rememberMe = rememberMe;
     }
 }

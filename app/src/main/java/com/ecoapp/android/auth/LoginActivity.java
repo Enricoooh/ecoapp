@@ -51,6 +51,7 @@ public class LoginActivity extends AppCompatActivity {
     private void attemptLogin() {
         String email = binding.editTextEmail.getText().toString().trim();
         String password = binding.editTextPassword.getText().toString().trim();
+        boolean rememberMe = binding.checkBoxRememberMe.isChecked();
 
         // Validazione
         if (!validateInput(email, password)) {
@@ -61,7 +62,7 @@ public class LoginActivity extends AppCompatActivity {
         setLoading(true);
 
         // Chiamata API
-        LoginRequest request = new LoginRequest(email, password);
+        LoginRequest request = new LoginRequest(email, password, rememberMe);
         authService.login(request).enqueue(new Callback<AuthResponse>() {
             @Override
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
@@ -78,7 +79,11 @@ public class LoginActivity extends AppCompatActivity {
                 } else {
                     // Gestione errore
                     String errorMessage = "Errore di login";
-                    if (response.errorBody() != null) {
+                    
+                    // Gestione blocco account (429)
+                    if (response.code() == 429) {
+                        errorMessage = "⏳ Account temporaneamente bloccato per troppi tentativi. Riprova tra qualche minuto.";
+                    } else if (response.errorBody() != null) {
                         try {
                             ErrorResponse errorResponse = new Gson().fromJson(
                                     response.errorBody().string(),
