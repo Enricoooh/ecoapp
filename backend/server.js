@@ -369,6 +369,34 @@ app.post('/api/user/quests/update', authenticateToken, (req, res) => {
 
 });
 
+// --- AREA DEBUG (Da commentare o cancellare prima della consegna) ---
+
+const FILES_MAP = {
+    'users': DB_FILE,
+    'global-quests': GLOBAL_QUESTS_FILE,
+    'user-quests': USER_QUESTS_FILE
+};
+
+app.get('/api/admin/dump/:filename', (req, res) => {
+    const targetFile = FILES_MAP[req.params.filename];
+
+    if (!targetFile) {
+        return res.status(404).json({ error: "File non riconosciuto. Usa: users, global-quests, o user-quests" });
+    }
+
+    try {
+        if (!fs.existsSync(targetFile)) {
+            return res.status(404).json({ error: `Il file ${req.params.filename} non esiste ancora sul server.` });
+        }
+
+        const data = fs.readFileSync(targetFile, 'utf8');
+        res.header("Content-Type", "application/json");
+        res.send(data); // Invia il contenuto del file JSON
+    } catch (err) {
+        res.status(500).json({ error: "Errore durante la lettura del file", details: err.message });
+    }
+});
+
 // Avvia il server
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 EcoApp Server [Beta] running on port ${PORT}`);
