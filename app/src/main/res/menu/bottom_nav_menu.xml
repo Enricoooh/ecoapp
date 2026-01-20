@@ -5,7 +5,7 @@
         android:icon="@android:drawable/ic_menu_compass"
         android:title="@string/title_home" />
     <item
-        android:id="@+id/questFragment"
+        android:id="@+id/quest_navigation"
         android:icon="@android:drawable/ic_menu_agenda"
         android:title="@string/title_quest" />
     <item

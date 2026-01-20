@@ -10,20 +10,26 @@
         android:name="com.example.ecoapp.FirstFragment"
         android:label="@string/first_fragment_label"
         tools:layout="@layout/fragment_first"/>
-    <fragment
-        android:id="@+id/questFragment"
-        android:name="com.example.ecoapp.quest_files.GlobalQuestFragment"
-        android:label="@string/quest_fragment_label"
-        tools:layout="@layout/fragment_quest" >
-        <action
-            android:id="@+id/action_questFragment_to_questDetailFragment"
-            app:destination="@id/questDetailFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/questDetailFragment"
-        android:name="com.example.ecoapp.quest_files.QuestGlobalDetailFragment"
-        android:label="@string/quest_detail_label"
-        tools:layout="@layout/fragment_quest_global_detail" />
+    <navigation
+        android:id="@+id/quest_navigation"
+        app:startDestination="@id/questFragment">
+
+        <fragment
+            android:id="@+id/questFragment"
+            android:name="com.example.ecoapp.quest_files.GlobalQuestFragment"
+            android:label="@string/quest_fragment_label"
+            tools:layout="@layout/fragment_quest" >
+            <action
+                android:id="@+id/action_questFragment_to_questDetailFragment"
+                app:destination="@id/questDetailFragment" />
+        </fragment>
+        <fragment
+            android:id="@+id/questDetailFragment"
+            android:name="com.example.ecoapp.quest_files.QuestGlobalDetailFragment"
+            android:label="@string/quest_detail_label"
+            tools:layout="@layout/fragment_quest_global_detail" />
+    </navigation>
+
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.ecoapp.ProfileFragment"
