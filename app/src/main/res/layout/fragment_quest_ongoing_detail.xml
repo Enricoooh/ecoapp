@@ -130,11 +130,12 @@
                 android:id="@+id/buttonIncrement"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="@string/quest_plus_one_label"
+                android:layout_weight="1"
                 android:layout_marginStart="8dp"
                 android:text="@string/quest_plus_one_label"
                 app:backgroundTint="#4CAF50"
-                android:textColor="@android:color/white"/>
+                android:textColor="@android:color/white"
+                app:cornerRadius="20dp"/>
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
