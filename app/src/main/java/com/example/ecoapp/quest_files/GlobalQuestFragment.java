@@ -110,7 +110,16 @@ public class GlobalQuestFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     userLocalQuests.clear();
                     userLocalQuests.addAll(response.body());
-                    applyFilter(); // Mostra i dati iniziali
+
+                    //DEBUG
+                    Log.d(TAG, "Ricevuti progressi per " + userLocalQuests.size() + " quest.");
+                    for(UserQuest u : userLocalQuests) {
+                        Log.d(TAG, "ID: " + u.getQuestId() + " - Attiva: " + u.isCurrentlyActive());
+                    }
+
+                    if (isAdded()) {
+                        applyFilter();
+                    }
                 }
             }
             @Override
@@ -121,35 +130,61 @@ public class GlobalQuestFragment extends Fragment {
     }
 
     private void applyFilter() {
-        filteredQuestList.clear();
+        // Se le quest globali non sono ancora arrivate, non possiamo filtrare nulla
+        if (allGlobalQuests.isEmpty()) {
+            Log.d(TAG, "Filtro annullato: allGlobalQuests è vuota");
+            return;
+        }
+
+        List<Quest> newList = new ArrayList<>();
 
         for (Quest globalQuest : allGlobalQuests) {
-            // Cerchiamo se l'utente ha un progresso per questa quest specifica
-            UserQuest progress = null;
+            UserQuest objUserQuest = null;
+
+            // Cerchiamo se esiste un progresso per questa quest
             for (UserQuest uq : userLocalQuests) {
                 if (uq.getQuestId() == globalQuest.getId()) {
-                    progress = uq;
+                    objUserQuest = uq;
                     break;
                 }
             }
 
-            if (selectedTabPosition == 0) {
-                // SEZIONE GLOBAL: Mostra tutto il catalogo
-                filteredQuestList.add(globalQuest);
-            }
-            else if (selectedTabPosition == 1) {
-                // SEZIONE ONGOING: Presente in user_quest E times_completed == 0
-                if (progress != null && progress.getTimesCompleted() == 0) {
-                    filteredQuestList.add(globalQuest);
+            if (selectedTabPosition == 0) { // TAB GLOBAL
+                // SPARISCE se esiste un progresso attivo
+                if (objUserQuest == null || !objUserQuest.isCurrentlyActive()) {
+                    newList.add(globalQuest);
                 }
             }
-            else if (selectedTabPosition == 2) {
-                // SEZIONE COMPLETED: times_completed > 0
-                if (progress != null && progress.getTimesCompleted() > 0) {
-                    filteredQuestList.add(globalQuest);
+            else if (selectedTabPosition == 1) { // TAB ONGOING
+                // APPARE se è attiva e non completata
+                if (objUserQuest != null && objUserQuest.isCurrentlyActive() && objUserQuest.getTimesCompleted() == 0) {
+                    newList.add(globalQuest);
+                }
+            }
+            else if (selectedTabPosition == 2) { // TAB COMPLETED
+                if (objUserQuest != null && objUserQuest.getTimesCompleted() > 0) {
+                    newList.add(globalQuest);
                 }
             }
         }
-        adapter.notifyDataSetChanged();
+
+        // Aggiornamento con DiffUtil (molto più fluido e risolve i bug visivi)
+        QuestDiffCallback diffCallback = new QuestDiffCallback(filteredQuestList, newList);
+        androidx.recyclerview.widget.DiffUtil.DiffResult diffResult =
+                androidx.recyclerview.widget.DiffUtil.calculateDiff(diffCallback);
+
+        filteredQuestList.clear();
+        filteredQuestList.addAll(newList);
+        diffResult.dispatchUpdatesTo(adapter);
+
+        Log.d(TAG, "Lista aggiornata. Elementi mostrati: " + filteredQuestList.size());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Ogni volta che torniamo in questa schermata, scarichiamo i dati aggiornati
+        // così vedremo la quest spostata in "Ongoing"
+        loadDataFromServer();
     }
 }

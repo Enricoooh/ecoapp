@@ -25,7 +25,7 @@ app.use(express.json());
 // Database file path
 const DB_FILE = path.join(__dirname, 'users.json');
 const GLOBAL_QUESTS_FILE = path.join(__dirname, 'global_quests.json');
-const USER_QUESTS_FILE = path.join(__dirname, 'user_quest.json');
+const USER_QUESTS_FILE = path.join(__dirname, 'user_quests.json');
 
 // Initialize database file if not exists
 if (!fs.existsSync(DB_FILE)) {
@@ -163,8 +163,8 @@ app.post('/api/auth/register', async (req, res) => {
     db.users.push(newUser);
     writeDB(db);
 
-    // --- SINCRONIZZAZIONE CON USER_QUEST.JSON ---
-    // 1. Leggi il file user_quest.json (se non esiste, crea un oggetto vuoto)
+    // --- SINCRONIZZAZIONE CON USER_QUESTS.JSON ---
+    // 1. Leggi il file user_quests.json (se non esiste, crea un oggetto vuoto)
     let allProgress = {};
     if (fs.existsSync(USER_QUESTS_FILE)) {
         allProgress = JSON.parse(fs.readFileSync(USER_QUESTS_FILE, 'utf8'));
@@ -380,22 +380,20 @@ app.get('/api/user/quests', authenticateToken, (req, res) => {
 // 2. Ottieni lo stato delle quest dell'utente dal file SEPARATO
 app.get('/api/user/quests', authenticateToken, (req, res) => {
   try {
-    const userId = req.user.id;
-    let allProgress = {};
+    const userId = req.user.id.toString(); // <--- FORZA STRINGA
+    const data = JSON.parse(fs.readFileSync(USER_QUESTS_FILE, 'utf8'));
     
-    if (fs.existsSync(USER_QUESTS_FILE)) {
-        allProgress = JSON.parse(fs.readFileSync(USER_QUESTS_FILE, 'utf8'));
-    }
-
-    // Restituisce le quest di questo specifico utente o un array vuoto
-    const userQuests = allProgress[userId] || [];
+    // Accede all'array usando l'ID come chiave
+    const userQuests = data[userId] || [];
+    
+    console.log(`Inviando ${userQuests.length} quest per utente ${userId}`);
     res.json(userQuests);
   } catch (error) {
-    res.status(500).json({ error: 'Errore nel recupero progressi' });
+    res.status(500).json([]);
   }
 });
 
-// 3. Aggiorna il progresso di una quest salvandolo nel file SEPARATO user_quest.json
+// 3. Aggiorna il progresso di una quest salvandolo nel file SEPARATO user_quests.json
 app.post('/api/user/quests/update', authenticateToken, (req, res) => {
     const { questId, progressIncrement } = req.body;
     const userId = req.user.id; // Preso dal token JWT dell'utente loggato
@@ -405,7 +403,7 @@ app.post('/api/user/quests/update', authenticateToken, (req, res) => {
     const globalQuest = questsData.find(q => q.id == questId);
     if (!globalQuest) return res.status(404).json({ error: 'Quest globale non trovata' });
 
-    // 2. Leggi (o crea se non esiste) il file user_quest.json
+    // 2. Leggi (o crea se non esiste) il file user_quests.json
     let allProgress = {};
     if (fs.existsSync(USER_QUESTS_FILE)) {
         allProgress = JSON.parse(fs.readFileSync(USER_QUESTS_FILE, 'utf8'));

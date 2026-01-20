@@ -41,15 +41,7 @@ public class GlobalQuestDetailFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_quest_global_detail, container, false);
-
-        Bundle args = getArguments();
-        if (args != null) {
-            int questId = args.getInt("questId", 0);
-            // Avviamo il caricamento dal server
-            loadQuestDetails(v, questId);
-        }
-        return v;
+        return inflater.inflate(R.layout.fragment_quest_global_detail, container, false);
     }
 
     // Dentro onViewCreated del QuestGlobalDetailFragment
@@ -57,14 +49,21 @@ public class GlobalQuestDetailFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Inizializza apiService qui subito, così è pronto per entrambi i metodi
+        // 1. Inizializza il service PRIMA di tutto
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://ecoapp-p5gp.onrender.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         apiService = retrofit.create(QuestApiService.class);
 
-        // Gestione pulsante Accetta
+        // 2. Ora che apiService è pronto, recupera l'ID e carica i dettagli
+        Bundle args = getArguments();
+        if (args != null) {
+            int questId = args.getInt("questId", 0);
+            loadQuestDetails(view, questId);
+        }
+
+        // 3. Gestione pulsante
         Button buttonAccept = view.findViewById(R.id.buttonAcceptQuest);
         buttonAccept.setOnClickListener(v -> showAcceptConfirmation());
     }
