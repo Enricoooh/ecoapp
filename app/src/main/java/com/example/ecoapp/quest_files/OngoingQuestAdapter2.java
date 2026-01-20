@@ -5,16 +5,14 @@ import android.widget.TextView;
 import android.widget.ImageView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.annotation.NonNull;import com.example.ecoapp.R;
-import com.ecoapp.android.auth.models.Quest;
-import com.ecoapp.android.auth.models.UserQuest; // AGGIUNTO
+import com.ecoapp.android.auth.models.LocalQuest;
 import com.google.android.material.progressindicator.LinearProgressIndicator; // AGGIUNTO
 
 import java.util.List;
 
 public class OngoingQuestAdapter2 extends RecyclerView.Adapter<OngoingQuestAdapter2.ViewHolder> {
 
-    private final List<Quest> questList;
-    private final List<UserQuest> userProgressList; // AGGIUNTO: per sapere a che punto è l'utente
+    private final List<LocalQuest> questList;
     private final OnQuestClick listener;
 
     public interface OnQuestClick {
@@ -22,9 +20,8 @@ public class OngoingQuestAdapter2 extends RecyclerView.Adapter<OngoingQuestAdapt
     }
 
     // Costruttore aggiornato per ricevere anche i progressi
-    public OngoingQuestAdapter2(List<Quest> quests, List<UserQuest> progress, OnQuestClick listener) {
+    public OngoingQuestAdapter2(List<LocalQuest> quests, OnQuestClick listener) {
         this.questList = quests;
-        this.userProgressList = progress;
         this.listener = listener;
     }
 
@@ -37,43 +34,39 @@ public class OngoingQuestAdapter2 extends RecyclerView.Adapter<OngoingQuestAdapt
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Quest q = questList.get(position);
+        LocalQuest lq = questList.get(position);
 
-        // 1. Trova il progresso corrispondente per questa missione
-        UserQuest progress = null;
-        for (UserQuest uq : userProgressList) {
-            if (uq.getQuestId() == q.getId()) {
-                progress = uq;
-                break;
-            }
-        }
+        //Imposta i testi base
+        holder.questName.setText(lq.getName());
+        holder.questType.setText(lq.getType());
 
-        // 2. Imposta i testi base
-        holder.questName.setText(q.getName());
-        holder.questType.setText(q.getType());
-
-        // Imposta i punti (quelli che volevi a destra nel RelativeLayout)
-        String rewardText = holder.itemView.getContext().getString(R.string.quest_reward_points, q.getRewardPoints());
+        //Imposta i punti (quelli che volevi a destra nel RelativeLayout)
+        String rewardText = holder.itemView.getContext().getString(R.string.quest_reward_points, lq.getRewardPoints());
         holder.questRewardPoints.setText(rewardText);
 
-        // 3. Gestione Barra di Progresso e Etichetta (es. 2/10)
-        if (progress != null && holder.progressBar != null) {
-            int current = progress.getActualProgress();
-            int max = q.getMaxProgress();
+        //Variabili per impostare il progresso
+        int maxProgress = lq.getMaxProgress();
+        int actualProgress = lq.getActualProgress();
 
-            holder.progressBar.setMax(max);
-            holder.progressBar.setProgress(current);
+        //Gestione Barra di Progresso
+        holder.progressBar.setMax(maxProgress);
+        holder.progressBar.setProgress(actualProgress);
 
-            //Usa getString con i segnaposti per il progresso
-            String progressText = holder.itemView.getContext().getString(R.string.quest_current_progress, current, max);
-            holder.questProgress.setText(progressText);
-        }
+        //Gestione etichetta della barra di progresso (es. 2/10)
+        String progressText = holder.itemView.getContext().getString(R.string.quest_current_progress, actualProgress, maxProgress);
+        holder.questProgress.setText(progressText);
 
-        // 4. Immagine
-        int imageResId = q.getQuestImageResourceId(holder.itemView.getContext());
+        //Gestione dell'immagine
+        int imageResId = lq.getQuestImageResourceId(holder.itemView.getContext());
         holder.questImage.setImageResource(imageResId != 0 ? imageResId : R.drawable.ic_launcher_background);
 
-        holder.itemView.setOnClickListener(v -> listener.onClick(q.getId()));
+        // Listener per il click sulla card
+        //holder.itemView.setOnClickListener(v -> listener.onClick(lq.getId()));
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onClick(lq.getId());
+            }
+        });
     }
 
     @Override

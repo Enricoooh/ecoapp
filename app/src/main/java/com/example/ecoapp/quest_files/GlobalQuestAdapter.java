@@ -49,15 +49,16 @@ public class GlobalQuestAdapter extends RecyclerView.Adapter<GlobalQuestAdapter.
 
         //Gestione Immagine: usa il metodo creato in Quest.java
         int imageResId = q.getQuestImageResourceId(holder.itemView.getContext());
-        if (imageResId != 0) {
-            holder.questImage.setImageResource(imageResId);
-        } else {
-            //Immagine di default se non trova quella specifica
-            holder.questImage.setImageResource(R.drawable.ic_launcher_background);
-        }
+        holder.questImage.setImageResource(imageResId != 0 ? imageResId : R.drawable.ic_launcher_background);
 
         //Gestione Click per navigare ai dettagli
-        holder.itemView.setOnClickListener(v -> listener.onClick(q.getId()));
+        //holder.itemView.setOnClickListener(v -> listener.onClick(q.getId()));
+        // Listener per il click sulla card
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onClick(q.getId());
+            }
+        });
     }
 
 
