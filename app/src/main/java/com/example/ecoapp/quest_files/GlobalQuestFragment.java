@@ -131,6 +131,7 @@ public class GlobalQuestFragment extends Fragment {
                     //svuota la precedente mappa
                     localQuests.clear();
 
+                    /*
                     //Aggiunge tutti gli elementi della lista all'interno della mappa
                     for (UserQuest newUserQuestElement: response.body()) {
                         //Controllo che l'elemento esista nelle quest globali
@@ -139,7 +140,30 @@ public class GlobalQuestFragment extends Fragment {
                             //Creo un elemento di tipo LocalQuest da aggiungere alla mappa
                             LocalQuest localQuestElement = new LocalQuest(globalElement, newUserQuestElement);
                             //Aggiungo alla mappa
-                            localQuests.put(localQuestElement.getId(), localQuestElement);
+                            localQuests.put(newUserQuestElement.getQuestId(), localQuestElement);
+                        }
+                    }
+                    */
+
+                    for (UserQuest newUserQuestElement : response.body()) {
+                        // Forziamo entrambi a int per essere sicuri al 100%
+                        int idDalServer = newUserQuestElement.getQuestId();
+                        Quest globalElement = null;
+
+                        // Cerchiamo manualmente se la mappa contiene questa chiave
+                        for (Integer key : allGlobalQuests.keySet()) {
+                            if (key.intValue() == idDalServer) {
+                                globalElement = allGlobalQuests.get(key);
+                                break;
+                            }
+                        }
+
+                        if (globalElement != null) {
+                            LocalQuest localQuestElement = new LocalQuest(globalElement, newUserQuestElement);
+                            localQuests.put(idDalServer, localQuestElement);
+                            Log.d(TAG, "MATCH TROVATO! Inserita quest: " + idDalServer);
+                        } else {
+                            Log.e(TAG, "NESSUN MATCH per ID: " + idDalServer + ". Mappa globale ha chiavi: " + allGlobalQuests.keySet());
                         }
                     }
 
@@ -193,15 +217,26 @@ public class GlobalQuestFragment extends Fragment {
 
             //Ongoing quests
             case 1:{
-                /*
+                Log.d("DEBUG_QUEST", "Elementi in localQuests: " + localQuests.size());
                 for(Map.Entry<Integer, LocalQuest> localElement : localQuests.entrySet()){
+                    Log.d("DEBUG_QUEST", "Quest ID: " + localElement.getKey() + " | Attiva: " + localElement.getValue().isCurrentlyActive());
                     //se è attiva al momento
                     if(localElement.getValue().isCurrentlyActive()){
                         filteredQuests.put(localElement.getKey(), localElement.getValue());
                     }
                 }
+                Log.d("DEBUG_QUEST", "Elementi filtrati per Ongoing: " + filteredQuests.size());
+
+                // Passiamo la lista delle quest filtrate e la mappa/lista dei progressi
+                ongoingAdapter = new OngoingQuestAdapter2(new ArrayList<>(filteredQuests.values()), questId -> {
+                    // Logica al click: navighiamo verso il dettaglio "Ongoing"
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("questId", questId);
+                    Navigation.findNavController(requireView())
+                            .navigate(R.id.action_questFragment_to_questOngoingDetailFragment, bundle);
+                });
+
                 recyclerView.setAdapter(ongoingAdapter);
-                */
                 break;
             }
 

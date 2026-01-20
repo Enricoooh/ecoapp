@@ -33,7 +33,7 @@
             tools:layout="@layout/fragment_quest_global_detail" />
         <fragment
             android:id="@+id/questOnGoingDetailFragment"
-            android:name="com.example.ecoapp.quest_files.GlobalQuestDetailFragment"
+            android:name="com.example.ecoapp.quest_files.OngoingQuestDetailFragment"
             android:label="@string/quest_ongoing_detail_label"
             tools:layout="@layout/fragment_quest_ongoing_detail" />
     </navigation>
