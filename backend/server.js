@@ -365,6 +365,7 @@ app.get('/api/quests', authenticateToken, (req, res) => {
   }
 });
 
+/*
 // 2. Ottieni lo stato delle quest dell'utente (completate/in corso)
 app.get('/api/user/quests', authenticateToken, (req, res) => {
   const db = readDB();
@@ -376,6 +377,7 @@ app.get('/api/user/quests', authenticateToken, (req, res) => {
   const userQuests = user.userQuests || [];
   res.json(userQuests);
 });
+*/
 
 // 2. Ottieni lo stato delle quest dell'utente dal file SEPARATO
 app.get('/api/user/quests', authenticateToken, (req, res) => {
@@ -396,11 +398,11 @@ app.get('/api/user/quests', authenticateToken, (req, res) => {
 // 3. Aggiorna il progresso di una quest salvandolo nel file SEPARATO user_quests.json
 app.post('/api/user/quests/update', authenticateToken, (req, res) => {
     const { questId, progressIncrement } = req.body;
-    const userId = req.user.id; // Preso dal token JWT dell'utente loggato
+    const userId = req.user.id.toString(); // Preso dal token JWT dell'utente loggato
 
     // 1. Leggi il file delle Quest Globali (per sapere il max_progress e i punti)
     const questsData = JSON.parse(fs.readFileSync(GLOBAL_QUESTS_FILE, 'utf8'));
-    const globalQuest = questsData.find(q => q.id == questId);
+    const globalQuest = questsData.find(q => q.id === Number(questId));
     if (!globalQuest) return res.status(404).json({ error: 'Quest globale non trovata' });
 
     // 2. Leggi (o crea se non esiste) il file user_quests.json
@@ -415,23 +417,23 @@ app.post('/api/user/quests/update', authenticateToken, (req, res) => {
     }
 
     // 4. Cerca se l'utente ha già iniziato QUESTA specifica quest
-    let userQuest = allProgress[userId].find(q => q.questId == questId);
+    let userQuest = allProgress[userId].find(q => q.questId === Number(questId));
 
     if (!userQuest) {
         // Prima volta che l'utente fa questa missione
         userQuest = {
-            questId: parseInt(questId),
-            actual_progress: progressIncrement,
-            times_completed: 0,
+            questId: Number(questId),
+            actual_progress: Number(progressIncrement),
+            times_completed: Number(0),
             is_currently_active: true
         };
         allProgress[userId].push(userQuest);
     } else {
         // Incrementa il progresso esistente
-        userQuest.actual_progress += progressIncrement;
+        userQuest.actual_progress += Number(progressIncrement);
 
         // Logica di completamento
-        if (userQuest.actual_progress >= globalQuest.max_progress) {
+        if (userQuest.actual_progress >= Number(globalQuest.max_progress)) {
             userQuest.times_completed += 1;
             userQuest.actual_progress = 0; // Resetta per permettere di rifarla
 
@@ -439,8 +441,8 @@ app.post('/api/user/quests/update', authenticateToken, (req, res) => {
             const usersDb = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
             const userIdx = usersDb.users.findIndex(u => u.id === userId);
             if (userIdx !== -1) {
-                usersDb.users[userIdx].totalPoints += globalQuest.reward_points;
-                usersDb.users[userIdx].co2Saved += globalQuest.CO2_saved;
+                usersDb.users[userIdx].totalPoints += Number(globalQuest.reward_points);
+                usersDb.users[userIdx].co2Saved += Number(globalQuest.CO2_saved);
                 fs.writeFileSync(DB_FILE, JSON.stringify(usersDb, null, 2));
             }
         }
