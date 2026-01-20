@@ -24,9 +24,9 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class QuestGlobalDetailFragment extends Fragment {
+public class GlobalQuestDetailFragment extends Fragment {
 
-    public QuestGlobalDetailFragment() {
+    public GlobalQuestDetailFragment() {
         // Required empty public constructor
     }
 
@@ -56,7 +56,7 @@ public class QuestGlobalDetailFragment extends Fragment {
         String authToken = "Bearer " + token;
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://ecoapp-p5gp.onrender.com")
+                .baseUrl("https://ecoapp-p5gp.onrender.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -108,6 +108,8 @@ public class QuestGlobalDetailFragment extends Fragment {
         txtType.setText(quest.getType());
         txtDesc.setText(quest.getDescription());
 
+        setupEuGoals(v, quest); //metodo per gli EU goals
+
         // Utilizzo della stringa reward_label (Risolve il Warning)
         txtReward.setText(getString(R.string.quest_reward_points, quest.getRewardPoints()));
 
@@ -131,6 +133,36 @@ public class QuestGlobalDetailFragment extends Fragment {
 
                     euContainer.addView(iv);
                 }
+            }
+        }
+    }
+
+    private void setupEuGoals(View view, Quest quest) {
+        LinearLayout container = view.findViewById(R.id.containerEuGoals);
+        // Verifichiamo che il fragment sia ancora "attaccato" e la vista esista
+        if (container == null || quest.getImagesEuGoals() == null || getContext() == null) return;
+
+        container.removeAllViews();
+        android.content.Context context = getContext(); // Salviamo il contesto sicuro
+
+        for (String imageName : quest.getImagesEuGoals()) {
+            ImageView imageView = new ImageView(context);
+
+            // 1. Recupera l'ID usando la variabile context (Risolve il Warning)
+            int resId = context.getResources().getIdentifier(
+                    imageName, "drawable", context.getPackageName());
+
+            if (resId != 0) {
+                // Calcolo dimensioni (50dp)
+                int sizeInPx = (int) (50 * context.getResources().getDisplayMetrics().density);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(sizeInPx, sizeInPx);
+                params.setMargins(0, 0, (int) (12 * context.getResources().getDisplayMetrics().density), 0);
+
+                imageView.setLayoutParams(params);
+                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                imageView.setImageResource(resId);
+
+                container.addView(imageView);
             }
         }
     }

@@ -14,4 +14,7 @@ public interface QuestApiService {
     // Usa @Header di Retrofit, non quello di Volley
     @GET("api/quests")
     Call<List<Quest>> getGlobalQuests(@Header("Authorization") String token);
+
+    @GET("api/user/quests")
+    Call<List<com.ecoapp.android.auth.models.UserQuest>> getUserQuests(@Header("Authorization") String token);
 }
