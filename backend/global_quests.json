@@ -8,7 +8,7 @@
     "CO2_saved": 0.5,
     "reward_points": 50,
     "quest_image": "ic_borraccia",
-    "images_eu_goals": ["goal_12", "goal_14"]
+    "images_eu_goals": ["eu_goals_12", "eu_goals_14"]
   },
   {
     "id": 1,
@@ -19,7 +19,7 @@
     "CO2_saved": 2.1,
     "reward_points": 100,
     "quest_image": "ic_bike",
-    "images_eu_goals": ["goal_11", "goal_13"]
+    "images_eu_goals": ["eu_goals_11", "eu_goals_13"]
   },
   {
     "id": 2,
@@ -30,7 +30,7 @@
     "CO2_saved": 0.3,
     "reward_points": 30,
     "quest_image": "ic_shower",
-    "images_eu_goals": ["goal_6"]
+    "images_eu_goals": ["eu_goals_6"]
   },
   {
     "id": 3,
@@ -41,7 +41,7 @@
     "CO2_saved": 1.2,
     "reward_points": 70,
     "quest_image": "ic_local_food",
-    "images_eu_goals": ["goal_2", "goal_15"]
+    "images_eu_goals": ["eu_goals_2", "eu_goals_15"]
   },
   {
     "id": 4,
@@ -52,7 +52,7 @@
     "CO2_saved": 0.8,
     "reward_points": 150,
     "quest_image": "ic_recycle",
-    "images_eu_goals": ["goal_12"]
+    "images_eu_goals": ["eu_goals_12"]
   },
   {
     "id": 5,
