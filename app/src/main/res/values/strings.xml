@@ -52,7 +52,7 @@
     <string name="quest_description">QuestDescription</string>
     <string name="quest_type">QuestType</string>
     <string name="quest_max_progress">%1$d</string>
-    <string name="quest_CO2_saved">CO2 Placeholder</string>
+    <string name="quest_CO2_saved">%1$.2f kg of CO₂ saved</string>
     <string name="quest_reward_points">%1$d pts</string>
     <string name="quest_image">Quest Image</string>
 
@@ -60,6 +60,8 @@
     <string name="quest_fragment_label">Quest Fragment Label</string>
     <string name="quest_detail_label">Quest Detail Label</string>
 
+    <!-- 3. fragment_quest_global_detail.xml -->
+    <string name="button_accept_quest">Accept Quest</string>
 
     <!-- Edit Profile Screen -->
     <string name="title_edit_profile">Modifica Profilo</string>

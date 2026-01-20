@@ -1,5 +1,6 @@
 package com.example.ecoapp.quest_files;
 
+import com.google.android.material.tabs.TabLayout;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,9 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ecoapp.android.auth.AuthManager;
 import com.ecoapp.android.auth.models.Quest;
-import com.ecoapp.android.auth.models.UserQuest;
+import com.ecoapp.android.auth.models.UserQuest; // Assicurati di avere questo modello
 import com.example.ecoapp.R;
-import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -121,13 +121,12 @@ public class GlobalQuestFragment extends Fragment {
     }
 
     private void applyFilter() {
-        // 1. Creiamo la nuova lista filtrata in base alla tab selezionata
-        List<Quest> newList = new ArrayList<>();
+        filteredQuestList.clear();
 
         for (Quest globalQuest : allGlobalQuests) {
             // Cerchiamo se l'utente ha un progresso per questa quest specifica
-            com.ecoapp.android.auth.models.UserQuest progress = null;
-            for (com.ecoapp.android.auth.models.UserQuest uq : userLocalQuests) {
+            UserQuest progress = null;
+            for (UserQuest uq : userLocalQuests) {
                 if (uq.getQuestId() == globalQuest.getId()) {
                     progress = uq;
                     break;
@@ -136,34 +135,21 @@ public class GlobalQuestFragment extends Fragment {
 
             if (selectedTabPosition == 0) {
                 // SEZIONE GLOBAL: Mostra tutto il catalogo
-                newList.add(globalQuest);
+                filteredQuestList.add(globalQuest);
             }
             else if (selectedTabPosition == 1) {
-                // SEZIONE ONGOING: Presente nel progresso dell'utente E non ancora completata
-                // (Assicurati che getTimesCompleted() sia disponibile nel modello UserQuest)
+                // SEZIONE ONGOING: Presente in user_quest E times_completed == 0
                 if (progress != null && progress.getTimesCompleted() == 0) {
-                    newList.add(globalQuest);
+                    filteredQuestList.add(globalQuest);
                 }
             }
             else if (selectedTabPosition == 2) {
-                // SEZIONE COMPLETED: Presente nel progresso dell'utente E completata almeno una volta
+                // SEZIONE COMPLETED: times_completed > 0
                 if (progress != null && progress.getTimesCompleted() > 0) {
-                    newList.add(globalQuest);
+                    filteredQuestList.add(globalQuest);
                 }
             }
         }
-
-        // 2. Usiamo DiffUtil per aggiornare l'adapter in modo efficiente
-        // Invece di ricaricare tutto (notifyDataSetChanged), calcola solo cosa è cambiato
-        QuestDiffCallback diffCallback = new QuestDiffCallback(filteredQuestList, newList);
-        androidx.recyclerview.widget.DiffUtil.DiffResult diffResult =
-                androidx.recyclerview.widget.DiffUtil.calculateDiff(diffCallback);
-
-        // 3. Aggiorniamo la lista reale usata dall'adapter
-        filteredQuestList.clear();
-        filteredQuestList.addAll(newList);
-
-        // 4. Inviamo gli aggiornamenti specifici (inserimenti, rimozioni, spostamenti)
-        diffResult.dispatchUpdatesTo(adapter);
+        adapter.notifyDataSetChanged();
     }
 }

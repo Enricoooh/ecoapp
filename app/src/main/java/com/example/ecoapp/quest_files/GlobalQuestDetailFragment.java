@@ -5,18 +5,22 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 import com.example.ecoapp.R;
 import com.ecoapp.android.auth.models.Quest;
 
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -24,7 +28,12 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import com.ecoapp.android.auth.AuthManager; // Verifica che il pacchetto sia questo
+import java.util.HashMap;
+
 public class GlobalQuestDetailFragment extends Fragment {
+
+    private QuestApiService apiService;
 
     public GlobalQuestDetailFragment() {
         // Required empty public constructor
@@ -43,6 +52,68 @@ public class GlobalQuestDetailFragment extends Fragment {
         return v;
     }
 
+    // Dentro onViewCreated del QuestGlobalDetailFragment
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Inizializza apiService qui subito, così è pronto per entrambi i metodi
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://ecoapp-p5gp.onrender.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        apiService = retrofit.create(QuestApiService.class);
+
+        // Gestione pulsante Accetta
+        Button buttonAccept = view.findViewById(R.id.buttonAcceptQuest);
+        buttonAccept.setOnClickListener(v -> showAcceptConfirmation());
+    }
+
+    private void showAcceptConfirmation() {
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Conferma Missione")
+                .setMessage("Vuoi davvero iniziare questa missione?")
+                .setPositiveButton("Sì, accetta", (dialog, which) -> sendAcceptRequestToServer())
+                .setNegativeButton("Annulla", null)
+                .show();
+    }
+
+    private void sendAcceptRequestToServer() {
+        String token = "Bearer " + AuthManager.getInstance(requireContext()).getToken();
+
+        int questId = -1;
+        if (getArguments() != null) {
+            questId = getArguments().getInt("questId", -1);
+        }
+
+        // Controllo apiService
+        if (questId == -1 || apiService == null) return;
+
+        // 2. Prepariamo il corpo per l'endpoint 'update'
+        // Inviamo progressIncrement = 0 così il server la registra senza avanzare
+        Map<String, Object> body = new HashMap<>();
+        body.put("questId", questId);
+        body.put("progressIncrement", 0);
+
+        // 3. Usiamo l'endpoint update (cambia il nome del metodo se necessario nell'interfaccia API)
+        apiService.updateQuestProgress(token, body).enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse( @NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getContext(), "Missione accettata e salvata!", Toast.LENGTH_SHORT).show();
+                    Navigation.findNavController(requireView()).popBackStack();
+                } else {
+                    Toast.makeText(getContext(), "Errore nel salvataggio", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
+                Toast.makeText(getContext(), "Errore di connessione", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private void loadQuestDetails(View v, int questId) {
         // 1. Recupera il token dall'AuthManager
         com.ecoapp.android.auth.AuthManager authManager = com.ecoapp.android.auth.AuthManager.getInstance(getContext());
@@ -55,12 +126,10 @@ public class GlobalQuestDetailFragment extends Fragment {
 
         String authToken = "Bearer " + token;
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://ecoapp-p5gp.onrender.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        QuestApiService apiService = retrofit.create(QuestApiService.class);
+        if (apiService == null) {
+            Log.e("RetrofitError", "ApiService non inizializzato");
+            return;
+        }
 
         // 2. Passa authToken come argomento a getGlobalQuests()
         apiService.getGlobalQuests(authToken).enqueue(new Callback<List<Quest>>() {
@@ -97,10 +166,10 @@ public class GlobalQuestDetailFragment extends Fragment {
         // Riferimenti agli elementi del layout
         ImageView img = v.findViewById(R.id.questImage);
         TextView txtName = v.findViewById(R.id.txtQuestName);
-        TextView txtType = v.findViewById(R.id.txtQuestType);
         TextView txtDesc = v.findViewById(R.id.txtQuestDescription);
+        TextView txtType = v.findViewById(R.id.txtQuestType);
+        TextView txtCO2 = v.findViewById(R.id.txtCO2saved);
         TextView txtReward = v.findViewById(R.id.txtQuestRewardPoints);
-        LinearLayout euContainer = v.findViewById(R.id.containerEuGoals);
 
         // Impostazione dati dall'oggetto Quest
         img.setImageResource(quest.getQuestImageResourceId(getContext()));
@@ -108,33 +177,15 @@ public class GlobalQuestDetailFragment extends Fragment {
         txtType.setText(quest.getType());
         txtDesc.setText(quest.getDescription());
 
-        setupEuGoals(v, quest); //metodo per gli EU goals
+        //Per CO2 con double
+        double co2Valore = quest.getCO2Saved();
+        txtCO2.setText(getString(R.string.quest_CO2_saved, co2Valore));
+
+        //Metodo per gli EU goals
+        setupEuGoals(v, quest);
 
         // Utilizzo della stringa reward_label (Risolve il Warning)
         txtReward.setText(getString(R.string.quest_reward_points, quest.getRewardPoints()));
-
-        // Icone EU Goals (Aggiunta dinamica)
-        if (quest.getImagesEuGoals() != null) {
-            euContainer.removeAllViews(); // Pulisce icone precedenti
-
-            //Recupero gli ID numerici delle risorse partendo dai nomi (stringhe)
-            int[] euResIds = quest.getEuGoalsResourceIds(getContext());
-
-            for (int resId : euResIds) {
-                if (resId != 0) { // Se la risorsa esista effettivamente
-                    ImageView iv = new ImageView(getContext());
-
-                    // Definisce la dimensione dell'icona (es. 120x120 pixel)
-                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(120, 120);
-                    lp.setMargins(0, 0, 16, 0); // Margine a destra per distanziare le icone
-
-                    iv.setLayoutParams(lp);
-                    iv.setImageResource(resId);
-
-                    euContainer.addView(iv);
-                }
-            }
-        }
     }
 
     private void setupEuGoals(View view, Quest quest) {
