@@ -60,8 +60,11 @@
     <string name="quest_fragment_label">Quest Fragment Label</string>
     <string name="quest_detail_label">Quest Detail Label</string>
 
-    <!-- 3. fragment_quest_global_detail.xml -->
-    <string name="button_accept_quest">Accept Quest</string>
+    <!-- 3. Global quests - fragment_quest_global_detail.xml -->
+    <string name="quest_button_accept_quest">Accept Quest</string>
+
+    <!-- 3. Ongoing quests -->
+    <string name="quest_current_progress">%1$d / %2$d</string>
 
     <!-- Edit Profile Screen -->
     <string name="title_edit_profile">Modifica Profilo</string>

@@ -84,7 +84,7 @@
             android:id="@+id/txtProgressStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0/0"
+            android:text="@string/quest_current_progress"
             android:textSize="14sp"
             android:textStyle="bold"
             android:layout_marginBottom="4dp"

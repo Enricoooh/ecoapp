@@ -130,54 +130,64 @@ public class GlobalQuestFragment extends Fragment {
     }
 
     private void applyFilter() {
-        // Se le quest globali non sono ancora arrivate, non possiamo filtrare nulla
-        if (allGlobalQuests.isEmpty()) {
-            Log.d(TAG, "Filtro annullato: allGlobalQuests è vuota");
+        // 1. Controllo di sicurezza: se non abbiamo le quest globali, non possiamo filtrare
+        if (allGlobalQuests == null || allGlobalQuests.isEmpty()) {
             return;
         }
 
         List<Quest> newList = new ArrayList<>();
 
-        for (Quest globalQuest : allGlobalQuests) {
-            UserQuest objUserQuest = null;
-
-            // Cerchiamo se esiste un progresso per questa quest
+        for (Quest gQuest : allGlobalQuests) {
+            // Cerchiamo il progresso in modo ultra-sicuro
+            UserQuest progress = null;
             for (UserQuest uq : userLocalQuests) {
-                if (uq.getQuestId() == globalQuest.getId()) {
-                    objUserQuest = uq;
+                // Forziamo il confronto come stringhe per evitare errori tra int/long/string
+                String gId = String.valueOf(gQuest.getId()).trim();
+                String uId = String.valueOf(uq.getQuestId()).trim();
+
+                if (gId.equals(uId)) {
+                    progress = uq;
                     break;
                 }
             }
 
-            if (selectedTabPosition == 0) { // TAB GLOBAL
-                // SPARISCE se esiste un progresso attivo
-                if (objUserQuest == null || !objUserQuest.isCurrentlyActive()) {
-                    newList.add(globalQuest);
+            // LOGICA DI FILTRAGGIO BASATA SULLA TAB
+            if (selectedTabPosition == 0) {
+                // TAB GLOBAL: La quest DEVE sparire se è attiva
+                // Se progress è null, non l'ha mai toccata -> la mostriamo
+                if (progress == null) {
+                    newList.add(gQuest);
+                } else {
+                    // Se esiste un progresso, la mostriamo SOLO se NON è attiva
+                    if (!progress.isCurrentlyActive()) {
+                        newList.add(gQuest);
+                    }
                 }
             }
-            else if (selectedTabPosition == 1) { // TAB ONGOING
-                // APPARE se è attiva e non completata
-                if (objUserQuest != null && objUserQuest.isCurrentlyActive() && objUserQuest.getTimesCompleted() == 0) {
-                    newList.add(globalQuest);
+            else if (selectedTabPosition == 1) {
+                // TAB ONGOING: Mostra solo se attiva E non finita
+                if (progress != null && progress.isCurrentlyActive() && progress.getTimesCompleted() == 0) {
+                    newList.add(gQuest);
                 }
             }
-            else if (selectedTabPosition == 2) { // TAB COMPLETED
-                if (objUserQuest != null && objUserQuest.getTimesCompleted() > 0) {
-                    newList.add(globalQuest);
+            else if (selectedTabPosition == 2) {
+                // TAB COMPLETED: Mostra se finita almeno una volta
+                if (progress != null && progress.getTimesCompleted() > 0) {
+                    newList.add(gQuest);
                 }
             }
         }
 
-        // Aggiornamento con DiffUtil (molto più fluido e risolve i bug visivi)
-        QuestDiffCallback diffCallback = new QuestDiffCallback(filteredQuestList, newList);
-        androidx.recyclerview.widget.DiffUtil.DiffResult diffResult =
-                androidx.recyclerview.widget.DiffUtil.calculateDiff(diffCallback);
-
+        // 2. AGGIORNAMENTO DIRETTO (Senza DiffUtil per ora, per isolare il bug)
+        // Se nemmeno questo funziona, il problema è nei getter dei tuoi modelli Java
         filteredQuestList.clear();
         filteredQuestList.addAll(newList);
-        diffResult.dispatchUpdatesTo(adapter);
 
-        Log.d(TAG, "Lista aggiornata. Elementi mostrati: " + filteredQuestList.size());
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+
+        Log.d(TAG, "FILTRO APPLICATO - Tab: " + selectedTabPosition + " | Elementi: " + filteredQuestList.size());
     }
 
     @Override
