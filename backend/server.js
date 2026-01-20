@@ -4,10 +4,19 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const { Resend } = require('resend');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'ecoapp-super-secret-key-change-in-production';
+
+// Resend email configuration
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Login attempts tracking (in-memory)
+const loginAttempts = {};
+const MAX_ATTEMPTS = 5;
+const BLOCK_DURATION_MS = 15 * 60 * 1000; // 15 minuti
 
 // Middleware
 app.use(cors());
@@ -49,6 +58,68 @@ const authenticateToken = (req, res, next) => {
     req.user = user;
     next();
   });
+};
+
+// Helper: Check if account is blocked
+const isAccountBlocked = (email) => {
+  const attempt = loginAttempts[email];
+  if (!attempt) return { blocked: false };
+  
+  if (attempt.blockedUntil && Date.now() < attempt.blockedUntil) {
+    const remainingMs = attempt.blockedUntil - Date.now();
+    const remainingMin = Math.ceil(remainingMs / 60000);
+    return { blocked: true, remainingMin };
+  }
+  
+  // Block expired, reset
+  if (attempt.blockedUntil && Date.now() >= attempt.blockedUntil) {
+    delete loginAttempts[email];
+  }
+  return { blocked: false };
+};
+
+// Helper: Record failed attempt
+const recordFailedAttempt = (email) => {
+  if (!loginAttempts[email]) {
+    loginAttempts[email] = { count: 0, lastAttempt: null, blockedUntil: null };
+  }
+  
+  loginAttempts[email].count++;
+  loginAttempts[email].lastAttempt = Date.now();
+  
+  if (loginAttempts[email].count >= MAX_ATTEMPTS) {
+    loginAttempts[email].blockedUntil = Date.now() + BLOCK_DURATION_MS;
+  }
+};
+
+// Helper: Reset attempts on successful login
+const resetAttempts = (email) => {
+  delete loginAttempts[email];
+};
+
+// Helper: Send welcome email
+const sendWelcomeEmail = async (email, name) => {
+  try {
+    await resend.emails.send({
+      from: 'EcoApp <onboarding@resend.dev>',
+      to: email,
+      subject: '🌱 Benvenuto in EcoApp!',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h1 style="color: #58CC02;">🌱 Benvenuto in EcoApp, ${name}!</h1>
+          <p>La tua registrazione è stata completata con successo.</p>
+          <p>Sei pronto a iniziare la tua avventura eco-sostenibile! 🌍</p>
+          <p>Completa le quest giornaliere per guadagnare punti e ridurre la tua impronta ambientale.</p>
+          <br>
+          <p style="color: #666;">Il Team EcoApp 🎮</p>
+        </div>
+      `
+    });
+    console.log('Welcome email sent to:', email);
+  } catch (error) {
+    console.error('Failed to send welcome email:', error);
+    // Non blocchiamo la registrazione se l'email fallisce
+  }
 };
 
 // Routes
@@ -105,9 +176,10 @@ app.post('/api/auth/register', async (req, res) => {
     // 3. Salva il file aggiornato
     fs.writeFileSync(USER_QUESTS_FILE, JSON.stringify(allProgress, null, 2));
 
+    // Send welcome email (non-blocking)
+    sendWelcomeEmail(newUser.email, newUser.name);
 
-
-    const token = jwt.sign({ id: newUser.id, email: newUser.email }, JWT_SECRET, { expiresIn: '30d' });
+    const token = jwt.sign({ id: newUser.id, email: newUser.email }, JWT_SECRET, { expiresIn: '7d' });
 
     res.status(201).json({
       message: 'Registrazione completata',
@@ -130,15 +202,31 @@ app.post('/api/auth/register', async (req, res) => {
 // Login endpoint
 app.post('/api/auth/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, rememberMe } = req.body;
+    
+    // Check if account is blocked
+    const blockStatus = isAccountBlocked(email);
+    if (blockStatus.blocked) {
+      return res.status(429).json({ 
+        error: `Troppi tentativi falliti. Riprova tra ${blockStatus.remainingMin} minuti.`,
+        blockedMinutes: blockStatus.remainingMin
+      });
+    }
+    
     const db = readDB();
     const user = db.users.find(u => u.email === email);
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
+      recordFailedAttempt(email);
       return res.status(401).json({ error: 'Credenziali non valide' });
     }
 
-    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '30d' });
+    // Reset attempts on successful login
+    resetAttempts(email);
+    
+    // Token expiry based on rememberMe
+    const tokenExpiry = rememberMe ? '30d' : '7d';
+    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: tokenExpiry });
 
     res.json({
       token,
@@ -153,6 +241,7 @@ app.post('/api/auth/login', async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ error: 'Errore del server' });
   }
 });

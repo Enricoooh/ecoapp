@@ -141,7 +141,9 @@
                 app:passwordToggleEnabled="true"
                 app:boxStrokeWidth="0dp"
                 app:boxStrokeWidthFocused="0dp"
-                app:hintTextColor="@color/eco_green_primary">
+                app:hintTextColor="@color/eco_green_primary"
+                app:helperText="Minimo 6 caratteri"
+                app:helperTextTextColor="#666666">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editTextPassword"
