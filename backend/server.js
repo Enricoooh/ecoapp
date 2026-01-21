@@ -346,25 +346,24 @@ app.post('/api/user/friends/add', authenticateToken, (req, res) => {
   res.json({ message: 'Amico aggiunto con successo', friend: friendToAdd.name });
 });
 
-// Remove friend
+// Remove friend (Reciprocal removal)
 app.post('/api/user/friends/remove', authenticateToken, (req, res) => {
     const { friendId } = req.body;
     const db = readDB();
-    const userIndex = db.users.findIndex(u => u.id === req.user.id);
+    const user = db.users.find(u => u.id === req.user.id);
+    const friend = db.users.find(u => u.id === friendId);
 
-    if (userIndex === -1) return res.status(404).json({ error: 'Utente non trovato' });
+    if (!user) return res.status(404).json({ error: 'Utente non trovato' });
 
-    const friendsList = db.users[userIndex].friends;
-    const friendIndex = friendsList.indexOf(friendId);
-
-    if (friendIndex === -1) {
-        return res.status(400).json({ error: 'L\'utente non è tra i tuoi amici' });
+    // Rimuovi reciprocamente
+    if (user.friends) {
+        user.friends = user.friends.filter(id => id !== friendId);
+    }
+    if (friend && friend.friends) {
+        friend.friends = friend.friends.filter(id => id !== req.user.id);
     }
 
-    // Rimuovi l'ID dalla lista
-    friendsList.splice(friendIndex, 1);
     writeDB(db);
-
     res.json({ message: 'Amico rimosso con successo' });
 });
 
