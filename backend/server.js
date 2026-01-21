@@ -64,13 +64,13 @@ const authenticateToken = (req, res, next) => {
 const isAccountBlocked = (email) => {
   const attempt = loginAttempts[email];
   if (!attempt) return { blocked: false };
-  
+
   if (attempt.blockedUntil && Date.now() < attempt.blockedUntil) {
     const remainingMs = attempt.blockedUntil - Date.now();
     const remainingMin = Math.ceil(remainingMs / 60000);
     return { blocked: true, remainingMin };
   }
-  
+
   // Block expired, reset
   if (attempt.blockedUntil && Date.now() >= attempt.blockedUntil) {
     delete loginAttempts[email];
@@ -83,10 +83,10 @@ const recordFailedAttempt = (email) => {
   if (!loginAttempts[email]) {
     loginAttempts[email] = { count: 0, lastAttempt: null, blockedUntil: null };
   }
-  
+
   loginAttempts[email].count++;
   loginAttempts[email].lastAttempt = Date.now();
-  
+
   if (loginAttempts[email].count >= MAX_ATTEMPTS) {
     loginAttempts[email].blockedUntil = Date.now() + BLOCK_DURATION_MS;
   }
@@ -157,6 +157,7 @@ app.post('/api/auth/register', async (req, res) => {
       totalPoints: 0,
       co2Saved: 0.0,
       friends: [], // Lista ID amici
+      pendingRequests: [], // <--- AGGIUNTO: richieste pendenti ricevute
       createdAt: new Date().toISOString()
     };
 
@@ -171,7 +172,7 @@ app.post('/api/auth/register', async (req, res) => {
     }
 
     // 2. Inizializza l'ID del nuovo utente con un array vuoto di quest
-    allProgress[newUser.id] = []; 
+    allProgress[newUser.id] = [];
 
     // 3. Salva il file aggiornato
     fs.writeFileSync(USER_QUESTS_FILE, JSON.stringify(allProgress, null, 2));
@@ -203,16 +204,16 @@ app.post('/api/auth/register', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password, rememberMe } = req.body;
-    
+
     // Check if account is blocked
     const blockStatus = isAccountBlocked(email);
     if (blockStatus.blocked) {
-      return res.status(429).json({ 
+      return res.status(429).json({
         error: `Troppi tentativi falliti. Riprova tra ${blockStatus.remainingMin} minuti.`,
         blockedMinutes: blockStatus.remainingMin
       });
     }
-    
+
     const db = readDB();
     const user = db.users.find(u => u.email === email);
 
@@ -223,7 +224,7 @@ app.post('/api/auth/login', async (req, res) => {
 
     // Reset attempts on successful login
     resetAttempts(email);
-    
+
     // Token expiry based on rememberMe
     const tokenExpiry = rememberMe ? '30d' : '7d';
     const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: tokenExpiry });
@@ -367,6 +368,60 @@ app.post('/api/user/friends/remove', authenticateToken, (req, res) => {
     res.json({ message: 'Amico rimosso con successo' });
 });
 
+// --- NEW FRIEND REQUEST ENDPOINTS ---
+
+// Invia richiesta di amicizia
+app.post('/api/user/friends/request', authenticateToken, (req, res) => {
+    const { query } = req.body;
+    const db = readDB();
+    const sender = db.users.find(u => u.id === req.user.id);
+    const receiver = db.users.find(u => u.email === query || u.nickname === query);
+
+    if (!receiver) return res.status(404).json({ error: 'Utente non trovato' });
+    if (receiver.id === sender.id) return res.status(400).json({ error: 'Non puoi aggiungere te stesso' });
+    if ((sender.friends || []).includes(receiver.id)) return res.status(400).json({ error: 'Già amici' });
+
+    if (!receiver.pendingRequests) receiver.pendingRequests = [];
+    if (receiver.pendingRequests.includes(sender.id)) return res.status(400).json({ error: 'Richiesta già inviata' });
+
+    receiver.pendingRequests.push(sender.id);
+    writeDB(db);
+    res.json({ message: 'Richiesta inviata' });
+});
+
+// Ottieni richieste di amicizia pendenti (ricevute)
+app.get('/api/user/friends/requests', authenticateToken, (req, res) => {
+    const db = readDB();
+    const user = db.users.find(u => u.id === req.user.id);
+    const requests = db.users.filter(u => (user.pendingRequests || []).includes(u.id)).map(u => ({
+        id: u.id,
+        name: u.name,
+        nickname: u.nickname,
+        urlImmagineProfilo: u.urlImmagineProfilo
+    }));
+    res.json(requests);
+});
+
+// Rispondi a una richiesta di amicizia (accetta o rifiuta)
+app.post('/api/user/friends/respond', authenticateToken, (req, res) => {
+    const { senderId, action } = req.body; // 'accept' o 'decline'
+    const db = readDB();
+    const receiver = db.users.find(u => u.id === req.user.id);
+    const sender = db.users.find(u => u.id === senderId);
+
+    if (!receiver || !sender) return res.status(404).json({ error: 'Utente non trovato' });
+
+    receiver.pendingRequests = (receiver.pendingRequests || []).filter(id => id !== senderId);
+
+    if (action === 'accept') {
+        if (!receiver.friends) receiver.friends = [];
+        if (!sender.friends) sender.friends = [];
+        if (!receiver.friends.includes(senderId)) receiver.friends.push(senderId);
+        if (!sender.friends.includes(receiver.id)) sender.friends.push(receiver.id);
+    }
+    writeDB(db);
+    res.json({ message: action === 'accept' ? 'Accettata' : 'Rifiutata' });
+});
 
 
 // --- QUESTS ENDPOINTS ---
@@ -377,7 +432,7 @@ app.get('/api/quests', authenticateToken, (req, res) => {
     // Legge il file quests.json
     const data = fs.readFileSync(GLOBAL_QUESTS_FILE, 'utf8');
     const quests = JSON.parse(data);
-    
+
     // Invia la lista delle quest all'app Android
     res.json(quests);
   }
@@ -387,30 +442,13 @@ app.get('/api/quests', authenticateToken, (req, res) => {
   }
 });
 
-/*
-// 2. Ottieni lo stato delle quest dell'utente (completate/in corso)
-app.get('/api/user/quests', authenticateToken, (req, res) => {
-  const db = readDB();
-  const user = db.users.find(u => u.id === req.user.id);
-
-  if (!user) return res.status(404).json({ error: 'Utente non trovato' });
-
-  // Se l'utente non ha ancora il campo quests, inizializzalo
-  const userQuests = user.userQuests || [];
-  res.json(userQuests);
-});
-*/
-
 // 2. Ottieni lo stato delle quest dell'utente dal file SEPARATO
 app.get('/api/user/quests', authenticateToken, (req, res) => {
   try {
-    const userId = req.user.id.toString(); // <--- FORZA STRINGA
+    const userId = req.user.id.toString();
     const data = JSON.parse(fs.readFileSync(USER_QUESTS_FILE, 'utf8'));
-    
-    // Accede all'array usando l'ID come chiave
+
     const userQuests = data[userId] || [];
-    
-    console.log(`Inviando ${userQuests.length} quest per utente ${userId}`);
     res.json(userQuests);
   } catch (error) {
     res.status(500).json([]);
@@ -420,29 +458,24 @@ app.get('/api/user/quests', authenticateToken, (req, res) => {
 // 3. Aggiorna il progresso di una quest salvandolo nel file SEPARATO user_quests.json
 app.post('/api/user/quests/update', authenticateToken, (req, res) => {
     const { questId, progressIncrement } = req.body;
-    const userId = req.user.id.toString(); // Preso dal token JWT dell'utente loggato
+    const userId = req.user.id.toString();
 
-    // 1. Leggi il file delle Quest Globali (per sapere il max_progress e i punti)
     const questsData = JSON.parse(fs.readFileSync(GLOBAL_QUESTS_FILE, 'utf8'));
     const globalQuest = questsData.find(q => q.id === Number(questId));
     if (!globalQuest) return res.status(404).json({ error: 'Quest globale non trovata' });
 
-    // 2. Leggi (o crea se non esiste) il file user_quests.json
     let allProgress = {};
     if (fs.existsSync(USER_QUESTS_FILE)) {
         allProgress = JSON.parse(fs.readFileSync(USER_QUESTS_FILE, 'utf8'));
     }
 
-    // 3. Inizializza la lista progressi per questo utente se è la prima volta
     if (!allProgress[userId]) {
         allProgress[userId] = [];
     }
 
-    // 4. Cerca se l'utente ha già iniziato QUESTA specifica quest
     let userQuest = allProgress[userId].find(q => q.questId === Number(questId));
 
     if (!userQuest) {
-        // Prima volta che l'utente fa questa missione
         userQuest = {
             questId: Number(questId),
             actual_progress: Number(progressIncrement),
@@ -451,15 +484,12 @@ app.post('/api/user/quests/update', authenticateToken, (req, res) => {
         };
         allProgress[userId].push(userQuest);
     } else {
-        // Incrementa il progresso esistente
         userQuest.actual_progress += Number(progressIncrement);
 
-        // Logica di completamento
         if (userQuest.actual_progress >= Number(globalQuest.max_progress)) {
             userQuest.times_completed += 1;
-            userQuest.actual_progress = 0; // Resetta per permettere di rifarla
+            userQuest.actual_progress = 0;
 
-            // AGGIORNAMENTO PUNTI (Qui devi comunque aggiornare users.json)
             const usersDb = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
             const userIdx = usersDb.users.findIndex(u => u.id === userId);
             if (userIdx !== -1) {
@@ -470,7 +500,6 @@ app.post('/api/user/quests/update', authenticateToken, (req, res) => {
         }
     }
 
-    // 5. Salva i progressi nel file separato
     fs.writeFileSync(USER_QUESTS_FILE, JSON.stringify(allProgress, null, 2));
 
     res.json({
@@ -480,7 +509,7 @@ app.post('/api/user/quests/update', authenticateToken, (req, res) => {
 
 });
 
-// --- AREA DEBUG (Da commentare o cancellare prima della consegna) ---
+// --- AREA DEBUG ---
 
 const FILES_MAP = {
     'users': DB_FILE,
@@ -492,19 +521,19 @@ app.get('/api/admin/dump/:filename', (req, res) => {
     const targetFile = FILES_MAP[req.params.filename];
 
     if (!targetFile) {
-        return res.status(404).json({ error: "File non riconosciuto. Usa: users, global-quests, o user-quests" });
+        return res.status(404).json({ error: "File non riconosciuto" });
     }
 
     try {
         if (!fs.existsSync(targetFile)) {
-            return res.status(404).json({ error: `Il file ${req.params.filename} non esiste ancora sul server.` });
+            return res.status(404).json({ error: "Il file non esiste" });
         }
 
         const data = fs.readFileSync(targetFile, 'utf8');
         res.header("Content-Type", "application/json");
-        res.send(data); // Invia il contenuto del file JSON
+        res.send(data);
     } catch (err) {
-        res.status(500).json({ error: "Errore durante la lettura del file", details: err.message });
+        res.status(500).json({ error: "Errore durante la lettura del file" });
     }
 });
 
