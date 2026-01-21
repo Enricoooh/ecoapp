@@ -345,6 +345,28 @@ app.post('/api/user/friends/add', authenticateToken, (req, res) => {
   res.json({ message: 'Amico aggiunto con successo', friend: friendToAdd.name });
 });
 
+// Remove friend
+app.post('/api/user/friends/remove', authenticateToken, (req, res) => {
+    const { friendId } = req.body;
+    const db = readDB();
+    const userIndex = db.users.findIndex(u => u.id === req.user.id);
+
+    if (userIndex === -1) return res.status(404).json({ error: 'Utente non trovato' });
+
+    const friendsList = db.users[userIndex].friends;
+    const friendIndex = friendsList.indexOf(friendId);
+
+    if (friendIndex === -1) {
+        return res.status(400).json({ error: 'L\'utente non è tra i tuoi amici' });
+    }
+
+    // Rimuovi l'ID dalla lista
+    friendsList.splice(friendIndex, 1);
+    writeDB(db);
+
+    res.json({ message: 'Amico rimosso con successo' });
+});
+
 
 
 // --- QUESTS ENDPOINTS ---
@@ -490,4 +512,3 @@ app.get('/api/admin/dump/:filename', (req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 EcoApp Server [Beta] running on port ${PORT}`);
 });
-
