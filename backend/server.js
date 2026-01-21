@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -11,7 +12,13 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'ecoapp-super-secret-key-change-in-production';
 
 // Resend email configuration
-const resend = new Resend(process.env.RESEND_API_KEY);
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
+
+if (!RESEND_API_KEY) {
+  console.warn('⚠️  ATTENZIONE: RESEND_API_KEY non configurata! Le email di benvenuto non verranno inviate.');
+  console.warn('   Per abilitare l\'invio email, crea un file .env con RESEND_API_KEY=re_xxx');
+}
 
 // Login attempts tracking (in-memory)
 const loginAttempts = {};
@@ -99,9 +106,15 @@ const resetAttempts = (email) => {
 
 // Helper: Send welcome email
 const sendWelcomeEmail = async (email, name) => {
+  // Verifica che Resend sia configurato
+  if (!resend) {
+    console.log('📧 Email di benvenuto non inviata (RESEND_API_KEY non configurata) - utente:', email);
+    return;
+  }
+
   try {
-    await resend.emails.send({
-      from: 'EcoApp <onboarding@resend.dev>',
+    const response = await resend.emails.send({
+      from: 'EcoApp <noreply@ecoapp.unica.dev>',
       to: email,
       subject: '🌱 Benvenuto in EcoApp!',
       html: `
@@ -115,9 +128,10 @@ const sendWelcomeEmail = async (email, name) => {
         </div>
       `
     });
-    console.log('Welcome email sent to:', email);
+    console.log('✅ Welcome email sent to:', email, '- Response:', JSON.stringify(response));
   } catch (error) {
-    console.error('Failed to send welcome email:', error);
+    console.error('❌ Failed to send welcome email:', error.message);
+    console.error('   Full error:', JSON.stringify(error, null, 2));
     // Non blocchiamo la registrazione se l'email fallisce
   }
 };
