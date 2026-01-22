@@ -57,6 +57,39 @@ const calculateLevel = (points) => {
   return 'Eco-Novizio';
 };
 
+// Logica Badge
+const checkBadges = (user) => {
+  const badges = user.badges || [];
+  const currentPoints = user.totalPoints;
+  const currentCO2 = user.co2Saved;
+  const friendCount = (user.friends || []).length;
+
+  const newBadges = [];
+
+  // Definizione dei badge
+  const badgeDefinitions = [
+    { id: 1, name: 'Eco-Novizio', description: 'Benvenuto nel mondo della sostenibilità!', trigger: () => true },
+    { id: 2, name: 'Pioniere Verde', description: 'Hai completato la tua prima missione!', trigger: () => user.totalPoints > 0 },
+    { id: 3, name: 'Amico della Terra', description: 'Hai salvato i tuoi primi 10kg di CO2.', trigger: () => currentCO2 >= 10 },
+    { id: 4, name: 'Influencer Ambientale', description: 'Hai aggiunto i tuoi primi 5 amici.', trigger: () => friendCount >= 5 },
+    { id: 5, name: 'Eco-Guerriero', description: 'Hai raggiunto 2000 punti!', trigger: () => currentPoints >= 2000 },
+    { id: 6, name: 'Salvatore del Pianeta', description: 'Hai salvato 100kg di CO2!', trigger: () => currentCO2 >= 100 }
+  ];
+
+  badgeDefinitions.forEach(def => {
+    if (!badges.find(b => b.id === def.id) && def.trigger()) {
+      newBadges.push({
+        id: def.id,
+        name: def.name,
+        description: def.description,
+        unlockedAt: new Date().toISOString()
+      });
+    }
+  });
+
+  return [...badges, ...newBadges];
+};
+
 // Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -180,8 +213,12 @@ app.post('/api/auth/register', async (req, res) => {
       co2Saved: 0.0,
       friends: [], // Lista ID amici
       pendingRequests: [], // richieste pendenti ricevute
+      badges: [],
       createdAt: new Date().toISOString()
     };
+
+    // Sblocca il primo badge alla registrazione
+    newUser.badges = checkBadges(newUser);
 
     db.users.push(newUser);
     writeDB(db);
@@ -363,6 +400,10 @@ app.post('/api/user/friends/add', authenticateToken, (req, res) => {
 
   // Aggiungi l'ID alla lista amici
   db.users[userIndex].friends.push(friendToAdd.id);
+
+  // Controlla badge dopo aggiunta amico
+  db.users[userIndex].badges = checkBadges(db.users[userIndex]);
+
   writeDB(db);
 
   res.json({ message: 'Amico aggiunto con successo', friend: friendToAdd.name });
@@ -439,6 +480,10 @@ app.post('/api/user/friends/respond', authenticateToken, (req, res) => {
         if (!sender.friends) sender.friends = [];
         if (!receiver.friends.includes(senderId)) receiver.friends.push(senderId);
         if (!sender.friends.includes(receiver.id)) sender.friends.push(receiver.id);
+
+        // Controlla badge dopo accettazione
+        receiver.badges = checkBadges(receiver);
+        sender.badges = checkBadges(sender);
     }
     writeDB(db);
     res.json({ message: action === 'accept' ? 'Accettata' : 'Rifiutata' });
@@ -519,6 +564,9 @@ app.post('/api/user/quests/update', authenticateToken, (req, res) => {
 
                 // Aggiorna il livello in base ai nuovi punti
                 usersDb.users[uIdx].level = calculateLevel(usersDb.users[uIdx].totalPoints);
+
+                // Controlla badge dopo completamento missione
+                usersDb.users[uIdx].badges = checkBadges(usersDb.users[uIdx]);
 
                 fs.writeFileSync(DB_FILE, JSON.stringify(usersDb, null, 2));
             }
