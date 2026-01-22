@@ -11,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
     // Backend su Render.com
-    private static final String BASE_URL = "https://ecoapp-p5gp.onrender.com";
+    private static final String BASE_URL = "https://ecoapp-p5gp.onrender.com/";
     
     private static Retrofit retrofit = null;
     private static AuthService authService = null;

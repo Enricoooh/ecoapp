@@ -28,4 +28,19 @@ public interface QuestApiService {
             @Body Map<String, Object> body
     );
 
+    // ""SETTERS""
+    // Body richiesto: { "questId": int, "actual_progress": int }
+    @POST("api/user/quests/set-actual-progress")
+    Call<Map<String, Object>> setActualProgress(@Header("Authorization") String token, @Body Map<String, Object> body);
+
+    // Body richiesto: { "questId": int, "times_completed": int }
+    @POST("api/user/quests/set-times-completed")
+    Call<Map<String, Object>> setTimesCompleted(@Header("Authorization") String token, @Body Map<String, Object> body);
+
+    // Body richiesto: { "questId": int, "is_currently_active": boolean }
+    @POST("api/user/quests/set-is-active")
+    Call<Map<String, Object>> setCurrentlyActive(@Header("Authorization") String token, @Body Map<String, Object> body);
+
+
+
 }

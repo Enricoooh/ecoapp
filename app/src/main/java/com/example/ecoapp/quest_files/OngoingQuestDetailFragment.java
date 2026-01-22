@@ -41,6 +41,7 @@ public class OngoingQuestDetailFragment extends Fragment {
 
     private int currentProgress = 0;
     private int maxProgress = 0;
+    private int timesCompleted = 0;
 
     public OngoingQuestDetailFragment() {}
 
@@ -72,9 +73,16 @@ public class OngoingQuestDetailFragment extends Fragment {
         }
 
         //Setup Listener
-        view.findViewById(R.id.buttonIncrement).setOnClickListener(v -> updateProgress(1));
-        view.findViewById(R.id.buttonDecrement).setOnClickListener(v -> updateProgress(-1));
-        view.findViewById(R.id.buttonCompleteQuest).setOnClickListener(v -> updateProgress(0));
+        view.findViewById(R.id.buttonIncrement).setOnClickListener(v -> setProgress(currentProgress + 1));
+        view.findViewById(R.id.buttonDecrement).setOnClickListener(v -> setProgress(currentProgress - 1));
+        view.findViewById(R.id.buttonCompleteQuest).setOnClickListener(v -> setProgress(0));
+        view.findViewById(R.id.buttonCompleteQuest).setOnClickListener(v -> {
+            //Chiamata al server
+            saveFinalStateToServer(currentProgress, timesCompleted + 1);
+
+            Toast.makeText(getContext(), "Missione Completata!", Toast.LENGTH_SHORT).show();
+            Navigation.findNavController(requireView()).popBackStack();
+        });
     }
 
     private void loadData(View view, int questId) {
@@ -117,6 +125,7 @@ public class OngoingQuestDetailFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     for (UserQuest uq : response.body()) {
                         if (uq.getQuestId() == questId) {
+                            timesCompleted = uq.getTimesCompleted();
                             updateProgressBar(uq.getActualProgress(), maxProgress);
                             break;
                         }
@@ -128,45 +137,52 @@ public class OngoingQuestDetailFragment extends Fragment {
         });
     }
 
-    private void updateProgress(int increment) {
-        if (increment < 0 && currentProgress <= 0) {
-            Toast.makeText(getContext(), "Il progresso è già a zero", Toast.LENGTH_SHORT).show();
-            return;
+    private void setProgress(int newCurrentProgress) {
+        if (newCurrentProgress < 0) {
+            //Toast.makeText(getContext(), "Il progresso è già a zero", Toast.LENGTH_SHORT).show();
+            newCurrentProgress = 0;
         }
 
-        if (increment > 0 && currentProgress >= maxProgress) {
-            Toast.makeText(getContext(), "Hai già raggiunto il massimo!", Toast.LENGTH_SHORT).show();
-            return;
+        if (newCurrentProgress >= maxProgress) {
+            //Toast.makeText(getContext(), "Hai già raggiunto il massimo!", Toast.LENGTH_SHORT).show();
+            newCurrentProgress = maxProgress;
         }
 
+        //Aggiorna i paramentri currentProgress e maxProgress
+        //Aggiorna anche la barra di progresso
+        updateProgressBar(newCurrentProgress, maxProgress);
+    }
+
+    private void saveFinalStateToServer(int cProgress, int tCompleted) {
         String token = "Bearer " + AuthManager.getInstance(requireContext()).getToken();
-        Map<String, Object> body = new HashMap<>();
-        body.put("questId", questId);
-        body.put("progressIncrement", increment);
 
-        apiService.updateQuestProgress(token, body).enqueue(new Callback<Map<String, Object>>() {
-            @Override
-            public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
-                if (response.isSuccessful()) {
-                    // Se l'increment è 0, significa un click a "Completa Quest"
-                    if (increment == 0) {
-                        Toast.makeText(getContext(), "Missione Completata!", Toast.LENGTH_SHORT).show();
-                        Navigation.findNavController(requireView()).popBackStack();
-                    }
-                    else {
-                        currentProgress += increment;
-                        updateProgressBar(currentProgress, maxProgress);
-                        //Toast.makeText(getContext(), "Progresso aggiornato!", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(getContext(), "Errore server: " + response.code(), Toast.LENGTH_SHORT).show();
-                }
-            }
+        //Creiamo i tre body per le chiamate in server.js
+        Map<String, Object> bodyProg = new HashMap<>();
+        bodyProg.put("questId", questId);
+        bodyProg.put("actual_progress", cProgress);
 
-            @Override
-            public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
-                Toast.makeText(getContext(), "Errore di connessione", Toast.LENGTH_SHORT).show();
-            }
+        Map<String, Object> bodyComp = new HashMap<>();
+        bodyComp.put("questId", questId);
+        bodyComp.put("times_completed", tCompleted);
+
+        Map<String, Object> bodyActive = new HashMap<>();
+        bodyActive.put("questId", questId);
+        bodyActive.put("is_currently_active", false);
+
+        //Chiamate (lato server useranno la funzione updateUserQuest)
+        apiService.setActualProgress(token, bodyProg).enqueue(new Callback<Map<String, Object>>() {
+            @Override public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {}
+            @Override public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {}
+        });
+
+        apiService.setTimesCompleted(token, bodyComp).enqueue(new Callback<Map<String, Object>>() {
+            @Override public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {}
+            @Override public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {}
+        });
+
+        apiService.setCurrentlyActive(token, bodyActive).enqueue(new Callback<Map<String, Object>>() {
+            @Override public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {}
+            @Override public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {}
         });
     }
 
@@ -243,5 +259,26 @@ public class OngoingQuestDetailFragment extends Fragment {
         if (btnComplete != null) {
             btnComplete.setEnabled(currentProgress >= maxProgress);
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        // Quando l'utente esce, salva il progresso fatto finora (senza cambiare stato/completamenti)
+        String token = "Bearer " + AuthManager.getInstance(requireContext()).getToken();
+        Map<String, Object> body = new HashMap<>();
+        body.put("questId", questId);
+        body.put("actual_progress", currentProgress);
+
+        // Usiamo il nuovo endpoint "set-progress"
+        apiService.setActualProgress(token, body).enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
+                Log.d(TAG, "Progresso salvato in uscita");
+            }
+            @Override
+            public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {}
+        });
     }
 }
