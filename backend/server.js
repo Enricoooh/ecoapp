@@ -502,6 +502,16 @@ app.post('/api/user/friends/respond', authenticateToken, async (req, res) => {
   }
 });
 
+app.get('/api/user/profile/:id', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'Utente non trovato' });
+    res.json(user); // Restituisci l'oggetto utente completo
+  } catch (error) {
+    res.status(500).json({ error: 'Errore server' });
+  }
+});
+
 // ============== QUESTS ==============
 
 app.get('/api/quests', authenticateToken, async (req, res) => {
