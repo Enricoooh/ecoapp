@@ -521,6 +521,48 @@ app.get('/api/user/quests', authenticateToken, (req, res) => {
   }
 });
 
+//Settare il progresso attuale
+app.post('/api/user/quests/set-actual-progress', authenticateToken, (req, res) => {
+    const userId = req.user.id;
+    const { questId, actual_progress } = req.body;
+    updateUserQuest(userId, questId, { actual_progress }, res);
+});
+
+//Settare quante volte è stata completata
+app.post('/api/user/quests/set-times-completed', authenticateToken, (req, res) => {
+    const userId = req.user.id;
+    const { questId, times_completed } = req.body;
+    updateUserQuest(userId, questId, { times_completed }, res);
+});
+
+//Settare se è attiva o meno
+app.post('/api/user/quests/set-is-active', authenticateToken, (req, res) => {
+    const userId = req.user.id;
+    const { questId, is_currently_active } = req.body;
+    updateUserQuest(userId, questId, { is_currently_active }, res);
+});
+
+// Funzione di utilità per non ripetere il codice di scrittura file
+function updateUserQuest(userId, questId, newData, res) {
+    fs.readFile(USER_QUESTS_FILE, 'utf8', (err, data) => {
+        if (err) return res.status(500).send("Errore lettura");
+        let allData = JSON.parse(data);
+        let userQuests = allData[userId] || [];
+        let quest = userQuests.find(q => q.questId === parseInt(questId));
+        
+        if (quest) {
+            Object.assign(quest, newData);
+            allData[userId] = userQuests;
+            fs.writeFile(USER_QUESTS_FILE, JSON.stringify(allData, null, 2), (err) => {
+                if (err) return res.status(500).send("Errore scrittura");
+                res.json({ success: true, quest });
+            });
+        } else {
+            res.status(404).send("Quest non trovata");
+        }
+    });
+}
+
 // 3. Aggiorna il progresso di una quest salvandolo nel file SEPARATO user_quests.json
 app.post('/api/user/quests/update', authenticateToken, (req, res) => {
     const { questId, progressIncrement } = req.body;
