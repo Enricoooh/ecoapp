@@ -8,7 +8,7 @@
     "CO2_saved": 0.5,
     "reward_points": 50,
     "quest_image": "ic_borraccia",
-    "images_eu_goals": ["eu_goals_1, eu_goals_2, eu_goals_3, eu_goals_4, eu_goals_5, eu_goals_6, eu_goals_7, eu_goals_8", "eu_goals_14"]
+    "images_eu_goals": ["eu_goals_1", "eu_goals_2", "eu_goals_3", "eu_goals_4", "eu_goals_5", "eu_goals_6", "eu_goals_7", "eu_goals_8", "eu_goals_14"]
   },
   {
     "id": 1,

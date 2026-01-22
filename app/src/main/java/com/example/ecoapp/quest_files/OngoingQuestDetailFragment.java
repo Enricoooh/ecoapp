@@ -33,7 +33,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class OngoingQuestDetailFragment extends Fragment {
 
-    private static final String TAG = "OngoingQuestDetail";
+    private static final String TAG = "OngoingQuestDetailFragment.java";
     private QuestApiService apiService;
     private int questId;
     private LinearProgressIndicator progressBar;

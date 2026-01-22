@@ -33,6 +33,8 @@ import java.util.HashMap;
 
 public class GlobalQuestDetailFragment extends Fragment {
 
+    private static final String TAG = "GlobalQuestDetailFragment.java";
+
     private QuestApiService apiService;
 
     public GlobalQuestDetailFragment() {
@@ -185,30 +187,36 @@ public class GlobalQuestDetailFragment extends Fragment {
 
     private void setupEuGoals(View view, Quest quest) {
         LinearLayout container = view.findViewById(R.id.containerEuGoals);
-        // Verifichiamo che il fragment sia ancora "attaccato" e la vista esista
-        if (container == null || quest.getImagesEuGoals() == null || getContext() == null) return;
+        if (container == null || quest.getImagesEuGoals() == null || getContext() == null) {
+            Log.d(TAG, "Container o immagini EU Goals nulli");
+            return;
+        }
 
         container.removeAllViews();
-        android.content.Context context = getContext(); // Salviamo il contesto sicuro
+        android.content.Context context = getContext();
 
         for (String imageName : quest.getImagesEuGoals()) {
+            // LOG DI DEBUG: Controlla se i nomi arrivano correttamente dal JSON
+            Log.d(TAG, "Cerco immagine EU Goal: " + imageName);
+
             ImageView imageView = new ImageView(context);
 
-            // 1. Recupera l'ID usando la variabile context (Risolve il Warning)
+            // Importante: getIdentifier deve pulire eventuali spazi
             int resId = context.getResources().getIdentifier(
-                    imageName, "drawable", context.getPackageName());
+                    imageName.trim(), "drawable", context.getPackageName());
 
             if (resId != 0) {
-                // Calcolo dimensioni (50dp)
-                int sizeInPx = (int) (50 * context.getResources().getDisplayMetrics().density);
+                int sizeInPx = (int) (45 * context.getResources().getDisplayMetrics().density); // Un po' più piccoli per farli stare tutti
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(sizeInPx, sizeInPx);
-                params.setMargins(0, 0, (int) (12 * context.getResources().getDisplayMetrics().density), 0);
+                params.setMargins(0, 0, (int) (8 * context.getResources().getDisplayMetrics().density), 0);
 
                 imageView.setLayoutParams(params);
-                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 imageView.setImageResource(resId);
 
                 container.addView(imageView);
+            } else {
+                Log.e(TAG, "Risorsa non trovata per: " + imageName);
             }
         }
     }
