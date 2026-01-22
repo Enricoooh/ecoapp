@@ -601,6 +601,10 @@ app.post('/api/user/quests/update', authenticateToken, async (req, res) => {
       });
     } else {
       userQuest.actual_progress += Number(progressIncrement);
+      // IMPORTANTE: se l'utente sta accettando la quest, attivarla
+      if (!userQuest.isActive) {
+        userQuest.isActive = true;
+      }
     }
 
     // Check completamento
