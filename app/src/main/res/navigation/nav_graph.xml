@@ -59,10 +59,23 @@
         android:id="@+id/friendsFragment"
         android:name="com.example.ecoapp.FriendsFragment"
         android:label="I Miei Amici"
-        tools:layout="@layout/fragment_friends" />
+        tools:layout="@layout/fragment_friends">
+        <action
+            android:id="@+id/action_friendsFragment_to_friendProfileFragment"
+            app:destination="@id/friendProfileFragment" />
+    </fragment>
     <fragment
         android:id="@+id/editProfileFragment"
         android:name="com.example.ecoapp.EditProfileFragment"
         android:label="Modifica Profilo"
         tools:layout="@layout/fragment_edit_profile" />
+    <fragment
+        android:id="@+id/friendProfileFragment"
+        android:name="com.example.ecoapp.FriendProfileFragment"
+        android:label="Profilo Amico"
+        tools:layout="@layout/fragment_profile">
+        <argument
+            android:name="userId"
+            app:argType="string" />
+    </fragment>
 </navigation>

@@ -13,6 +13,7 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
+import retrofit2.http.Path;
 
 public interface AuthService {
     
@@ -24,6 +25,9 @@ public interface AuthService {
     
     @GET("/api/user/profile")
     Call<User> getProfile();
+
+    @GET("/api/user/profile/{id}")
+    Call<User> getFriendProfile(@Path("id") String userId);
 
     @PUT("/api/user/profile")
     Call<User> updateProfile(@Body User user);

@@ -17,13 +17,13 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.ecoapp.android.auth.ApiClient;
+import com.ecoapp.android.auth.AuthManager;
 import com.ecoapp.android.auth.AuthService;
 import com.ecoapp.android.auth.models.Badge;
 import com.ecoapp.android.auth.models.User;
 import com.example.ecoapp.databinding.FragmentProfileBinding;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -52,36 +52,22 @@ public class ProfileFragment extends Fragment {
 
         if (binding == null) return;
 
-        binding.friendsCard.setOnClickListener(v -> {
-            NavHostFragment.findNavController(ProfileFragment.this)
-                    .navigate(R.id.action_profileFragment_to_friendsFragment);
-        });
+        binding.friendsCard.setOnClickListener(v -> NavHostFragment.findNavController(ProfileFragment.this)
+                .navigate(R.id.action_profileFragment_to_friendsFragment));
 
-        binding.editProfileButton.setOnClickListener(v -> {
-            NavHostFragment.findNavController(ProfileFragment.this)
-                    .navigate(R.id.action_profileFragment_to_editProfileFragment);
-        });
+        binding.editProfileButton.setOnClickListener(v -> NavHostFragment.findNavController(ProfileFragment.this)
+                .navigate(R.id.action_profileFragment_to_editProfileFragment));
         
         binding.co2Layout.setOnClickListener(v -> showCO2DetailSheet());
         
-        setupBadges();
-        loadUserProfile();
+        binding.badgesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
     }
 
-    private void setupBadges() {
-        if (binding == null) return;
-        binding.badgesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        
-        List<Badge> dummyBadges = new ArrayList<>();
-        dummyBadges.add(new Badge(1, "Eco-Novizio", "Benvenuto nel mondo della sostenibilità!", android.R.drawable.ic_menu_compass));
-        dummyBadges.add(new Badge(2, "Riciclatore Seriale", "Hai completato 10 sfide di riciclo.", android.R.drawable.ic_menu_gallery));
-        dummyBadges.add(new Badge(3, "Amico della Terra", "Hai salvato i tuoi primi 10kg di CO2.", android.R.drawable.ic_menu_manage));
-        dummyBadges.add(new Badge(4, "Pioniere Verde", "Uno dei primi 100 utenti della community.", android.R.drawable.ic_menu_camera));
-        
-        BadgesAdapter adapter = new BadgesAdapter(dummyBadges, badge -> {
-            showDetailSheet(badge.getName(), badge.getDescription());
-        });
-        binding.badgesRecyclerView.setAdapter(adapter);
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Forza il ricaricamento dei dati ogni volta che torniamo sul profilo
+        loadUserProfile();
     }
 
     private void showCO2DetailSheet() {
@@ -111,7 +97,10 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
                 if (response.isSuccessful() && response.body() != null && isAdded()) {
-                    updateUI(response.body());
+                    User updatedUser = response.body();
+                    // Fondamentale: aggiorna i dati in AuthManager così le altre schermate vedono i cambiamenti
+                    AuthManager.getInstance(requireContext()).setCurrentUser(updatedUser);
+                    updateUI(updatedUser);
                 }
             }
             @Override public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
@@ -149,6 +138,18 @@ public class ProfileFragment extends Fragment {
                 e.printStackTrace();
                 binding.profileAvatar.setImageResource(R.drawable.ic_default_avatar);
             }
+        }
+
+        // Badges del profilo
+        List<Badge> badges = user.getBadges();
+        if (badges != null && !badges.isEmpty()) {
+            BadgesAdapter adapter = new BadgesAdapter(badges, badge -> {
+                showDetailSheet(badge.getName(), badge.getDescription());
+            });
+            binding.badgesRecyclerView.setAdapter(adapter);
+            binding.badgesRecyclerView.setVisibility(View.VISIBLE);
+        } else {
+            binding.badgesRecyclerView.setVisibility(View.GONE);
         }
 
         int points = user.getTotalPoints();

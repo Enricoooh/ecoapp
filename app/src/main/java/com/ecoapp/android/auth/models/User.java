@@ -16,6 +16,7 @@ public class User {
     private int followerCount;
     private int followingCount;
     private List<String> friends;
+    private List<Badge> badges;
 
     // Constructors
     public User() {}
@@ -36,7 +37,7 @@ public class User {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
-    public String getPassword() { return password; }
+    //public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
     public String getName() { return name; }
@@ -68,4 +69,7 @@ public class User {
 
     public List<String> getFriends() { return friends; }
     public void setFriends(List<String> friends) { this.friends = friends; }
+
+    public List<Badge> getBadges() { return badges; }
+    public void setBadges(List<Badge> badges) { this.badges = badges; }
 }

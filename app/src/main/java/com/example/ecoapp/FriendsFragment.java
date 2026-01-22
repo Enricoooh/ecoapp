@@ -3,7 +3,6 @@ package com.example.ecoapp;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.ecoapp.android.auth.ApiClient;
@@ -33,9 +33,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class FriendsFragment extends Fragment {
+public class FriendsFragment extends Fragment implements FriendsAdapter.OnFriendInteractionListener {
 
-    private static final String TAG = "FriendsFragment";
     private FragmentFriendsBinding binding;
     private AuthService authService;
     private FriendsAdapter friendsAdapter;
@@ -58,7 +57,8 @@ public class FriendsFragment extends Fragment {
 
         // Setup Friends List
         binding.friendsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        friendsAdapter = new FriendsAdapter(displayedFriendsList, this::showRemoveConfirmation);
+        // 'this' ora implementa OnFriendInteractionListener
+        friendsAdapter = new FriendsAdapter(displayedFriendsList, this);
         binding.friendsRecyclerView.setAdapter(friendsAdapter);
 
         // Setup Requests List
@@ -93,6 +93,20 @@ public class FriendsFragment extends Fragment {
         });
 
         loadData();
+    }
+
+    @Override
+    public void onFriendClick(User friend) {
+        // Navigazione al profilo dell'amico
+        Bundle args = new Bundle();
+        args.putString("userId", friend.getId());
+        NavHostFragment.findNavController(this)
+                .navigate(R.id.action_friendsFragment_to_friendProfileFragment, args);
+    }
+
+    @Override
+    public void onRemove(User friend) {
+        showRemoveConfirmation(friend);
     }
 
     private void loadData() {
