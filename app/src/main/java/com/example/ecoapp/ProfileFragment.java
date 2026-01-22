@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.ecoapp.android.auth.ApiClient;
 import com.ecoapp.android.auth.AuthService;
 import com.ecoapp.android.auth.models.Badge;
-import com.ecoapp.android.auth.models.Quest;
 import com.ecoapp.android.auth.models.User;
 import com.example.ecoapp.databinding.FragmentProfileBinding;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -66,8 +65,6 @@ public class ProfileFragment extends Fragment {
         binding.co2Layout.setOnClickListener(v -> showCO2DetailSheet());
         
         setupBadges();
-        setupOngoingQuests();
-        setupCompletedQuests();
         loadUserProfile();
     }
 
@@ -85,38 +82,6 @@ public class ProfileFragment extends Fragment {
             showDetailSheet(badge.getName(), badge.getDescription());
         });
         binding.badgesRecyclerView.setAdapter(adapter);
-    }
-
-    private void setupOngoingQuests() {
-        /* //DA SISTEMARE
-        if (binding == null) return;
-        binding.ongoingQuestsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        List<Quest> ongoing = new ArrayList<>();
-        ongoing.add(new Quest(1, "Pianta 5 Alberi", "ecology", 5, 0, "Pianta degli alberi per aiutare il pianeta", null, 100));
-        ongoing.add(new Quest(2, "Settimana senza plastica", "recycle", 7, 0, "Evita l'uso di plastica monouso", null, 150));
-        
-        OngoingQuestsAdapter adapter = new OngoingQuestsAdapter(ongoing, quest -> {
-            if (quest.getMaxProgress() > 0) {
-                int percentage = (quest.getActualProgress() * 100) / quest.getMaxProgress();
-                showDetailSheet(quest.getName(), quest.getDescription() + "\nProgresso attuale: " + percentage + "%");
-            }
-        });
-        binding.ongoingQuestsRecyclerView.setAdapter(adapter);
-        */
-    }
-    
-    private void setupCompletedQuests() {
-        /*
-        if (binding == null) return;
-        binding.completedQuestsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        List<Quest> completed = new ArrayList<>();
-        completed.add(new Quest(5, "Riciclo Plastica", "recycle", 10, 0, "Hai riciclato correttamente la plastica", null, 50));
-        completed.add(new Quest(3, "Mobilità Sostenibile", "mobility", 5, 0, "Hai usato i mezzi pubblici", null, 30));
-        
-        CompletedQuestsAdapter adapter = new CompletedQuestsAdapter(completed, quest -> 
-            showDetailSheet(quest.getName(), quest.getDescription() + "\nSfida completata con successo!"));
-        binding.completedQuestsRecyclerView.setAdapter(adapter);
-        */
     }
 
     private void showCO2DetailSheet() {
@@ -162,7 +127,7 @@ public class ProfileFragment extends Fragment {
 
         binding.userNickname.setText(user.getNickname() != null ? user.getNickname() : user.getName());
         binding.userRealName.setText(user.getName() != null ? user.getName() : "");
-        binding.userBio.setText(user.getBio() != null ? user.getBio() : ""); 
+        binding.userBio.setText(user.getBio() != null ? user.getBio() : "");
         binding.userLevel.setText(String.format("Livello: %s", user.getLevel() != null ? user.getLevel() : "Eco-Novizio"));
         binding.totalPointsValue.setText(String.valueOf(user.getTotalPoints()));
         binding.co2SavedValue.setText(String.format(Locale.getDefault(), "%.1f kg", user.getCo2Saved()));
@@ -170,10 +135,6 @@ public class ProfileFragment extends Fragment {
         // Gestione Immagine Profilo
         String imageStr = user.getUrlImmagineProfilo();
         if (imageStr == null || imageStr.isEmpty() || imageStr.equals("default")) {
-            // Imposta l'immagine predefinita se non è presente o è impostata su default
-            binding.profileAvatar.setImageResource(R.drawable.ic_default_avatar);
-        } else if (imageStr.startsWith("http")) {
-            // Per ora lasciamo l'immagine di default per URL esterni non gestiti
             binding.profileAvatar.setImageResource(R.drawable.ic_default_avatar);
         } else {
             try {

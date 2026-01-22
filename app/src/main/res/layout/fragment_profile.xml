@@ -31,7 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:src="@android:drawable/sym_def_app_icon" 
+                android:src="@android:drawable/sym_def_app_icon"
                 android:contentDescription="@string/profile_user_avatar_description" />
         </com.google.android.material.card.MaterialCardView>
 
@@ -119,6 +119,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/eco_card"
                 android:padding="16dp">
 
                 <LinearLayout
@@ -212,28 +213,6 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Sfide in Corso -->
-        <TextView
-            android:id="@+id/ongoing_quests_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="SFIDE IN CORSO"
-            android:layout_marginTop="32dp"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/impact_card" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/ongoing_quests_recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@+id/ongoing_quests_title"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:listitem="@layout/item_quest_ongoing" />
-
         <!-- Sezione Social (Amici) -->
         <TextView
             android:id="@+id/social_title"
@@ -244,7 +223,7 @@
             android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ongoing_quests_recycler_view" />
+            app:layout_constraintTop_toBottomOf="@+id/impact_card" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/friends_card"
@@ -280,12 +259,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="VEDI TUTTI >"
+
                     android:textStyle="bold"
-                    android:textColor="?attr/colorPrimary" />
+                    android:textColor="@color/eco_text_light" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Badge e Quest Completate -->
+        <!-- Badge -->
         <TextView
             android:id="@+id/my_badges_title"
             android:layout_width="wrap_content"
@@ -307,26 +287,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:listitem="@layout/item_badge" />
-
-        <TextView
-            android:id="@+id/last_quests_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="@string/profile_last_quests_title"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/badges_recycler_view" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/completed_quests_recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@+id/last_quests_title"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:listitem="@layout/item_quest_completed" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

@@ -6,6 +6,7 @@ import com.ecoapp.android.auth.models.RegisterRequest;
 import com.ecoapp.android.auth.models.User;
 
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -29,4 +30,16 @@ public interface AuthService {
 
     @GET("/api/user/friends")
     Call<List<User>> getFriends();
+
+    @POST("/api/user/friends/request")
+    Call<Map<String, Object>> sendFriendRequest(@Body Map<String, String> body);
+
+    @GET("/api/user/friends/requests")
+    Call<List<User>> getPendingRequests();
+
+    @POST("/api/user/friends/respond")
+    Call<Map<String, Object>> respondToRequest(@Body Map<String, String> body);
+
+    @POST("/api/user/friends/remove")
+    Call<Map<String, Object>> removeFriend(@Body Map<String, String> body);
 }

@@ -11,9 +11,15 @@ import java.util.List;
 public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHolder> {
 
     private final List<User> friends;
+    private final OnFriendRemoveListener removeListener;
 
-    public FriendsAdapter(List<User> friends) {
+    public interface OnFriendRemoveListener {
+        void onRemove(User friend);
+    }
+
+    public FriendsAdapter(List<User> friends, OnFriendRemoveListener removeListener) {
         this.friends = friends;
+        this.removeListener = removeListener;
     }
 
     @NonNull
@@ -27,11 +33,18 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         User friend = friends.get(position);
-        holder.binding.friendName.setText(friend.getName());
-        // Se il nickname esiste, mostralo tra parentesi o sotto
+        
+        String displayName = friend.getName();
         if (friend.getNickname() != null) {
-            holder.binding.friendName.setText(friend.getName() + " (@" + friend.getNickname() + ")");
+            displayName += " (@" + friend.getNickname() + ")";
         }
+        holder.binding.friendName.setText(displayName);
+
+        holder.binding.removeFriendButton.setOnClickListener(v -> {
+            if (removeListener != null) {
+                removeListener.onRemove(friend);
+            }
+        });
     }
 
     @Override

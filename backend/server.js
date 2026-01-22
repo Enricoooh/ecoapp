@@ -42,6 +42,14 @@ const writeDB = (data) => {
   fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
 };
 
+const calculateLevel = (points) => {
+  if (points >= 10000) return 'Eco-Leggenda';
+  if (points >= 5000) return 'Eco-Eroe';
+  if (points >= 2000) return 'Eco-Guerriero';
+  if (points >= 1000) return 'Eco-Apprendista';
+  return 'Eco-Novizio';
+};
+
 // Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -157,7 +165,7 @@ app.post('/api/auth/register', async (req, res) => {
       totalPoints: 0,
       co2Saved: 0.0,
       friends: [], // Lista ID amici
-      pendingRequests: [], // <--- AGGIUNTO: richieste pendenti ricevute
+      pendingRequests: [], // richieste pendenti ricevute
       createdAt: new Date().toISOString()
     };
 
@@ -490,10 +498,14 @@ app.post('/api/user/quests/update', authenticateToken, (req, res) => {
             userQuest.actual_progress = 0;
 
             const usersDb = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
-            const userIdx = usersDb.users.findIndex(u => u.id === userId);
-            if (userIdx !== -1) {
-                usersDb.users[userIdx].totalPoints += Number(globalQuest.reward_points);
-                usersDb.users[userIdx].co2Saved += Number(globalQuest.CO2_saved);
+            const uIdx = usersDb.users.findIndex(u => u.id === userId);
+            if (uIdx !== -1) {
+                usersDb.users[uIdx].totalPoints += Number(globalQuest.reward_points);
+                usersDb.users[uIdx].co2Saved += Number(globalQuest.CO2_saved);
+
+                // Aggiorna il livello in base ai nuovi punti
+                usersDb.users[uIdx].level = calculateLevel(usersDb.users[uIdx].totalPoints);
+
                 fs.writeFileSync(DB_FILE, JSON.stringify(usersDb, null, 2));
             }
         }
