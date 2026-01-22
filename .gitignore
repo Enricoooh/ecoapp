@@ -14,3 +14,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Documentazione sensibile - NON committare
+DECISIONI_ARCHITETTURALI.md
