@@ -99,13 +99,16 @@ public class GlobalQuestFragment extends Fragment {
 
         QuestApiService apiService = retrofit.create(QuestApiService.class);
         String token = "Bearer " + AuthManager.getInstance(requireContext()).getToken();
+        Log.d(TAG, "Token usato: " + token);
 
         //Carica le Quest Globali
         apiService.getGlobalQuests(token).enqueue(new Callback<List<Quest>>() {
             @Override
             public void onResponse(@NonNull Call<List<Quest>> call, @NonNull Response<List<Quest>> response) {
+                Log.d(TAG, "Response code: " + response.code());
                 //Se la chiamata ha avuto successo
                 if (response.isSuccessful() && response.body() != null) {
+                    Log.d(TAG, "Quest ricevute: " + response.body().size());
                     //Svuota la precendente mappa
                     allGlobalQuests.clear();
 
@@ -187,7 +190,12 @@ public class GlobalQuestFragment extends Fragment {
 
     private void applyFilter() {
         //Se il server non ha inviato le quest è inutile filtrarle
-        if (allGlobalQuests == null || allGlobalQuests.isEmpty()) return;
+        if (allGlobalQuests == null || allGlobalQuests.isEmpty()) {
+            Log.e(TAG, "applyFilter: allGlobalQuests è vuoto o null!");
+            return;
+        }
+        
+        Log.d(TAG, "applyFilter: allGlobalQuests.size()=" + allGlobalQuests.size() + ", localQuests.size()=" + localQuests.size());
 
         //Resetto il filtro
         filteredQuests.clear();
@@ -197,16 +205,20 @@ public class GlobalQuestFragment extends Fragment {
         RecyclerView recyclerView = getView().findViewById(R.id.recyclerQuests);
 
         switch (selectedTabPosition) {
-            //Global quests
+            //Global quests - mostra TUTTE le quest disponibili
             case 0:{
-                Integer globalQuestId;
                 for(Map.Entry<Integer, Quest> globalElement : allGlobalQuests.entrySet()){
-                    globalQuestId = globalElement.getKey();
-                    //se esiste una quest in allGlobalQuests ma non esiste in localQuests allora la aggiungo a
-                    if(!localQuests.containsKey(globalQuestId)){
+                    Integer globalQuestId = globalElement.getKey();
+                    // Creiamo LocalQuest da GlobalQuest, con o senza progress utente
+                    LocalQuest localQuest = localQuests.get(globalQuestId);
+                    if (localQuest != null) {
+                        filteredQuests.put(globalQuestId, localQuest);
+                    } else {
                         filteredQuests.put(globalQuestId, new LocalQuest(globalElement.getValue()));
                     }
                 }
+                
+                Log.d(TAG, "TAB GLOBAL: filteredQuests.size()=" + filteredQuests.size());
 
                 // Convertiamo filteredQuests.values() in una ArrayList
                 globalAdapter = new GlobalQuestAdapter(new ArrayList<>(filteredQuests.values()), questId -> {
