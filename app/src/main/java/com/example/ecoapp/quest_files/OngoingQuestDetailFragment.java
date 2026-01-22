@@ -75,10 +75,9 @@ public class OngoingQuestDetailFragment extends Fragment {
         //Setup Listener
         view.findViewById(R.id.buttonIncrement).setOnClickListener(v -> setProgress(currentProgress + 1));
         view.findViewById(R.id.buttonDecrement).setOnClickListener(v -> setProgress(currentProgress - 1));
-        view.findViewById(R.id.buttonCompleteQuest).setOnClickListener(v -> setProgress(0));
         view.findViewById(R.id.buttonCompleteQuest).setOnClickListener(v -> {
-            //Chiamata al server
-            saveFinalStateToServer(currentProgress, timesCompleted + 1);
+            //Chiamata al server - resetta progresso a 0 e incrementa completamenti
+            saveFinalStateToServer(0, timesCompleted + 1);
 
             Toast.makeText(getContext(), "Missione Completata!", Toast.LENGTH_SHORT).show();
             Navigation.findNavController(requireView()).popBackStack();

@@ -259,15 +259,24 @@ public class GlobalQuestFragment extends Fragment {
 
             //Completed quests
             case 2:{
-                /*
                 for(Map.Entry<Integer, LocalQuest> localElement : localQuests.entrySet()){
-                    //se è stata completata almeno una volta e non è attualmente attiva
-                    if(localElement.getValue().getTimesCompleted() > 0 && !localElement.getValue().isCurrentlyActive()){
+                    //se è stata completata almeno una volta
+                    if(localElement.getValue().getTimesCompleted() > 0){
                         filteredQuests.put(localElement.getKey(), localElement.getValue());
                     }
                 }
-                //recyclerView.setAdapter(ongoingAdapter); da cambiare adapter e aggiungere completedAdapter
-                */
+                Log.d("DEBUG_QUEST", "Elementi filtrati per Completed: " + filteredQuests.size());
+
+                CompletedQuestAdapter completedAdapter = new CompletedQuestAdapter(new ArrayList<>(filteredQuests.values()), questId -> {
+                    // Click su quest completata - mostra dettagli
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("questId", questId);
+                    // Usa lo stesso detail fragment delle global
+                    Navigation.findNavController(requireView())
+                            .navigate(R.id.action_questFragment_to_questGlobalDetailFragment, bundle);
+                });
+
+                recyclerView.setAdapter(completedAdapter);
                 break;
             }
 
