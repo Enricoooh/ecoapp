@@ -124,7 +124,8 @@
                 android:text="@string/quest_minus_one_label"
                 app:strokeColor="#4CAF50"
                 android:textColor="#4CAF50"
-                app:cornerRadius="20dp"/>
+                app:cornerRadius="20dp"
+                android:textAllCaps="false"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonIncrement"
@@ -135,7 +136,8 @@
                 android:text="@string/quest_plus_one_label"
                 app:backgroundTint="#4CAF50"
                 android:textColor="@android:color/white"
-                app:cornerRadius="20dp"/>
+                app:cornerRadius="20dp"
+                android:textAllCaps="false"/>
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton

@@ -34,6 +34,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class GlobalQuestFragment extends Fragment {
 
     private static final String TAG = "GlobalQuestFragment";
+
+    private static int selectedTabPosition = 0; // 0: Global, 1: Ongoing, 2: Completed
     private GlobalQuestAdapter globalAdapter; // Rinominiamo il vecchio adapter
     private OngoingQuestAdapter2 ongoingAdapter; // Il nuovo adapter per le ongoing
 
@@ -43,9 +45,6 @@ public class GlobalQuestFragment extends Fragment {
     private Map<Integer, Quest> allGlobalQuests = new HashMap<>();
     private Map<Integer, LocalQuest> localQuests = new HashMap<>();
     private Map<Integer, LocalQuest> filteredQuests = new HashMap<>();
-
-
-    private int selectedTabPosition = 0; // 0: Global, 1: Ongoing, 2: Completed
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -58,6 +57,12 @@ public class GlobalQuestFragment extends Fragment {
 
         //I 3 tab in alto
         TabLayout tabLayout = view.findViewById(R.id.tabLayoutQuests);
+
+        //Serve a ricordarsi in che tab si era
+        TabLayout.Tab tab = tabLayout.getTabAt(selectedTabPosition);
+        if (tab != null) {
+            tab.select();
+        }
 
         //La lista di quest
         RecyclerView recyclerView = view.findViewById(R.id.recyclerQuests);

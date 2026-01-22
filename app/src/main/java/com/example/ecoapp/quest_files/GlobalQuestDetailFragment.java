@@ -135,18 +135,14 @@ public class GlobalQuestDetailFragment extends Fragment {
             @Override
             public void onResponse(@NonNull Call<List<Quest>> call, @NonNull Response<List<Quest>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Quest foundQuest = null;
                     for (Quest q : response.body()) {
                         if (q.getId() == questId) {
-                            foundQuest = q;
+                            populateUI(v, q);
                             break;
                         }
                     }
-
-                    if (foundQuest != null) {
-                        populateUI(v, foundQuest);
-                    }
-                } else {
+                }
+                else {
                     Log.e("RetrofitError", "Errore server: " + response.code());
                 }
             }
@@ -165,8 +161,8 @@ public class GlobalQuestDetailFragment extends Fragment {
         // Riferimenti agli elementi del layout
         ImageView img = v.findViewById(R.id.questImage);
         TextView txtName = v.findViewById(R.id.txtQuestName);
-        TextView txtDesc = v.findViewById(R.id.txtQuestDescription);
         TextView txtType = v.findViewById(R.id.txtQuestType);
+        TextView txtDesc = v.findViewById(R.id.txtQuestDescription);
         TextView txtCO2 = v.findViewById(R.id.txtCO2saved);
         TextView txtReward = v.findViewById(R.id.txtQuestRewardPoints);
 

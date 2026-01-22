@@ -67,8 +67,8 @@
     <string name="quest_current_progress">%1$d / %2$d</string>
     <string name="quest_button_complete_quest">Complete Quest</string>
     <string name="quest_ongoing_detail_label">Ongoing Quest Detail Label</string>
-    <string name="quest_plus_one_label">+1p</string>
-    <string name="quest_minus_one_label">-1p</string>
+    <string name="quest_plus_one_label">+1</string>
+    <string name="quest_minus_one_label">-1</string>
 
     <!-- 4. Completed quests -->
 

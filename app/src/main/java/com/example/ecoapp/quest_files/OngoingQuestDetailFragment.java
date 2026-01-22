@@ -5,8 +5,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,31 +53,42 @@ public class OngoingQuestDetailFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        //Progresso dinamico
         progressBar = view.findViewById(R.id.progressBar);
         txtProgressStatus = view.findViewById(R.id.txtProgressStatus);
 
-        setupRetrofit();
-
-        if (getArguments() != null) {
-            questId = getArguments().getInt("questId", -1);
-            loadData(view);
-        }
-
-        view.findViewById(R.id.buttonIncrement).setOnClickListener(v -> updateProgress(1));
-        view.findViewById(R.id.buttonDecrement).setOnClickListener(v -> updateProgress(-1));
-        view.findViewById(R.id.buttonCompleteQuest).setOnClickListener(v -> completeQuest());
-    }
-
-    private void setupRetrofit() {
+        //Setup Retrofit
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://ecoapp-p5gp.onrender.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         apiService = retrofit.create(QuestApiService.class);
+
+        //
+        Bundle args = getArguments();
+        if (args != null) {
+            questId = args.getInt("questId", -1);
+            loadData(view, questId);
+        }
+
+        //Setup Listener
+        view.findViewById(R.id.buttonIncrement).setOnClickListener(v -> updateProgress(1));
+        view.findViewById(R.id.buttonDecrement).setOnClickListener(v -> updateProgress(-1));
+        view.findViewById(R.id.buttonCompleteQuest).setOnClickListener(v -> updateProgress(0));
     }
 
-    private void loadData(View view) {
+    private void loadData(View view, int questId) {
+        if (AuthManager.getInstance(requireContext()).getToken() == null) {
+            Log.e("RetrofitError", "Token mancante");
+            return;
+        }
+
         String token = "Bearer " + AuthManager.getInstance(requireContext()).getToken();
+
+        if (apiService == null) {
+            Log.e("RetrofitError", "ApiService non inizializzato");
+            return;
+        }
 
         apiService.getGlobalQuests(token).enqueue(new Callback<List<Quest>>() {
             @Override
@@ -137,9 +148,16 @@ public class OngoingQuestDetailFragment extends Fragment {
             @Override
             public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
                 if (response.isSuccessful()) {
-                    currentProgress += increment;
-                    updateProgressBar(currentProgress, maxProgress);
-                    Toast.makeText(getContext(), "Progresso aggiornato!", Toast.LENGTH_SHORT).show();
+                    // Se l'increment è 0, significa un click a "Completa Quest"
+                    if (increment == 0) {
+                        Toast.makeText(getContext(), "Missione Completata!", Toast.LENGTH_SHORT).show();
+                        Navigation.findNavController(requireView()).popBackStack();
+                    }
+                    else {
+                        currentProgress += increment;
+                        updateProgressBar(currentProgress, maxProgress);
+                        //Toast.makeText(getContext(), "Progresso aggiornato!", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     Toast.makeText(getContext(), "Errore server: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
@@ -152,20 +170,64 @@ public class OngoingQuestDetailFragment extends Fragment {
         });
     }
 
-    private void completeQuest() {
-        // Incremento 0 per forzare la logica di completamento lato server se necessario,
-        // oppure naviga semplicemente indietro.
-        updateProgress(0);
-        Navigation.findNavController(requireView()).popBackStack();
+    private void populateStaticUI(View v, Quest q) {
+        //Riferimenti agli elementi del layout
+        ImageView img = v.findViewById(R.id.questImage);
+        TextView txtName = v.findViewById(R.id.txtQuestName);
+        TextView txtType = v.findViewById(R.id.txtQuestType);
+        TextView txtDesc = v.findViewById(R.id.txtQuestDescription);
+        TextView txtCO2 = v.findViewById(R.id.txtCO2saved);
+        TextView txtReward = v.findViewById(R.id.txtQuestRewardPoints);
+
+        //Impostazione immagine
+        if(q.getQuestImageResourceId(getContext()) != 0)
+            img.setImageResource(q.getQuestImageResourceId(getContext()));
+
+        //Impostazione ""Stringhe""
+        txtName.setText(q.getName());
+        txtType.setText(q.getType());
+        txtDesc.setText(q.getDescription());
+
+        //Impostazione double
+        double co2Value = q.getCO2Saved();
+        txtCO2.setText(getString(R.string.quest_CO2_saved, co2Value));
+
+        //Impostazione int
+        txtReward.setText(getString(R.string.quest_reward_points, q.getRewardPoints()));
+
+        //Metodo per gli EU goals
+        setupEuGoals(v, q);
     }
 
-    private void populateStaticUI(View v, Quest q) {
-        ((TextView) v.findViewById(R.id.txtQuestName)).setText(q.getName());
-        ((TextView) v.findViewById(R.id.txtQuestDescription)).setText(q.getDescription());
+    private void setupEuGoals(View view, Quest quest) {
+        LinearLayout container = view.findViewById(R.id.containerEuGoals);
+        //Verifica che il fragment sia ancora "attaccato" e la vista esista
+        if (container == null || quest.getImagesEuGoals() == null || getContext() == null) return;
 
-        ImageView img = v.findViewById(R.id.questImage);
-        int resId = q.getQuestImageResourceId(getContext());
-        if (resId != 0) img.setImageResource(resId);
+        //Contesto sicuro
+        container.removeAllViews();
+        android.content.Context context = getContext();
+
+        for (String imageName : quest.getImagesEuGoals()) {
+            ImageView imageView = new ImageView(context);
+
+            //Recupera l'ID usando la variabile context (Risolve il Warning)
+            int resId = context.getResources().getIdentifier(
+                    imageName, "drawable", context.getPackageName());
+
+            if (resId != 0) {
+                // Calcolo dimensioni (50dp)
+                int sizeInPx = (int) (50 * context.getResources().getDisplayMetrics().density);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(sizeInPx, sizeInPx);
+                params.setMargins(0, 0, (int) (12 * context.getResources().getDisplayMetrics().density), 0);
+
+                imageView.setLayoutParams(params);
+                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                imageView.setImageResource(resId);
+
+                container.addView(imageView);
+            }
+        }
     }
 
     private void updateProgressBar(int current, int max) {
