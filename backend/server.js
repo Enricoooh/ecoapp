@@ -251,7 +251,8 @@ app.post('/api/auth/register', async (req, res) => {
         nickname: newUser.nickname,
         level: newUser.level,
         totalPoints: newUser.totalPoints,
-        co2Saved: newUser.co2Saved
+        co2Saved: newUser.co2Saved,
+        badges: newUser.badges
       }
     });
   } catch (error) {
@@ -297,7 +298,8 @@ app.post('/api/auth/login', async (req, res) => {
         nickname: user.nickname,
         level: user.level,
         totalPoints: user.totalPoints,
-        co2Saved: user.co2Saved
+        co2Saved: user.co2Saved,
+        badges: user.badges || []
       }
     });
   } catch (error) {
@@ -322,6 +324,7 @@ app.get('/api/user/profile', authenticateToken, (req, res) => {
     level: user.level,
     totalPoints: user.totalPoints,
     co2Saved: user.co2Saved,
+    badges: user.badges || [],
     followerCount: 0, // Da implementare con logica reale
     followingCount: user.friends.length
   });
@@ -374,7 +377,8 @@ app.get('/api/user/friends', authenticateToken, (req, res) => {
       name: u.name,
       nickname: u.nickname,
       urlImmagineProfilo: u.urlImmagineProfilo,
-      level: u.level
+      level: u.level,
+      badges: u.badges || []
     }));
 
   res.json(friendsProfiles);
