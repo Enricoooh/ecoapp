@@ -514,138 +514,136 @@ app.get('/api/user/profile/:id', authenticateToken, async (req, res) => {
 
 // ============== QUESTS ==============
 
-app.get('/api/quests', authenticateToken, async (req, res) => {
+// 1. Ottieni tutte le quest dal file separato
+app.get('/api/quests', authenticateToken, (req, res) => {
   try {
-    const quests = await GlobalQuest.find().sort({ id: 1 });
+    // Legge il file quests.json
+    const data = fs.readFileSync(GLOBAL_QUESTS_FILE, 'utf8');
+    const quests = JSON.parse(data);
+
+    // Invia la lista delle quest all'app Android
     res.json(quests);
-  } catch (error) {
-    console.error('Global quests error:', error);
+  }
+  catch (error) {
+    console.error("Errore lettura quests.json:", error);
     res.status(500).json({ error: 'Errore nel caricamento delle missioni' });
   }
 });
 
-app.get('/api/user/quests', authenticateToken, async (req, res) => {
+// 2. Ottieni lo stato delle quest dell'utente dal file SEPARATO
+app.get('/api/user/quests', authenticateToken, (req, res) => {
   try {
-    const userQuests = await UserQuest.find({ userId: req.user.id });
-    // Mappa al formato atteso dall'app
-    const formatted = userQuests.map(q => ({
-      questId: q.questId,
-      actual_progress: q.actual_progress,
-      times_completed: q.times_completed,
-      is_currently_active: q.isActive
-    }));
-    res.json(formatted);
+    const userId = req.user.id.toString();
+    const data = JSON.parse(fs.readFileSync(USER_QUESTS_FILE, 'utf8'));
+
+    const userQuests = data[userId] || [];
+    res.json(userQuests);
   } catch (error) {
-    console.error('User quests error:', error);
     res.status(500).json([]);
   }
 });
 
-app.post('/api/user/quests/set-actual-progress', authenticateToken, async (req, res) => {
-  try {
+//Settare il progresso attuale
+app.post('/api/user/quests/set-actual-progress', authenticateToken, (req, res) => {
+    const userId = req.user.id;
     const { questId, actual_progress } = req.body;
-    
-    const quest = await UserQuest.findOneAndUpdate(
-      { userId: req.user.id, questId: Number(questId) },
-      { actual_progress: Number(actual_progress) },
-      { new: true, upsert: true }
-    );
-
-    res.json({ success: true, quest });
-  } catch (error) {
-    console.error('Set progress error:', error);
-    res.status(500).json({ error: 'Errore aggiornamento progresso' });
-  }
+    updateUserQuest(userId, questId, { actual_progress }, res);
 });
 
-app.post('/api/user/quests/set-times-completed', authenticateToken, async (req, res) => {
-  try {
+//Settare quante volte è stata completata
+app.post('/api/user/quests/set-times-completed', authenticateToken, (req, res) => {
+    const userId = req.user.id;
     const { questId, times_completed } = req.body;
-    
-    const quest = await UserQuest.findOneAndUpdate(
-      { userId: req.user.id, questId: Number(questId) },
-      { times_completed: Number(times_completed) },
-      { new: true, upsert: true }
-    );
-
-    res.json({ success: true, quest });
-  } catch (error) {
-    console.error('Set times completed error:', error);
-    res.status(500).json({ error: 'Errore aggiornamento' });
-  }
+    updateUserQuest(userId, questId, { times_completed }, res);
 });
 
-app.post('/api/user/quests/set-is-active', authenticateToken, async (req, res) => {
-  try {
+//Settare se è attiva o meno
+app.post('/api/user/quests/set-is-active', authenticateToken, (req, res) => {
+    const userId = req.user.id;
     const { questId, is_currently_active } = req.body;
-    
-    const quest = await UserQuest.findOneAndUpdate(
-      { userId: req.user.id, questId: Number(questId) },
-      { isActive: Boolean(is_currently_active) },
-      { new: true, upsert: true }
-    );
-
-    res.json({ success: true, quest });
-  } catch (error) {
-    console.error('Set active error:', error);
-    res.status(500).json({ error: 'Errore aggiornamento quest' });
-  }
+    updateUserQuest(userId, questId, { is_currently_active }, res);
 });
 
-app.post('/api/user/quests/update', authenticateToken, async (req, res) => {
-  try {
-    const { questId, progressIncrement } = req.body;
+// Funzione di utilità per non ripetere il codice di scrittura file
+function updateUserQuest(userId, questId, newData, res) {
+    fs.readFile(USER_QUESTS_FILE, 'utf8', (err, data) => {
+        if (err) return res.status(500).send("Errore lettura");
+        let allData = JSON.parse(data);
+        let userQuests = allData[userId] || [];
+        let quest = userQuests.find(q => q.questId === parseInt(questId));
+        
+        if (quest) {
+            Object.assign(quest, newData);
+            allData[userId] = userQuests;
+            fs.writeFile(USER_QUESTS_FILE, JSON.stringify(allData, null, 2), (err) => {
+                if (err) return res.status(500).send("Errore scrittura");
+                res.json({ success: true, quest });
+            });
+        } else {
+            res.status(404).send("Quest non trovata");
+        }
+    });
+}
 
-    const globalQuest = await GlobalQuest.findOne({ id: Number(questId) });
+// 3. Aggiorna il progresso di una quest salvandolo nel file SEPARATO user_quests.json
+app.post('/api/user/quests/update', authenticateToken, (req, res) => {
+    const { questId, progressIncrement } = req.body;
+    const userId = req.user.id.toString();
+
+    const questsData = JSON.parse(fs.readFileSync(GLOBAL_QUESTS_FILE, 'utf8'));
+    const globalQuest = questsData.find(q => q.id === Number(questId));
     if (!globalQuest) return res.status(404).json({ error: 'Quest globale non trovata' });
 
-    let userQuest = await UserQuest.findOne({ userId: req.user.id, questId: Number(questId) });
-    
+    let allProgress = {};
+    if (fs.existsSync(USER_QUESTS_FILE)) {
+        allProgress = JSON.parse(fs.readFileSync(USER_QUESTS_FILE, 'utf8'));
+    }
+
+    if (!allProgress[userId]) {
+        allProgress[userId] = [];
+    }
+
+    let userQuest = allProgress[userId].find(q => q.questId === Number(questId));
+
     if (!userQuest) {
-      userQuest = new UserQuest({ 
-        userId: req.user.id, 
-        questId: Number(questId), 
-        actual_progress: Number(progressIncrement), 
-        times_completed: 0, 
-        isActive: true 
-      });
+        userQuest = {
+            questId: Number(questId),
+            actual_progress: Number(progressIncrement),
+            times_completed: Number(0),
+            is_currently_active: true
+        };
+        allProgress[userId].push(userQuest);
     } else {
-      userQuest.actual_progress += Number(progressIncrement);
-      // IMPORTANTE: se l'utente sta accettando la quest, attivarla
-      if (!userQuest.isActive) {
-        userQuest.isActive = true;
-      }
+        userQuest.actual_progress += Number(progressIncrement);
+
+        if (userQuest.actual_progress >= Number(globalQuest.max_progress)) {
+            userQuest.times_completed += 1;
+            userQuest.actual_progress = 0;
+
+            const usersDb = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+            const uIdx = usersDb.users.findIndex(u => u.id === userId);
+            if (uIdx !== -1) {
+                usersDb.users[uIdx].totalPoints += Number(globalQuest.reward_points);
+                usersDb.users[uIdx].co2Saved += Number(globalQuest.CO2_saved);
+
+                // Aggiorna il livello in base ai nuovi punti
+                usersDb.users[uIdx].level = calculateLevel(usersDb.users[uIdx].totalPoints);
+
+                // Controlla badge dopo completamento missione
+                usersDb.users[uIdx].badges = checkBadges(usersDb.users[uIdx]);
+
+                fs.writeFileSync(DB_FILE, JSON.stringify(usersDb, null, 2));
+            }
+        }
     }
 
-    // Check completamento
-    if (userQuest.actual_progress >= globalQuest.max_progress) {
-      userQuest.times_completed += 1;
-      userQuest.actual_progress = 0;
-
-      // Aggiorna utente
-      const user = await User.findById(req.user.id);
-      user.totalPoints += globalQuest.reward_points;
-      user.co2Saved += globalQuest.CO2_saved;
-      user.level = calculateLevel(user.totalPoints);
-      user.badges = checkBadges(user);
-      await user.save();
-    }
-
-    await userQuest.save();
+    fs.writeFileSync(USER_QUESTS_FILE, JSON.stringify(allProgress, null, 2));
 
     res.json({
-      message: 'Progresso aggiornato',
-      userQuest: {
-        questId: userQuest.questId,
-        actual_progress: userQuest.actual_progress,
-        times_completed: userQuest.times_completed,
-        is_currently_active: userQuest.isActive
-      }
+        message: 'Progresso aggiornato nel file separato',
+        userQuest
     });
-  } catch (error) {
-    console.error('Quest update error:', error);
-    res.status(500).json({ error: 'Errore aggiornamento quest' });
-  }
+
 });
 
 // ============== DEBUG/ADMIN ==============
