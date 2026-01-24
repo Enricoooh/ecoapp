@@ -206,33 +206,28 @@ public class OngoingQuestDetailFragment extends Fragment {
     private void saveFinalStateToServer(int cProgress, int tCompleted) {
         String token = "Bearer " + AuthManager.getInstance(requireContext()).getToken();
 
-        //Creiamo i tre body per le chiamate in server.js
-        Map<String, Object> bodyProg = new HashMap<>();
-        bodyProg.put("questId", questId);
-        bodyProg.put("actual_progress", cProgress);
+        // Usiamo l'endpoint /update con progressIncrement per raggiungere max_progress
+        // Questo attiva la logica di completamento nel backend che assegna punti e CO2
+        int progressNeeded = maxProgress - currentProgress;
+        if (progressNeeded < 0) progressNeeded = 0;
 
-        Map<String, Object> bodyComp = new HashMap<>();
-        bodyComp.put("questId", questId);
-        bodyComp.put("times_completed", tCompleted);
+        Map<String, Object> body = new HashMap<>();
+        body.put("questId", questId);
+        body.put("progressIncrement", progressNeeded);
 
-        Map<String, Object> bodyActive = new HashMap<>();
-        bodyActive.put("questId", questId);
-        bodyActive.put("is_currently_active", false);
-
-        //Chiamate (lato server useranno la funzione updateUserQuest)
-        apiService.setActualProgress(token, bodyProg).enqueue(new Callback<Map<String, Object>>() {
-            @Override public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {}
-            @Override public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {}
-        });
-
-        apiService.setTimesCompleted(token, bodyComp).enqueue(new Callback<Map<String, Object>>() {
-            @Override public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {}
-            @Override public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {}
-        });
-
-        apiService.setCurrentlyActive(token, bodyActive).enqueue(new Callback<Map<String, Object>>() {
-            @Override public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {}
-            @Override public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {}
+        apiService.updateQuestProgress(token, body).enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
+                if (response.isSuccessful()) {
+                    Log.d(TAG, "Quest completata con successo, punti assegnati");
+                } else {
+                    Log.e(TAG, "Errore completamento quest: " + response.code());
+                }
+            }
+            @Override
+            public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
+                Log.e(TAG, "Errore di rete: " + t.getMessage());
+            }
         });
     }
 
