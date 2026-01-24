@@ -28,6 +28,17 @@ public class LocalQuest extends Quest{
         this.is_currently_active = is_currently_active;
     }
 
+    public LocalQuest(Quest q, int actual_progress, int times_completed, boolean is_currently_active){
+        //QUEST PART
+        super(q.getId(), q.getName(), q.getDescription(), q.getType(), q.getMaxProgress(),
+                q.getCO2Saved(), q.getRewardPoints(), q.getQuestImage(), q.getImagesEuGoals());
+
+        //USERQUEST PART
+        this.actual_progress = actual_progress;
+        this.times_completed = times_completed;
+        this.is_currently_active = is_currently_active;
+    }
+
     public LocalQuest(Quest q, UserQuest uq){
         //QUEST PART
         super(q.getId(), q.getName(), q.getDescription(), q.getType(), q.getMaxProgress(),
@@ -45,17 +56,7 @@ public class LocalQuest extends Quest{
                 q.getCO2Saved(), q.getRewardPoints(), q.getQuestImage(), q.getImagesEuGoals());
     }
 
-    public LocalQuest(Quest q, int actual_progress, int times_completed, boolean is_currently_active){
-        //QUEST PART
-        super(q.getId(), q.getName(), q.getDescription(), q.getType(), q.getMaxProgress(),
-                q.getCO2Saved(), q.getRewardPoints(), q.getQuestImage(), q.getImagesEuGoals());
-
-        //USERQUEST PART
-        this.actual_progress = actual_progress;
-        this.times_completed = times_completed;
-        this.is_currently_active = is_currently_active;
-    }
-
+    //COPY CONSTRUCTOR
     public LocalQuest(LocalQuest lq){
         //QUEST PART
         super(lq.getId(), lq.getName(), lq.getDescription(), lq.getType(), lq.getMaxProgress(),
@@ -75,10 +76,9 @@ public class LocalQuest extends Quest{
     // Metodo helper per sapere se è completata almeno una volta
     public boolean hasBeenCompleted() { return times_completed > 0; }
 
-
     /* SETTERS */
     public void setActualProgress(int actual_progress) {
-        if(actual_progress >= 0)
+        if(actual_progress >= 0 && actual_progress <= getMaxProgress())
             this.actual_progress = actual_progress;
     }
 

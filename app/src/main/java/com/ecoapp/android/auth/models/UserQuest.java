@@ -32,7 +32,6 @@ public class UserQuest {
     public boolean hasBeenCompleted() { return times_completed > 0; }
 
     /* SETTERS */
-
     public void setActualProgress(int actual_progress) {
         if(actual_progress >= 0)
             this.actual_progress = actual_progress;

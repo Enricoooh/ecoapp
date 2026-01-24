@@ -11,10 +11,8 @@ public class Quest {
 
     @SerializedName("max_progress") // -> per Retrofit e GSON
     private final int max_progress;
-
     @SerializedName("CO2_saved")
     private final double CO2_saved;
-
     @SerializedName("reward_points")
     private final int reward_points;
     @SerializedName("quest_image")
