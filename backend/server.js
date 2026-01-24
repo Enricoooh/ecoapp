@@ -621,6 +621,7 @@ app.post('/api/user/quests/update', authenticateToken, async (req, res) => {
     if (userQuest.actual_progress >= globalQuest.max_progress) {
       userQuest.times_completed += 1;
       userQuest.actual_progress = 0;
+      userQuest.isActive = false; // Sposta la quest da Ongoing a Completed
 
       // Aggiorna utente
       const user = await User.findById(req.user.id);

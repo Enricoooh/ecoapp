@@ -82,6 +82,57 @@ public class OngoingQuestDetailFragment extends Fragment {
             Toast.makeText(getContext(), "Missione Completata!", Toast.LENGTH_SHORT).show();
             Navigation.findNavController(requireView()).popBackStack();
         });
+
+        // Bottone Abbandona Quest con dialog di conferma
+        view.findViewById(R.id.buttonAbandonQuest).setOnClickListener(v -> showAbandonConfirmation());
+    }
+
+    private void showAbandonConfirmation() {
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Abbandona Missione")
+                .setMessage("Sei sicuro di voler abbandonare questa missione? Il progresso verrà perso.")
+                .setPositiveButton("Sì, abbandona", (dialog, which) -> abandonQuest())
+                .setNegativeButton("Annulla", null)
+                .show();
+    }
+
+    private void abandonQuest() {
+        String token = "Bearer " + AuthManager.getInstance(requireContext()).getToken();
+
+        // Reset progresso a 0
+        Map<String, Object> bodyProg = new HashMap<>();
+        bodyProg.put("questId", questId);
+        bodyProg.put("actual_progress", 0);
+
+        // Disattiva la quest (isActive = false)
+        Map<String, Object> bodyActive = new HashMap<>();
+        bodyActive.put("questId", questId);
+        bodyActive.put("is_currently_active", false);
+
+        // Prima resetta il progresso
+        apiService.setActualProgress(token, bodyProg).enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
+                // Poi disattiva la quest
+                apiService.setCurrentlyActive(token, bodyActive).enqueue(new Callback<Map<String, Object>>() {
+                    @Override
+                    public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(getContext(), "Missione abbandonata", Toast.LENGTH_SHORT).show();
+                            Navigation.findNavController(requireView()).popBackStack();
+                        }
+                    }
+                    @Override
+                    public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
+                        Toast.makeText(getContext(), "Errore di connessione", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+            @Override
+            public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
+                Toast.makeText(getContext(), "Errore di connessione", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void loadData(View view, int questId) {

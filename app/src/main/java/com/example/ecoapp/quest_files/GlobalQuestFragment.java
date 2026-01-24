@@ -205,16 +205,21 @@ public class GlobalQuestFragment extends Fragment {
         RecyclerView recyclerView = getView().findViewById(R.id.recyclerQuests);
 
         switch (selectedTabPosition) {
-            //Global quests - mostra TUTTE le quest disponibili
+            //Global quests - mostra SOLO le quest MAI iniziate
             case 0:{
                 for(Map.Entry<Integer, Quest> globalElement : allGlobalQuests.entrySet()){
                     Integer globalQuestId = globalElement.getKey();
-                    // Creiamo LocalQuest da GlobalQuest, con o senza progress utente
                     LocalQuest localQuest = localQuests.get(globalQuestId);
-                    if (localQuest != null) {
-                        filteredQuests.put(globalQuestId, localQuest);
-                    } else {
+                    
+                    // Mostra solo se l'utente non ha MAI iniziato questa quest
+                    if (localQuest == null) {
+                        // Nessun UserQuest entry - mai iniziata
                         filteredQuests.put(globalQuestId, new LocalQuest(globalElement.getValue()));
+                    } else if (localQuest.getTimesCompleted() == 0 
+                               && !localQuest.isCurrentlyActive() 
+                               && localQuest.getActualProgress() == 0) {
+                        // Ha entry ma non è mai stata realmente iniziata
+                        filteredQuests.put(globalQuestId, localQuest);
                     }
                 }
                 
@@ -260,18 +265,19 @@ public class GlobalQuestFragment extends Fragment {
             //Completed quests
             case 2:{
                 for(Map.Entry<Integer, LocalQuest> localElement : localQuests.entrySet()){
-                    //se è stata completata almeno una volta
-                    if(localElement.getValue().getTimesCompleted() > 0){
+                    //se è stata completata almeno una volta E non è attualmente attiva
+                    if(localElement.getValue().getTimesCompleted() > 0 
+                       && !localElement.getValue().isCurrentlyActive()){
                         filteredQuests.put(localElement.getKey(), localElement.getValue());
                     }
                 }
                 Log.d("DEBUG_QUEST", "Elementi filtrati per Completed: " + filteredQuests.size());
 
                 CompletedQuestAdapter completedAdapter = new CompletedQuestAdapter(new ArrayList<>(filteredQuests.values()), questId -> {
-                    // Click su quest completata - mostra dettagli
+                    // Click su quest completata - naviga per permettere Re-do
                     Bundle bundle = new Bundle();
                     bundle.putInt("questId", questId);
-                    // Usa lo stesso detail fragment delle global
+                    bundle.putBoolean("isRedo", true); // Flag per indicare che è un re-do
                     Navigation.findNavController(requireView())
                             .navigate(R.id.action_questFragment_to_questGlobalDetailFragment, bundle);
                 });

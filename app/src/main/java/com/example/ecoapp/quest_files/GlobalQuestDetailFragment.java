@@ -36,6 +36,7 @@ public class GlobalQuestDetailFragment extends Fragment {
     private static final String TAG = "GlobalQuestDetailFragment.java";
 
     private QuestApiService apiService;
+    private boolean isRedo = false; // Flag per distinguere Accept da Re-do
 
     public GlobalQuestDetailFragment() {
         // Required empty public constructor
@@ -62,19 +63,27 @@ public class GlobalQuestDetailFragment extends Fragment {
         Bundle args = getArguments();
         if (args != null) {
             int questId = args.getInt("questId", 0);
+            isRedo = args.getBoolean("isRedo", false); // Controlla se è un re-do
             loadQuestDetails(view, questId);
         }
 
-        // 3. Gestione pulsante
+        // 3. Gestione pulsante - cambia testo se è un re-do
         Button buttonAccept = view.findViewById(R.id.buttonAcceptQuest);
+        if (isRedo) {
+            buttonAccept.setText(R.string.quest_button_redo_quest);
+        }
         buttonAccept.setOnClickListener(v -> showAcceptConfirmation());
     }
 
     private void showAcceptConfirmation() {
+        String title = isRedo ? "Ricomincia Missione" : "Conferma Missione";
+        String message = isRedo ? "Vuoi ricominciare questa missione?" : "Vuoi davvero iniziare questa missione?";
+        String positive = isRedo ? "Sì, ricomincia" : "Sì, accetta";
+        
         new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                .setTitle("Conferma Missione")
-                .setMessage("Vuoi davvero iniziare questa missione?")
-                .setPositiveButton("Sì, accetta", (dialog, which) -> sendAcceptRequestToServer())
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(positive, (dialog, which) -> sendAcceptRequestToServer())
                 .setNegativeButton("Annulla", null)
                 .show();
     }
