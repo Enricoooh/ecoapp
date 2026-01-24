@@ -80,6 +80,10 @@ public class OngoingQuestDetailFragment extends Fragment {
             saveFinalStateToServer(0, timesCompleted + 1);
 
             Toast.makeText(getContext(), "Missione Completata!", Toast.LENGTH_SHORT).show();
+            // Comunica al GlobalQuestFragment di passare alla tab Completed
+            Bundle result = new Bundle();
+            result.putInt("selectedTab", 2); // 2 = Completed
+            getParentFragmentManager().setFragmentResult("questAccepted", result);
             Navigation.findNavController(requireView()).popBackStack();
         });
 
