@@ -5,90 +5,105 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="20dp"
+    app:cardElevation="6dp">
 
     <LinearLayout
         android:orientation="vertical"
-        android:padding="16dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:padding="0dp"> <!-- Per far toccare l'immagine ai bordi  -->
 
         <ImageView
             android:id="@+id/questImage"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="200dp"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_launcher_background"
             android:contentDescription="@string/quest_image" />
 
-        <TextView
-            android:id="@+id/txtQuestName"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/quest_name"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp"/>
+            android:orientation="vertical"
+            android:padding="15dp">
 
-        <!-- Container per allineare Type (sinistra) e Punti (destra) sulla stessa riga -->
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            <!-- Punti Premio: Primo nel codice così quello a sinistra può fare riferimento ad esso -->
+                <TextView
+                    android:id="@+id/txtQuestName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:text="@string/quest_name"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="25sp"
+                    android:textStyle="bold"/>
+            </RelativeLayout>
+
+            <!-- Container per allineare Type (sinistra) e Punti (destra) sulla stessa riga -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp">
+
+                <!-- Tipo della Quest allineato a sinistra -->
+                <TextView
+                    android:id="@+id/txtQuestType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="2dp"
+                    android:paddingVertical="2dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_toStartOf="@id/txtQuestRewardPoints"
+                    android:text="@string/quest_type"
+                    android:textSize="15sp"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:textStyle="italic"/>
+
+                <!-- Punti Premio allineati a destra -->
+                <TextView
+                    android:id="@+id/txtQuestRewardPoints"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="2dp"
+                    android:paddingVertical="2dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:text="@string/quest_reward_points"
+                    android:textColor="@android:color/holo_green_dark"
+                    android:textSize="15sp"
+                    android:textStyle="bold"/>
+
+            </RelativeLayout>
+
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/progressBarItemQuest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:progress="50"
+                app:trackThickness="8dp"
+                app:trackCornerRadius="4dp"
+                app:indicatorColor="@android:color/holo_blue_dark"
+                app:trackColor="#E0E0E0"
+                android:indeterminate="false"/>
+
             <TextView
-                android:id="@+id/txtQuestRewardPoints"
+                android:id="@+id/txtProgress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="8dp"
-                android:text="@string/quest_reward_points"
-                android:textColor="?attr/colorPrimary"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <!-- Deve stare a SINISTRA dei punti -->
-            <TextView
-                android:id="@+id/txtQuestType"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_toStartOf="@id/txtQuestRewardPoints"
-                android:layout_centerVertical="true"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:text="@string/quest_type"
+                android:layout_marginTop="4dp"
+                android:layout_gravity="start"
                 android:textSize="12sp"
-                android:textColor="@android:color/darker_gray"
-                android:textStyle="italic" />
+                android:textColor="?android:attr/textColorSecondary"
+                android:textStyle="italic"
+                android:text="@string/quest_current_progress"/>
 
-        </RelativeLayout>
-
-
-        <com.google.android.material.progressindicator.LinearProgressIndicator
-            android:id="@+id/progressBarItemQuest"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:progress="50"
-            app:trackThickness="8dp"
-            app:trackCornerRadius="4dp"
-            app:indicatorColor="@android:color/holo_blue_dark"
-            app:trackColor="#E0E0E0"
-            android:indeterminate="false"/>
-
-        <TextView
-            android:id="@+id/txtProgress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_gravity="start"
-            android:textSize="12sp"
-            android:text="@string/quest_current_progress"/>
-
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>
