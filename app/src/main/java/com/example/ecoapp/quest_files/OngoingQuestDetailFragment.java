@@ -206,14 +206,12 @@ public class OngoingQuestDetailFragment extends Fragment {
     private void saveFinalStateToServer(int cProgress, int tCompleted) {
         String token = "Bearer " + AuthManager.getInstance(requireContext()).getToken();
 
-        // Usiamo l'endpoint /update con progressIncrement per raggiungere max_progress
-        // Questo attiva la logica di completamento nel backend che assegna punti e CO2
-        int progressNeeded = maxProgress - currentProgress;
-        if (progressNeeded < 0) progressNeeded = 0;
-
+        // Mandiamo progressIncrement = maxProgress per garantire che il server raggiunga il max
+        // Anche se il server ha un valore inferiore, questo assicura il completamento
+        // Il backend gestisce già il caso in cui actual_progress supera max_progress
         Map<String, Object> body = new HashMap<>();
         body.put("questId", questId);
-        body.put("progressIncrement", progressNeeded);
+        body.put("progressIncrement", maxProgress);
 
         apiService.updateQuestProgress(token, body).enqueue(new Callback<Map<String, Object>>() {
             @Override
