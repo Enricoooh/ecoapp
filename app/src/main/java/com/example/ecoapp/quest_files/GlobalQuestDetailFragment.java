@@ -111,6 +111,10 @@ public class GlobalQuestDetailFragment extends Fragment {
             public void onResponse( @NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(getContext(), "Missione accettata e salvata!", Toast.LENGTH_SHORT).show();
+                    // Comunica al GlobalQuestFragment di passare alla tab Ongoing
+                    Bundle result = new Bundle();
+                    result.putInt("selectedTab", 1); // 1 = Ongoing
+                    getParentFragmentManager().setFragmentResult("questAccepted", result);
                     Navigation.findNavController(requireView()).popBackStack();
                 } else {
                     Toast.makeText(getContext(), "Errore nel salvataggio", Toast.LENGTH_SHORT).show();

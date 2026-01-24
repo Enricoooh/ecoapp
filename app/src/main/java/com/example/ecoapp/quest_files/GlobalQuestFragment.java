@@ -58,6 +58,16 @@ public class GlobalQuestFragment extends Fragment {
         //I 3 tab in alto
         TabLayout tabLayout = view.findViewById(R.id.tabLayoutQuests);
 
+        // Ascolta il risultato dall'accettazione quest per cambiare tab
+        getParentFragmentManager().setFragmentResultListener("questAccepted", this, (requestKey, bundle) -> {
+            int targetTab = bundle.getInt("selectedTab", 0);
+            selectedTabPosition = targetTab;
+            TabLayout.Tab selectedTab = tabLayout.getTabAt(targetTab);
+            if (selectedTab != null) {
+                selectedTab.select();
+            }
+        });
+
         //Serve a ricordarsi in che tab si era
         TabLayout.Tab tab = tabLayout.getTabAt(selectedTabPosition);
         if (tab != null) {
