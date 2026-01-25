@@ -1,107 +1,112 @@
 [
   {
     "id": 0,
-    "name": "Usa la borraccia",
-    "description": "Riduci l'uso di plastica monouso per 5 giorni invece delle bottiglie di plastica.",
-    "type": "Alimentation",
+    "name": "Idratazione Sostenibile [TEST]",
+    "description": "Porta con te una borraccia riutilizzabile ovunque tu vada per 5 giorni consecutivi. Ogni volta che scegli di riempire la tua borraccia invece di acquistare una bottiglietta d'acqua in PET, eviti che un pezzo di plastica finisca potenzialmente nei nostri oceani o impieghi secoli per degradarsi. Questa sfida ti aiuta a pianificare meglio la tua giornata e a risparmiare denaro, riducendo al contempo l'impronta energetica legata alla produzione, all'imbottigliamento e al trasporto dell'acqua su scala industriale.",
+    "type": "Consumo Responsabile",
     "max_progress": 5,
-    "CO2_saved": 0.5,
+    "CO2_saved": 0.8,
     "reward_points": 50,
-    "quest_image": "ic_borraccia",
+    "quest_image": "ic_quest_0",
     "images_eu_goals": ["eu_goals_1", "eu_goals_2", "eu_goals_3", "eu_goals_4", "eu_goals_5", "eu_goals_6", "eu_goals_7", "eu_goals_8", "eu_goals_14"]
   },
   {
     "id": 1,
-    "name": "Mobilità Verde",
-    "description": "Percorri 10km a piedi o in bici per ridurre le emissioni di gas serra.",
-    "type": "Mobility",
+    "name": "Esploratore a Impatto Zero",
+    "description": "Sostituisci l'auto con le tue gambe o la bicicletta per i tuoi spostamenti quotidiani fino a raggiungere un totale di 10km. Che si tratti di andare a fare la spesa, raggiungere un amico o andare in ufficio, ogni chilometro percorso senza motore a combustione è una vittoria per l'aria che respiri. Questa missione mira a farti riscoprire il piacere del movimento lento, permettendoti di osservare dettagli del tuo quartiere che spesso sfuggono dai finestrini e migliorando la tua resistenza fisica e il tuo umore grazie al rilascio di endorfine.",
+    "type": "Mobilità",
     "max_progress": 10,
-    "CO2_saved": 2.1,
+    "CO2_saved": 2.5,
     "reward_points": 100,
-    "quest_image": "ic_bike",
-    "images_eu_goals": ["eu_goals_11", "eu_goals_13"]
+    "quest_image": "ic_quest_1",
+    "images_eu_goals": ["eu_goals_3", "eu_goals_11", "eu_goals_13"]
   },
   {
     "id": 2,
-    "name": "Doccia Breve",
-    "description": "Riduci il tempo della doccia a un massimo di 5 minuti per 3 volte.",
-    "type": "Home",
+    "name": "Custode dell'Oro Blu",
+    "description": "L'acqua è una risorsa preziosa e spesso sottovalutata. Impegnati a limitare il tempo della tua doccia a un massimo di 5 minuti per 3 diverse occasioni. Una doccia media può consumare fino a 15 litri d'acqua al minuto; riducendo il tempo, risparmierai centinaia di litri d'acqua potabile e ridurrai drasticamente il consumo di gas o elettricità necessario per riscaldarla. Prova a mettere una canzone della durata giusta come timer: quando la musica finisce, è ora di chiudere il rubinetto e uscire!",
+    "type": "Risorse Idriche",
     "max_progress": 3,
-    "CO2_saved": 0.3,
+    "CO2_saved": 1.5,
     "reward_points": 30,
-    "quest_image": "ic_shower",
-    "images_eu_goals": ["eu_goals_6"]
+    "quest_image": "ic_quest_2",
+    "images_eu_goals": ["eu_goals_6", "eu_goals_13"]
   },
   {
     "id": 3,
-    "name": "Cena a km 0",
-    "description": "Prepara una cena usando solo prodotti locali o del tuo orto.",
-    "type": "Alimentation",
+    "name": "Chef del Territorio",
+    "description": "Organizza e prepara una cena speciale utilizzando esclusivamente ingredienti provenienti da produttori locali, mercati agricoli della tua zona o, se possibile, dal tuo orto personale. Sostenendo la filiera corta (il cosiddetto Km 0), contribuisci a eliminare l'inquinamento derivante dai trasporti a lungo raggio e dalla logistica complessa della grande distribuzione. È un'opportunità perfetta per scoprire i sapori autentici della tua regione, supportare i piccoli agricoltori locali e riscoprire la stagionalità dei prodotti agricoli.",
+    "type": "Alimentazione",
     "max_progress": 1,
-    "CO2_saved": 1.2,
+    "CO2_saved": 2.2,
     "reward_points": 70,
-    "quest_image": "ic_local_food",
-    "images_eu_goals": ["eu_goals_2", "eu_goals_15"]
+    "quest_image": "ic_quest_3",
+    "images_eu_goals": ["eu_goals_2", "eu_goals_12", "eu_goals_15"]
   },
   {
     "id": 4,
-    "name": "Eroe del Riciclo",
-    "description": "Differenzia correttamente 20 oggetti tra plastica, carta e vetro.",
-    "type": "Waste",
+    "name": "Maestro della Differenziata",
+    "description": "Dimostra la tua competenza nella gestione dei rifiuti separando correttamente 20 oggetti tra plastica, carta, vetro e metalli. Non limitarti a 'buttare', ma controlla i simboli sul packaging per assicurarti che ogni materiale finisca nel contenitore giusto. Una corretta differenziazione evita la contaminazione dei flussi di riciclo, permettendo ai materiali di essere trasformati in nuove risorse invece di finire in discarica. È un esercizio di attenzione che trasforma un gesto banale in un atto di responsabilità civile.",
+    "type": "Gestione Rifiuti",
     "max_progress": 20,
-    "CO2_saved": 0.8,
+    "CO2_saved": 1.8,
     "reward_points": 150,
-    "quest_image": "ic_recycle",
-    "images_eu_goals": ["eu_goals_12"]
+    "quest_image": "ic_quest_4",
+    "images_eu_goals": ["eu_goals_11", "eu_goals_12"]
   },
   {
     "id": 5,
-    "name": "Colazione Vegetariana",
-    "description": "Sostituisci la tua colazione abituale con una completamente vegetariana per 7 giorni consecutivi.",
-    "type": "Alimentation",
+    "name": "Risveglio Green",
+    "description": "Sfida le tue abitudini alimentari provando una colazione completamente vegetariana per 7 giorni consecutivi. Sostituisci latte, yogurt o prodotti contenenti grassi animali con alternative vegetali come bevande d'avena, frutta fresca, cereali o frutta secca. L'industria zootecnica ha un impatto enorme sul consumo di suolo e sulle emissioni di gas serra; iniziando la giornata con un pasto 'plant-based', dai un segnale forte di cambiamento e offri al tuo corpo una ricarica di energia leggera e nutriente.",
+    "type": "Alimentazione",
     "max_progress": 7,
-    "CO2_saved": 1.4,
+    "CO2_saved": 3.5,
     "reward_points": 60,
-    "quest_image": "ic_vegetarian_breakfast"
+    "quest_image": "ic_quest_5",
+    "images_eu_goals": ["eu_goals_13", "eu_goals_15"]
   },
   {
     "id": 6,
-    "name": "Pendolarismo Eco",
-    "description": "Usa solo mezzi pubblici, bici o piedi per andare al lavoro o a scuola per 5 giorni.",
-    "type": "Mobility",
+    "name": "Campione del Trasporto Pubblico",
+    "description": "Lascia l'auto in garage e utilizza esclusivamente mezzi pubblici, bicicletta o cammina per raggiungere il tuo luogo di studio o lavoro per 5 giorni. Questa sfida ti incoraggia a ripensare la tua logistica quotidiana e a sperimentare come la mobilità condivisa possa ridurre lo stress del traffico e la ricerca del parcheggio. Contribuirai attivamente alla riduzione del biossido di azoto nelle città e aiuterai a rendere gli spazi urbani più vivibili, silenziosi e meno saturi di gas di scarico.",
+    "type": "Mobilità",
     "max_progress": 5,
-    "CO2_saved": 3.0,
+    "CO2_saved": 12.0,
     "reward_points": 120,
-    "quest_image": "ic_public_transport"
+    "quest_image": "ic_quest_6",
+    "images_eu_goals": ["eu_goals_11", "eu_goals_13"]
   },
   {
     "id": 7,
-    "name": "Spegnere le luci",
-    "description": "Ricordati di spegnere tutte le luci inutili in casa per 10 volte consecutive.",
-    "type": "Home",
+    "name": "Sentinella dell'Energia",
+    "description": "Prendi il controllo dei consumi elettrici di casa tua ricordandoti di spegnere sistematicamente ogni luce non necessaria per 10 volte consecutive. Troppo spesso lasciamo accese lampadine in stanze vuote per pigrizia o dimenticanza. Questa missione allena la tua attenzione e ti rende consapevole di quanto sia semplice risparmiare energia. Ogni interruttore spento si traduce in una minore pressione sulle reti energetiche e in una riduzione delle emissioni prodotte dalle centrali termoelettriche che alimentano la rete.",
+    "type": "Energia",
     "max_progress": 10,
-    "CO2_saved": 0.7,
+    "CO2_saved": 0.4,
     "reward_points": 40,
-    "quest_image": "ic_light_off"
+    "quest_image": "ic_quest_7",
+    "images_eu_goals": ["eu_goals_7", "eu_goals_12"]
   },
   {
     "id": 8,
-    "name": "Acquisto Consapevole",
-    "description": "Acquista solo prodotti con packaging riciclabile o riutilizzabile per 5 volte.",
-    "type": "Waste",
+    "name": "Consumatore Responsabile",
+    "description": "La prossima volta che vai a fare la spesa, seleziona deliberatamente 5 prodotti che abbiano un packaging minimo, riciclabile o, idealmente, riutilizzabile. Evita la plastica monouso non necessaria e preferisci confezioni in carta, vetro o alluminio. Questa sfida ti spinge a diventare un acquirente critico, capace di influenzare il mercato attraverso le proprie scelte d'acquisto e di ridurre alla fonte la quantità di rifiuti che entrano in casa tua ogni settimana.",
+    "type": "Consumo Responsabile",
     "max_progress": 5,
-    "CO2_saved": 1.0,
+    "CO2_saved": 1.2,
     "reward_points": 80,
-    "quest_image": "ic_reusable_bag"
+    "quest_image": "ic_quest_8",
+    "images_eu_goals": ["eu_goals_12", "eu_goals_14"]
   },
   {
     "id": 9,
-    "name": "Giardino Urbano",
-    "description": "Coltiva almeno 3 piante aromatiche o ortaggi sul balcone o in giardino in 1 settimana.",
-    "type": "Home",
+    "name": "Polmone Verde Domestico",
+    "description": "Porta un tocco di natura nei tuoi spazi quotidiani coltivando almeno 3 diverse piante aromatiche o piccoli ortaggi sul tuo balcone, davanzale o in giardino. Prendersi cura di un essere vivente vegetale richiede costanza e pazienza, ma ti ricompensa con profumi freschi e ingredienti genuini per i tuoi piatti. Anche pochi vasi possono contribuire ad assorbire CO2, migliorare la qualità dell'aria intorno a te e fornire un piccolo rifugio per gli insetti impollinatori in contesti urbani.",
+    "type": "Ecosistema",
     "max_progress": 1,
     "CO2_saved": 0.5,
     "reward_points": 50,
-    "quest_image": "ic_garden"
+    "quest_image": "ic_quest_9",
+    "images_eu_goals": ["eu_goals_11", "eu_goals_15"]
   }
 ]
