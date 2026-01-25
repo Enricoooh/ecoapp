@@ -5,7 +5,7 @@ const userQuestSchema = new mongoose.Schema({
   questId: { type: Number, required: true },
   actual_progress: { type: Number, default: 0 },
   times_completed: { type: Number, default: 0 },
-  isActive: { type: Boolean, default: false }
+  is_currently_active: { type: Boolean, default: false }
 });
 
 userQuestSchema.index({ userId: 1, questId: 1 }, { unique: true });

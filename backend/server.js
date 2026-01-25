@@ -199,7 +199,7 @@ app.post('/api/auth/register', async (req, res) => {
         questId: q.id,
         actual_progress: 0,
         times_completed: 0,
-        isActive: false
+        is_currently_active: false
       }));
       await UserQuest.insertMany(userQuests);
     }
@@ -572,7 +572,7 @@ app.get('/api/user/quests', authenticateToken, async (req, res) => {
       questId: q.questId,
       actual_progress: q.actual_progress,
       times_completed: q.times_completed,
-      is_currently_active: q.isActive
+      is_currently_active: q.is_currently_active
     }));
     res.json(formatted);
   } catch (error) {
@@ -694,13 +694,13 @@ app.post('/api/user/quests/update', authenticateToken, async (req, res) => {
         questId: Number(questId), 
         actual_progress: Number(progressIncrement), 
         times_completed: 0, 
-        isActive: true 
+        is_currently_active: true 
       });
     } else {
       userQuest.actual_progress += Number(progressIncrement);
       // IMPORTANTE: se l'utente sta accettando la quest, attivarla
-      if (!userQuest.isActive) {
-        userQuest.isActive = true;
+      if (!userQuest.is_currently_active) {
+        userQuest.is_currently_active = true;
       }
     }
 
@@ -708,7 +708,7 @@ app.post('/api/user/quests/update', authenticateToken, async (req, res) => {
     if (userQuest.actual_progress >= globalQuest.max_progress) {
       userQuest.times_completed += 1;
       userQuest.actual_progress = 0;
-      userQuest.isActive = false; // Sposta la quest da Ongoing a Completed
+      userQuest.is_currently_active = false; // Sposta la quest da Ongoing a Completed
 
       // Aggiorna utente
       const user = await User.findById(req.user.id);
@@ -727,7 +727,7 @@ app.post('/api/user/quests/update', authenticateToken, async (req, res) => {
         questId: userQuest.questId,
         actual_progress: userQuest.actual_progress,
         times_completed: userQuest.times_completed,
-        is_currently_active: userQuest.isActive
+        is_currently_active: userQuest.is_currently_active
       }
     });
   } catch (error) {
