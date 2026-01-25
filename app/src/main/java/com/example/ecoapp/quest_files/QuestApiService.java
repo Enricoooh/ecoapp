@@ -28,7 +28,7 @@ public interface QuestApiService {
             @Body Map<String, Object> body
     );
 
-    // Questo metodo serve SOLO per attivare una missione da zero
+    // Questo metodo serve SOLO per attivare una missione MAI attivata
     @POST("api/user/quests/set-first-activation")
     Call<Map<String, Object>> setFirstActivation(
             @Header("Authorization") String token,
@@ -45,9 +45,14 @@ public interface QuestApiService {
     Call<Map<String, Object>> setTimesCompleted(@Header("Authorization") String token, @Body Map<String, Object> body);
 
     // Body richiesto: { "questId": int, "is_currently_active": boolean }
-    @POST("api/user/quests/set-is-active")
+    @POST("api/user/quests/set-currently-active")
     Call<Map<String, Object>> setCurrentlyActive(@Header("Authorization") String token, @Body Map<String, Object> body);
 
-
-
+    // Setter universale
+    // Body richiesto: { "questId": int, ...data }
+    @POST("api/user/quests/set-quest-parameters")
+    Call<Map<String, Object>> setQuestParameters(
+            @Header("Authorization") String token,
+            @Body Map<String, Object> body
+    );
 }

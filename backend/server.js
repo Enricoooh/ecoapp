@@ -692,6 +692,25 @@ app.post('/api/user/quests/set-currently-active', authenticateToken, async (req,
     await setUserQuest(req.user.id, questId, { is_currently_active }, res);
 });
 
+// 4. Setter universale
+app.post('/api/user/quests/set-quest-parameters', authenticateToken, async (req, res) => {
+    try {
+        const { questId, ...params } = req.body;
+
+        if (questId === undefined) {
+            return res.status(400).json({ error: "questId mancante" });
+        }
+
+        // Chiamata alla funzione helper passandogli l'oggetto params
+        // (che può contenere actual_progress, is_currently_active, ecc.)
+        await setUserQuest(req.user.id, questId, params, res);
+
+    } catch (error) {
+        console.error("Errore set-quest-parameters:", error);
+        res.status(500).json({ error: "Errore interno set-quest-parameters" });
+    }
+});
+
 //Per creare una nuova quest o aggiornare una quest già esistente
 async function setUserQuest(userId, questId, newData, res) {
     try {
