@@ -96,11 +96,19 @@ public class ProfileFragment extends Fragment {
         authService.getProfile().enqueue(new Callback<User>() {
             @Override
             public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
-                if (response.isSuccessful() && response.body() != null && isAdded()) {
+                if (!isAdded()) return;
+                
+                if (response.isSuccessful() && response.body() != null) {
                     User updatedUser = response.body();
                     // Fondamentale: aggiorna i dati in AuthManager così le altre schermate vedono i cambiamenti
                     AuthManager.getInstance(requireContext()).setCurrentUser(updatedUser);
                     updateUI(updatedUser);
+                } else if (response.code() == 401) {
+                    // Token invalido/scaduto: il broadcast viene già inviato dall'interceptor
+                    // ma per sicurezza forziamo il logout anche qui
+                    Toast.makeText(requireContext(), "Sessione scaduta, effettua nuovamente l'accesso", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(requireContext(), "Errore nel caricamento profilo", Toast.LENGTH_SHORT).show();
                 }
             }
             @Override public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {

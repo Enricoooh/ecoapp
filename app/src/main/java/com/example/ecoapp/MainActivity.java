@@ -5,10 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.ecoapp.android.auth.ApiClient;
 import com.ecoapp.android.auth.AuthManager;
+import com.ecoapp.android.auth.AuthService;
 import com.ecoapp.android.auth.LoginActivity;
+import com.ecoapp.android.auth.models.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,8 +27,13 @@ import com.example.ecoapp.databinding.ActivityMainBinding;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
     private AppBarConfiguration appBarConfiguration;
     
     // BroadcastReceiver per gestire 401 Unauthorized (token invalido/scaduto)
@@ -46,12 +54,46 @@ public class MainActivity extends AppCompatActivity {
         AuthManager authManager = AuthManager.getInstance(this);
         if (!authManager.isAuthenticated()) {
             // Utente non autenticato, vai a LoginActivity
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-            finish();
+            Log.d(TAG, "No token found, redirecting to login");
+            redirectToLogin();
             return;
         }
+        
+        Log.d(TAG, "Token found, validating with server...");
+        
+        // Valida il token con una chiamata al server
+        validateTokenAndProceed();
+    }
+    
+    private void validateTokenAndProceed() {
+        AuthService authService = ApiClient.getAuthService(this);
+        authService.getProfile().enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d(TAG, "Token valid, loading main content");
+                    // Token valido, mostra l'app
+                    setupMainContent();
+                } else {
+                    Log.d(TAG, "Token invalid (code: " + response.code() + "), redirecting to login");
+                    // Token non valido (401, 403, etc.)
+                    AuthManager.getInstance(MainActivity.this).logout();
+                    ApiClient.reset();
+                    redirectToLogin();
+                }
+            }
 
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Log.e(TAG, "Network error validating token: " + t.getMessage());
+                // Errore di rete: mostra comunque l'app, l'utente vedrà "Errore di rete"
+                // Potrebbe essere offline temporaneamente
+                setupMainContent();
+            }
+        });
+    }
+    
+    private void setupMainContent() {
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
