@@ -44,15 +44,22 @@ public class FirstFragment extends Fragment {
         authService.getProfile().enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
+                if (!isAdded()) return;
+                
                 if (response.isSuccessful() && response.body() != null) {
                     User user = response.body();
                     binding.welcomeText.setText(getString(R.string.welcome_user, user.getName()));
+                } else if (response.code() == 401) {
+                    // Token invalido/scaduto: l'interceptor gestisce il redirect
+                    Toast.makeText(requireContext(), "Sessione scaduta", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
-                // In caso di errore, il layout mostra il testo di default impostato in strings.xml
+                if (isAdded()) {
+                    Toast.makeText(requireContext(), "Errore di rete", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
