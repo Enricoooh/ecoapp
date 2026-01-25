@@ -28,6 +28,13 @@ public interface QuestApiService {
             @Body Map<String, Object> body
     );
 
+    // Questo metodo serve SOLO per attivare una missione da zero
+    @POST("api/user/quests/set-first-activation")
+    Call<Map<String, Object>> setFirstActivation(
+            @Header("Authorization") String token,
+            @Body Map<String, Object> body
+    );
+
     // ""SETTERS""
     // Body richiesto: { "questId": int, "actual_progress": int }
     @POST("api/user/quests/set-actual-progress")

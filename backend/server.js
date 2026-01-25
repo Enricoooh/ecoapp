@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express');
@@ -31,7 +32,12 @@ mongoose.connect(MONGODB_URI)
   .catch(err => {
     console.error('❌ MongoDB connection error:', err);
     process.exit(1);
-  });
+  }).then(() => {
+    console.log('Connesso a MongoDB');
+    
+    // AVVIA IL SEEDING QUI, serve a caricare le quest globali dal file global_quests.json
+    seedGlobalQuests(); 
+});
 
 // Login attempts tracking (in-memory)
 const loginAttempts = {};
@@ -514,6 +520,39 @@ app.get('/api/user/profile/:id', authenticateToken, async (req, res) => {
 
 // ============== QUESTS ==============
 
+//Prende le quest globali da global_quests.json e le carica su mongoDB
+const seedGlobalQuests = async () => {
+    try {
+        // 1. Leggi il file JSON locale
+        const filePath = path.join(__dirname, 'data', 'global_quests.json');
+        const jsonData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+
+        // 2. Recupera tutti gli ID delle quest presenti nel nuovo JSON
+        const validQuestIds = jsonData.map(q => q.id);
+
+        // 3. Svuota e ricarica la collezione GlobalQuest
+        await GlobalQuest.deleteMany({});
+        await GlobalQuest.insertMany(jsonData);
+        console.log('✅ Catalogo GlobalQuest aggiornato.');
+
+        // 4. PULIZIA USER QUESTS:
+        // Elimina tutti i record in UserQuest il cui questId NON è presente nella lista validQuestIds
+        const result = await UserQuest.deleteMany({
+            questId: { $nin: validQuestIds }
+        });
+
+        if (result.deletedCount > 0) {
+            console.log(`🧹 Pulizia completata: rimossi ${result.deletedCount} record obsoleti da UserQuest.`);
+        } else {
+            console.log('✨ Nessun record obsoleto trovato in UserQuest.');
+        }
+
+    } catch (error) {
+        console.error('❌ Errore durante la sincronizzazione:', error);
+    }
+};
+
+//Quest
 app.get('/api/quests', authenticateToken, async (req, res) => {
   try {
     const quests = await GlobalQuest.find().sort({ id: 1 });
@@ -524,6 +563,7 @@ app.get('/api/quests', authenticateToken, async (req, res) => {
   }
 });
 
+//UserQuest
 app.get('/api/user/quests', authenticateToken, async (req, res) => {
   try {
     const userQuests = await UserQuest.find({ userId: req.user.id });
@@ -541,6 +581,8 @@ app.get('/api/user/quests', authenticateToken, async (req, res) => {
   }
 });
 
+
+//SetProgress
 app.post('/api/user/quests/set-actual-progress', authenticateToken, async (req, res) => {
   try {
     const { questId, actual_progress } = req.body;
@@ -558,6 +600,7 @@ app.post('/api/user/quests/set-actual-progress', authenticateToken, async (req, 
   }
 });
 
+//SetTimesCompleted
 app.post('/api/user/quests/set-times-completed', authenticateToken, async (req, res) => {
   try {
     const { questId, times_completed } = req.body;
@@ -575,23 +618,67 @@ app.post('/api/user/quests/set-times-completed', authenticateToken, async (req, 
   }
 });
 
-app.post('/api/user/quests/set-is-active', authenticateToken, async (req, res) => {
-  try {
-    const { questId, is_currently_active } = req.body;
-    
-    const quest = await UserQuest.findOneAndUpdate(
-      { userId: req.user.id, questId: Number(questId) },
-      { isActive: Boolean(is_currently_active) },
-      { new: true, upsert: true }
-    );
+// SetFirstActivation con MongoDB
+app.post('/api/user/quests/set-first-activation', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id; // ID utente dal token JWT
+        const { questId, actual_progress, times_completed, is_currently_active } = req.body;
 
-    res.json({ success: true, quest });
-  } catch (error) {
-    console.error('Set active error:', error);
-    res.status(500).json({ error: 'Errore aggiornamento quest' });
-  }
+        if (questId === undefined) {
+            return res.status(400).json({ error: "questId mancante" });
+        }
+
+        // Chiamiamo la nuova funzione che usa MongoDB
+        await setUserQuest(userId, questId, { 
+            actual_progress, 
+            times_completed, 
+            is_currently_active 
+        }, res);
+
+    } catch (error) {
+        console.error("Errore rotta activation:", error);
+        res.status(500).json({ error: "Errore interno del server" });
+    }
 });
 
+//Per creare una nuova quest o aggiornare una quest già esistente
+async function setUserQuest(userId, questId, newData, res) {
+    try {
+        // Query: cerca per userId E questId
+        const query = { userId: userId, questId: parseInt(questId) };
+        
+        // Dati da inserire o aggiornare
+        const update = {
+            userId: userId,
+            questId: parseInt(questId),
+            actual_progress: newData.actual_progress ?? 0,
+            times_completed: newData.times_completed ?? 0,
+            is_currently_active: newData.is_currently_active ?? true
+        };
+
+        // Opzioni: 
+        // upsert: true -> crea se non esiste
+        // new: true -> restituisce l'oggetto aggiornato
+        // runValidators: true -> controlla che i dati rispettino lo schema
+        const updatedQuest = await UserQuest.findOneAndUpdate(query, update, {
+            upsert: true,
+            new: true,
+            runValidators: true
+        });
+
+        // Risposta per Android (stesso formato del JSON precedente)
+        res.json({ 
+            success: true, 
+            quest: updatedQuest 
+        });
+
+    } catch (error) {
+        console.error("Errore salvataggio MongoDB:", error);
+        res.status(500).json({ error: "Errore durante il salvataggio su database" });
+    }
+}
+
+//Boooh
 app.post('/api/user/quests/update', authenticateToken, async (req, res) => {
   try {
     const { questId, progressIncrement } = req.body;
