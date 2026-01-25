@@ -6,8 +6,7 @@
    See https://developer.android.com/about/versions/12/backup-restore
 -->
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <!-- Escludi le preferenze di autenticazione dal backup per evitare
+         che token invalidi vengano ripristinati su nuove installazioni -->
+    <exclude domain="sharedpref" path="EcoAppPrefs.xml"/>
 </full-backup-content>

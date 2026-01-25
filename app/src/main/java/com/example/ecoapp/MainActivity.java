@@ -1,13 +1,18 @@
 package com.example.ecoapp;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 
+import com.ecoapp.android.auth.ApiClient;
 import com.ecoapp.android.auth.AuthManager;
 import com.ecoapp.android.auth.LoginActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -22,6 +27,16 @@ import android.view.MenuItem;
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
+    
+    // BroadcastReceiver per gestire 401 Unauthorized (token invalido/scaduto)
+    private final BroadcastReceiver unauthorizedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Token invalido: reset ApiClient e redirect a login
+            ApiClient.reset();
+            redirectToLogin();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +62,24 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
         NavigationUI.setupWithNavController(binding.bottomNavView, navController);
+        
+        // Registra receiver per gestire 401 (token scaduto/invalido)
+        LocalBroadcastManager.getInstance(this)
+                .registerReceiver(unauthorizedReceiver, new IntentFilter(ApiClient.ACTION_UNAUTHORIZED));
+    }
+    
+    private void redirectToLogin() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Unregister receiver per evitare memory leak
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(unauthorizedReceiver);
     }
 
     @Override

@@ -5,15 +5,12 @@
 -->
 <data-extraction-rules>
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <!-- Escludi le preferenze di autenticazione dal backup per evitare
+             che token invalidi vengano ripristinati su nuove installazioni -->
+        <exclude domain="sharedpref" path="EcoAppPrefs.xml"/>
     </cloud-backup>
-    <!--
     <device-transfer>
-        <include .../>
-        <exclude .../>
+        <!-- Escludi anche nel trasferimento dispositivo-dispositivo -->
+        <exclude domain="sharedpref" path="EcoAppPrefs.xml"/>
     </device-transfer>
-    -->
 </data-extraction-rules>
