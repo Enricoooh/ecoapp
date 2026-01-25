@@ -581,7 +581,7 @@ app.get('/api/user/quests', authenticateToken, async (req, res) => {
   }
 });
 
-
+/*
 //SetProgress
 app.post('/api/user/quests/set-actual-progress', authenticateToken, async (req, res) => {
   try {
@@ -618,25 +618,21 @@ app.post('/api/user/quests/set-times-completed', authenticateToken, async (req, 
   }
 });
 
-// SetFirstActivation con MongoDB
-app.post('/api/user/quests/set-first-activation', authenticateToken, async (req, res) => {
+//SetIsCurrentlyActive
+app.post('/api/user/quests/set-currently-active', authenticateToken, async (req, res) => {
     try {
-        const userId = req.user.id; // ID utente dal token JWT
-        const { questId, actual_progress, times_completed, is_currently_active } = req.body;
+        const userId = req.user.id;
+        const { questId, is_currently_active } = req.body;
 
-        if (questId === undefined) {
-            return res.status(400).json({ error: "questId mancante" });
+        if (questId === undefined || is_currently_active === undefined) {
+            return res.status(400).json({ error: "Dati mancanti (questId o is_currently_active)" });
         }
 
-        // Chiamiamo la nuova funzione che usa MongoDB
-        await setUserQuest(userId, questId, { 
-            actual_progress, 
-            times_completed, 
-            is_currently_active 
-        }, res);
+        // Usiamo setUserQuest per aggiornare solo questo campo
+        await setUserQuest(userId, questId, { is_currently_active }, res);
 
     } catch (error) {
-        console.error("Errore rotta activation:", error);
+        console.error("Errore rotta active:", error);
         res.status(500).json({ error: "Errore interno del server" });
     }
 });
@@ -677,6 +673,77 @@ async function setUserQuest(userId, questId, newData, res) {
         res.status(500).json({ error: "Errore durante il salvataggio su database" });
     }
 }
+*/
+
+// 1. SetProgress
+app.post('/api/user/quests/set-actual-progress', authenticateToken, async (req, res) => {const { questId, actual_progress } = req.body;
+    await setUserQuest(req.user.id, questId, { actual_progress }, res);
+});
+
+// 2. SetTimesCompleted
+app.post('/api/user/quests/set-times-completed', authenticateToken, async (req, res) => {
+    const { questId, times_completed } = req.body;
+    await setUserQuest(req.user.id, questId, { times_completed }, res);
+});
+
+// 3. SetCurrentlyActive
+app.post('/api/user/quests/set-currently-active', authenticateToken, async (req, res) => {
+    const { questId, is_currently_active } = req.body;
+    await setUserQuest(req.user.id, questId, { is_currently_active }, res);
+});
+
+//Per creare una nuova quest o aggiornare una quest già esistente
+async function setUserQuest(userId, questId, newData, res) {
+    try {
+        const query = { userId: userId, questId: parseInt(questId) };
+        
+        // Creazione dell'oggetto di aggiornamento partendo dai dati base
+        // e aggiungendo SOLO i campi contenuti in newData
+        const update = {
+            userId: userId,
+            questId: parseInt(questId),
+            ...newData  // <--- FONDAMENTALE: aggiunge solo quello che arriva da Android
+        };
+
+        const updatedQuest = await UserQuest.findOneAndUpdate(query, update, {
+            upsert: true,
+            new: true,
+            runValidators: true
+        });
+
+        res.json({ 
+            success: true, 
+            quest: updatedQuest 
+        });
+
+    } catch (error) {
+        console.error("Errore salvataggio MongoDB:", error);
+        res.status(500).json({ error: "Errore durante il salvataggio" });
+    }
+}
+
+//SetUserQuestFirstActivation con MongoDB
+app.post('/api/user/quests/set-first-activation', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.id; // ID utente dal token JWT
+        const { questId, actual_progress, times_completed, is_currently_active } = req.body;
+
+        if (questId === undefined) {
+            return res.status(400).json({ error: "questId mancante" });
+        }
+
+        // Chiamiamo la nuova funzione che usa MongoDB
+        await setUserQuest(userId, questId, { 
+            actual_progress, 
+            times_completed, 
+            is_currently_active 
+        }, res);
+
+    } catch (error) {
+        console.error("Errore rotta activation:", error);
+        res.status(500).json({ error: "Errore interno del server" });
+    }
+});
 
 //Boooh
 app.post('/api/user/quests/update', authenticateToken, async (req, res) => {
