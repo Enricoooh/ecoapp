@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -180,6 +179,7 @@ public class GlobalQuestDetailFragment extends Fragment {
         setupEuGoals(v, quest);
     }
 
+    /* PRIMA DI CHIPGROUP
     private void setupEuGoals(View view, Quest quest) {
         LinearLayout container = view.findViewById(R.id.containerEuGoals);
         if (container == null) return;
@@ -202,6 +202,37 @@ public class GlobalQuestDetailFragment extends Fragment {
                 imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 imageView.setImageResource(resId);
 
+                container.addView(imageView);
+            }
+        }
+    }
+    */
+
+    private void setupEuGoals(View view, Quest quest) {
+        // Riferimento a ChipGroup (che è un ViewGroup)
+        ViewGroup container = view.findViewById(R.id.containerEuGoals);
+        if (container == null) return;
+
+        container.removeAllViews();
+
+        int[] resIdArray = quest.getEuGoalsResourceIds(requireContext());
+
+        for (int resId : resIdArray) {
+            if (resId != 0) {
+                // Creiamo la ImageView
+                ImageView imageView = new ImageView(requireContext());
+
+                // Imposta dimensioni (60dp)
+                int size = (int) (100 * getResources().getDisplayMetrics().density);
+
+                // Usa ViewGroup.LayoutParams perché ChipGroup accetta qualsiasi View
+                ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(size, size);
+                imageView.setLayoutParams(params);
+
+                imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                imageView.setImageResource(resId);
+
+                // Aggiunge l'immagine al ChipGroup
                 container.addView(imageView);
             }
         }

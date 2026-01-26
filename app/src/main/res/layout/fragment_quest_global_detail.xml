@@ -2,89 +2,217 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?android:attr/windowBackground">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:fillViewport="true"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/buttonAcceptQuest">
+        app:layout_constraintBottom_toTopOf="@+id/buttonContainer">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:background="?android:attr/windowBackground">
+            android:orientation="vertical">
 
-            <ImageView
+            <!-- Immagine della Quest -->
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/questImage"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_launcher_background"
-                android:contentDescription="@string/quest_image" />
-
-            <TextView
-                android:id="@+id/txtQuestName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/quest_name"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:layout_marginTop="16dp" />
-
-            <TextView
-                android:id="@+id/txtQuestType"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/quest_type"
-                android:layout_marginTop="6dp"
-                android:textStyle="italic" />
-
-            <TextView
-                android:id="@+id/txtQuestDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:text="@string/quest_description" />
-
-            <TextView
-                android:id="@+id/txtCO2saved"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/quest_CO2_saved"
-                android:layout_marginTop="30dp"/>
-
-            <TextView
-                android:id="@+id/txtQuestRewardPoints"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/quest_reward_points"
-                android:layout_marginTop="8dp"
-                android:textColor="#4CAF50" />
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.LargeComponent" />
 
             <LinearLayout
-                android:id="@+id/containerEuGoals"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="16dp" />
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- Titolo della Quest -->
+                <TextView
+                    android:id="@+id/txtQuestName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:textStyle="bold"
+                    android:text="@string/quest_name"/>
+
+                <!-- Tipo della Quest -->
+                <TextView
+                    android:id="@+id/txtQuestType"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                    android:textColor="#757575"
+                    android:textStyle="italic"
+                    android:text="@string/quest_type"/>
+
+                <!-- Card Statistiche -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#E0E0E0">
+
+                    <!-- Layout per entrambi i valori -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="16dp"
+                        android:weightSum="2">
+
+                        <!-- Layout valore di sinistra -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <!-- Scritta sopra il valore -->
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/quest_CO2_saved_label"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                                android:textColor="?android:attr/textColorPrimary"
+                                android:letterSpacing="0.1" />
+
+                            <!-- Valore effettivo -->
+                            <TextView
+                                android:id="@+id/txtCO2saved"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+                                android:textColor="?attr/colorPrimary"
+                                android:textStyle="bold"
+                                tools:text="@string/quest_CO2_saved" />
+
+                        </LinearLayout>
+
+                        <!-- Divisorio -->
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="30dp"
+                            android:layout_gravity="center_vertical"
+                            android:background="#EEEEEE" />
+
+                        <!-- Layout valori di destra -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <!-- Scritta sopra il valore -->
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/quest_reward_points_label"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                                android:textColor="?android:attr/textColorPrimary"
+                                android:letterSpacing="0.1" />
+
+                            <!-- Valore effettivo -->
+                            <TextView
+                                android:id="@+id/txtQuestRewardPoints"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+                                android:textColor="#4CAF50"
+                                android:textStyle="bold"
+                                tools:text="@string/quest_reward_points" />
+
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Label Descrizione -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="@string/quest_description_label"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+                    android:textColor="?attr/colorPrimary" />
+
+                <!-- Descrizione -->
+                <TextView
+                    android:id="@+id/txtQuestDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:lineSpacingExtra="4dp"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                    android:textColor="?android:attr/textColorPrimary"
+                    tools:text="@string/quest_description"/>
+
+                <!-- Label Obiettivi EU -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="@string/quest_image_eu_goals_label"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+                    android:textColor="?attr/colorPrimary"/>
+
+                <!-- Obiettivi EU
+                <LinearLayout
+                    android:id="@+id/containerEuGoals"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal" />
+                -->
+                <!--
+                Si usa ChipGroup come contenitore perché gestisce il "wrap" (andare a capo)
+                senza librerie extra.
+                -->
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/containerEuGoals"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    app:chipSpacingHorizontal="10dp"
+                    app:chipSpacingVertical="10dp" />
+
+            </LinearLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- PULSANTE ACCETTA QUEST -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonAcceptQuest"
+    <!-- Pulsante Fisso in Basso -->
+    <FrameLayout
+        android:id="@+id/buttonContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:text="@string/quest_button_accept_quest"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:padding="16dp"
+        android:background="?android:attr/windowBackground"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <!-- PULSANTE ACCETTA QUEST -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonAcceptQuest"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="@string/quest_button_accept_quest"
+            app:cornerRadius="20dp" />
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

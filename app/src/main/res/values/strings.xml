@@ -52,19 +52,25 @@
     <string name="quest_description">QuestDescription</string>
     <string name="quest_type">QuestType</string>
     <string name="quest_max_progress">%1$d</string>
-    <string name="quest_CO2_saved">%1$.2f kg of CO₂ saved</string>
+    <string name="quest_CO2_saved">%1$.2f kg</string>
     <string name="quest_reward_points">%1$d pts</string>
     <string name="quest_image">Quest Image</string>
     <string name="quest_times_completed">Completata %d volte</string>
 
-    <!-- 2. necessario per nav_graph.xml -->
+    <!-- 2. labels attributi quests -->
+    <string name="quest_description_label">Descrizione</string>
+    <string name="quest_CO2_saved_label">CO₂ RISPARMIATA</string>
+    <string name="quest_reward_points_label">PUNTI PREMIO</string>
+    <string name="quest_image_eu_goals_label">Obiettivi Sostenibili</string>
+
+    <!-- 3. necessario per nav_graph.xml -->
     <string name="quest_fragment_label">Quest Fragment Label</string>
 
-    <!-- 3. Global quests - fragment_quest_global_detail.xml -->
+    <!-- 4. Global quests - fragment_quest_global_detail.xml -->
     <string name="quest_button_accept_quest">Accetta Quest</string>
     <string name="quest_global_detail_label">Global Quest Detail Label</string>
 
-    <!-- 3. Ongoing quests -->
+    <!-- 5. Ongoing quests -->
     <string name="quest_ongoing_detail_label">Ongoing Quest Detail Label</string>
     <string name="quest_current_progress">%1$d / %2$d</string>
     <string name="quest_button_complete_quest">Completa Quest</string>
