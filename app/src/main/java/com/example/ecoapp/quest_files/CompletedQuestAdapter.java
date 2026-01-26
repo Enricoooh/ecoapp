@@ -75,10 +75,10 @@ public class CompletedQuestAdapter extends RecyclerView.Adapter<CompletedQuestAd
         ViewHolder(View v) {
             super(v);
             questImage = v.findViewById(R.id.questImage);
-            questName = v.findViewById(R.id.quest_name);
+            questName = v.findViewById(R.id.txtQuestName);
             questType = v.findViewById(R.id.txtQuestType);
             questRewardPoints = v.findViewById(R.id.txtQuestRewardPoints);
-            questTimesCompleted = v.findViewById(R.id.txtTimeCompleted);
+            questTimesCompleted = v.findViewById(R.id.txtTimesCompleted);
         }
     }
 }

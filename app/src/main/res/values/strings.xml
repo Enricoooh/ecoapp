@@ -55,7 +55,7 @@
     <string name="quest_CO2_saved">%1$.2f kg of CO₂ saved</string>
     <string name="quest_reward_points">%1$d pts</string>
     <string name="quest_image">Quest Image</string>
-    <string name="quest_times_completed">Completata %1$d volte</string>
+    <string name="quest_times_completed">Completata %d volte</string>
 
     <!-- 2. necessario per nav_graph.xml -->
     <string name="quest_fragment_label">Quest Fragment Label</string>
