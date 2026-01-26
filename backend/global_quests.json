@@ -6,7 +6,7 @@
     "type": "Consumo Responsabile",
     "max_progress": 5,
     "CO2_saved": 0.8,
-    "reward_points": 50,
+    "reward_points": 500,
     "quest_image": "ic_quest_0",
     "images_eu_goals": ["eu_goals_1", "eu_goals_2", "eu_goals_3", "eu_goals_4", "eu_goals_5", "eu_goals_6", "eu_goals_7", "eu_goals_8", "eu_goals_14"]
   },
@@ -17,7 +17,7 @@
     "type": "Mobilità",
     "max_progress": 10,
     "CO2_saved": 2.5,
-    "reward_points": 100,
+    "reward_points": 1000,
     "quest_image": "ic_quest_1",
     "images_eu_goals": ["eu_goals_3", "eu_goals_11", "eu_goals_13"]
   },
@@ -28,7 +28,7 @@
     "type": "Risorse Idriche",
     "max_progress": 3,
     "CO2_saved": 1.5,
-    "reward_points": 30,
+    "reward_points": 300,
     "quest_image": "ic_quest_2",
     "images_eu_goals": ["eu_goals_6", "eu_goals_13"]
   },
@@ -39,7 +39,7 @@
     "type": "Alimentazione",
     "max_progress": 1,
     "CO2_saved": 2.2,
-    "reward_points": 70,
+    "reward_points": 700,
     "quest_image": "ic_quest_3",
     "images_eu_goals": ["eu_goals_2", "eu_goals_12", "eu_goals_15"]
   },
@@ -50,7 +50,7 @@
     "type": "Gestione Rifiuti",
     "max_progress": 20,
     "CO2_saved": 1.8,
-    "reward_points": 150,
+    "reward_points": 1500,
     "quest_image": "ic_quest_4",
     "images_eu_goals": ["eu_goals_11", "eu_goals_12"]
   },
@@ -61,7 +61,7 @@
     "type": "Alimentazione",
     "max_progress": 7,
     "CO2_saved": 3.5,
-    "reward_points": 60,
+    "reward_points": 600,
     "quest_image": "ic_quest_5",
     "images_eu_goals": ["eu_goals_13", "eu_goals_15"]
   },
@@ -72,7 +72,7 @@
     "type": "Mobilità",
     "max_progress": 5,
     "CO2_saved": 12.0,
-    "reward_points": 120,
+    "reward_points": 1200,
     "quest_image": "ic_quest_6",
     "images_eu_goals": ["eu_goals_11", "eu_goals_13"]
   },
@@ -83,7 +83,7 @@
     "type": "Energia",
     "max_progress": 10,
     "CO2_saved": 0.4,
-    "reward_points": 40,
+    "reward_points": 400,
     "quest_image": "ic_quest_7",
     "images_eu_goals": ["eu_goals_7", "eu_goals_12"]
   },
@@ -94,7 +94,7 @@
     "type": "Consumo Responsabile",
     "max_progress": 5,
     "CO2_saved": 1.2,
-    "reward_points": 80,
+    "reward_points": 800,
     "quest_image": "ic_quest_8",
     "images_eu_goals": ["eu_goals_12", "eu_goals_14"]
   },
@@ -105,7 +105,7 @@
     "type": "Ecosistema",
     "max_progress": 1,
     "CO2_saved": 0.5,
-    "reward_points": 50,
+    "reward_points": 500,
     "quest_image": "ic_quest_9",
     "images_eu_goals": ["eu_goals_11", "eu_goals_15"]
   }
