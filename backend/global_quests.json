@@ -1,14 +1,14 @@
 [
   {
     "id": 0,
-    "name": "Idratazione Sostenibile [TEST]",
+    "name": "Idratazione Sostenibile",
     "description": "Porta con te una borraccia riutilizzabile ovunque tu vada per 5 giorni consecutivi. Ogni volta che scegli di riempire la tua borraccia invece di acquistare una bottiglietta d'acqua in PET, eviti che un pezzo di plastica finisca potenzialmente nei nostri oceani o impieghi secoli per degradarsi. Questa sfida ti aiuta a pianificare meglio la tua giornata e a risparmiare denaro, riducendo al contempo l'impronta energetica legata alla produzione, all'imbottigliamento e al trasporto dell'acqua su scala industriale.",
     "type": "Consumo Responsabile",
     "max_progress": 5,
     "CO2_saved": 0.8,
     "reward_points": 500,
     "quest_image": "ic_quest_0",
-    "images_eu_goals": ["eu_goals_1", "eu_goals_2", "eu_goals_3", "eu_goals_4", "eu_goals_5", "eu_goals_6", "eu_goals_7", "eu_goals_8", "eu_goals_14"]
+    "images_eu_goals": ["eu_goals_12", "eu_goals_14"]
   },
   {
     "id": 1,
