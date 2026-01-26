@@ -47,4 +47,86 @@ Monitora i tuoi traguardi in tempo reale:
 - **Scroll**: Se una missione ha una descrizione lunga, puoi scorrere la pagina per leggere tutti i dettagli e gli obiettivi EU collegati.
 
 ---
+
+## 🛠 Per Sviluppatori
+
+### Stack Tecnologico
+- **App Android**: Java, Gradle, Material Design
+- **Backend**: Node.js, Express.js, MongoDB Atlas
+- **Autenticazione**: JWT (jsonwebtoken), bcryptjs
+- **Email**: Resend API (opzionale)
+
+### Setup Backend Locale
+
+```bash
+cd backend
+npm install
+```
+
+Crea un file `.env` nella cartella `backend`:
+```env
+PORT=3000
+MONGODB_URI=mongodb+srv://user:password@cluster.mongodb.net/ecoapp
+JWT_SECRET=your-secret-key
+RESEND_API_KEY=re_xxxxx  # opzionale
+```
+
+Avvia il server:
+```bash
+npm start
+```
+
+### Endpoints API Principali
+
+Tutte le rotte (tranne auth) richiedono header: `Authorization: Bearer <token>`
+
+| Categoria | Metodo | Endpoint | Descrizione |
+|-----------|--------|----------|-------------|
+| **Auth** | POST | `/api/auth/register` | Registrazione utente |
+| | POST | `/api/auth/login` | Login (ritorna JWT) |
+| **Profilo** | GET | `/api/user/profile` | Ottieni profilo |
+| | PUT | `/api/user/profile` | Aggiorna profilo |
+| **Amici** | GET | `/api/user/friends` | Lista amici |
+| | POST | `/api/user/friends/request` | Invia richiesta |
+| | POST | `/api/user/friends/respond` | Accetta/rifiuta |
+| **Quest** | GET | `/api/quests` | Quest globali disponibili |
+| | GET | `/api/user/quests` | Progressi utente |
+| | POST | `/api/user/quests/update` | Aggiorna progresso |
+
+### Sistema di Gamification
+
+**Livelli** (basati sui punti totali):
+| Livello | Punti |
+|---------|-------|
+| Eco-Novizio | 0+ |
+| Eco-Apprendista | 1.000+ |
+| Eco-Guerriero | 2.000+ |
+| Eco-Eroe | 5.000+ |
+| Eco-Leggenda | 10.000+ |
+
+**Badge** sbloccabili:
+- 🌱 *Eco-Novizio* - Registrazione completata
+- 🌿 *Pioniere Verde* - Prima quest completata
+- 🌍 *Amico della Terra* - 10kg CO2 risparmiati
+- 👥 *Influencer Ambientale* - 5 amici aggiunti
+- ⚔️ *Eco-Guerriero* - 2000 punti raggiunti
+- 🦸 *Salvatore del Pianeta* - 100kg CO2 risparmiati
+
+### Deploy Backend su Render.com
+
+> **Nota**: Il backend è già deployato e funzionante su `https://ecoapp-p5gp.onrender.com`. L'app Android è configurata per usare questo server. Le istruzioni seguenti sono per chi volesse deployare una propria istanza.
+
+1. Crea account su [render.com](https://render.com)
+2. "New +" → "Web Service" → Connetti repo GitHub
+3. Configura:
+   - **Root Directory**: `backend`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+4. Aggiungi Environment Variables:
+   - `MONGODB_URI` - Crea un cluster gratuito su [MongoDB Atlas](https://www.mongodb.com/atlas) e copia la connection string
+   - `JWT_SECRET` - Una stringa segreta a tua scelta (es. `openssl rand -hex 32`)
+   - `RESEND_API_KEY` - (opzionale) Per invio email, crea account su [resend.com](https://resend.com)
+5. Aggiorna `BASE_URL` in `ApiClient.java` con il nuovo URL Render
+
+---
 *UNIVE - EcoGroup: Ingegneria del Software 2025/2026* 🌍✨
