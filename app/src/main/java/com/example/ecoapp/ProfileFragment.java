@@ -72,7 +72,7 @@ public class ProfileFragment extends Fragment {
     private void showDetailSheet(String title, String description) {
         if (!isAdded() || binding == null) return;
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
-        View view = getLayoutInflater().inflate(R.layout.layout_item_detail_sheet, (ViewGroup) binding.getRoot(), false);
+        View view = getLayoutInflater().inflate(R.layout.layout_item_detail_sheet, null);
         if (view != null) {
             ((TextView)view.findViewById(R.id.sheet_title)).setText(title);
             ((TextView)view.findViewById(R.id.sheet_description)).setText(description);
@@ -83,7 +83,7 @@ public class ProfileFragment extends Fragment {
     }
     
     private void loadUserProfile() {
-        authService.getProfile().enqueue(new Callback<User>() {
+        authService.getProfile().enqueue(new Callback<>() {
             @Override
             public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
                 if (!isAdded()) return;
