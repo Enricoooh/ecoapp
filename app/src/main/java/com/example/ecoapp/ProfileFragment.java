@@ -72,7 +72,7 @@ public class ProfileFragment extends Fragment {
     private void showDetailSheet(String title, String description) {
         if (!isAdded() || binding == null) return;
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
-        View view = getLayoutInflater().inflate(R.layout.layout_item_detail_sheet, null);
+        View view = getLayoutInflater().inflate(R.layout.layout_item_detail_sheet, binding.getRoot(), false);
         if (view != null) {
             ((TextView)view.findViewById(R.id.sheet_title)).setText(title);
             ((TextView)view.findViewById(R.id.sheet_description)).setText(description);
