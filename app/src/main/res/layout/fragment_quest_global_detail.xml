@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?android:attr/windowBackground">
@@ -100,7 +99,7 @@
                                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                                 android:textColor="?attr/colorPrimary"
                                 android:textStyle="bold"
-                                tools:text="@string/quest_CO2_saved" />
+                                android:text="@string/quest_CO2_saved" />
 
                         </LinearLayout>
 
@@ -137,7 +136,7 @@
                                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                                 android:textColor="#4CAF50"
                                 android:textStyle="bold"
-                                tools:text="@string/quest_reward_points" />
+                                android:text="@string/quest_reward_points" />
 
                         </LinearLayout>
                     </LinearLayout>
@@ -161,7 +160,7 @@
                     android:lineSpacingExtra="4dp"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
                     android:textColor="?android:attr/textColorPrimary"
-                    tools:text="@string/quest_description"/>
+                    android:text="@string/quest_description"/>
 
                 <!-- Label Obiettivi EU -->
                 <TextView

@@ -307,7 +307,12 @@ public class OngoingQuestDetailFragment extends Fragment {
         //Abilita il pulsante "Complete" solo se hai raggiunto il punteggio massimo
         View btnComplete = getView() != null ? getView().findViewById(R.id.buttonCompleteQuest) : null;
         if (btnComplete != null) {
-            btnComplete.setEnabled(currentProgress >= maxProgress);
+            //btnComplete.setEnabled(currentProgress >= maxProgress);
+
+            // Cambia l'opacità per dare un feedback visivo
+            // 1.0f = pienamente visibile (abilitato)
+            // 0.5f = semitrasparente (disabilitato)
+            btnComplete.setAlpha(currentProgress >= maxProgress ? 1.0f : 0.3f);
         }
     }
 

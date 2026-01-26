@@ -43,7 +43,7 @@
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
                     android:textColor="?android:attr/textColorPrimary"
                     android:textStyle="bold"
-                    tools:text="@string/quest_name" />
+                    android:text="@string/quest_name" />
 
                 <!-- Tipo della Quest -->
                 <TextView
@@ -100,7 +100,7 @@
                                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                                 android:textColor="?attr/colorPrimary"
                                 android:textStyle="bold"
-                                tools:text="@string/quest_CO2_saved" />
+                                android:text="@string/quest_CO2_saved" />
 
                         </LinearLayout>
 
@@ -137,7 +137,7 @@
                                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                                 android:textColor="#4CAF50"
                                 android:textStyle="bold"
-                                tools:text="@string/quest_reward_points" />
+                                android:text="@string/quest_reward_points" />
 
                         </LinearLayout>
                     </LinearLayout>
@@ -161,7 +161,7 @@
                     android:lineSpacingExtra="4dp"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
                     android:textColor="?android:attr/textColorPrimary"
-                    tools:text="@string/quest_description"/>
+                    android:text="@string/quest_description"/>
 
                 <!-- Label Obiettivi EU -->
                 <TextView
@@ -300,8 +300,7 @@
                     android:textAllCaps="false"/>
             </LinearLayout>
 
-            <!-- Pulsanti Azione Finale -->
-
+            <!-- Pulsante Azione Finale -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonCompleteQuest"
                 android:layout_width="match_parent"

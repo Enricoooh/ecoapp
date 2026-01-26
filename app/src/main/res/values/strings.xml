@@ -55,7 +55,7 @@
     <string name="quest_CO2_saved">%1$.2f kg</string>
     <string name="quest_reward_points">%1$d pts</string>
     <string name="quest_image">Quest Image</string>
-    <string name="quest_times_completed">Completata %d volte</string>
+    <string name="quest_times_completed">COMPLETATA %d VOLTE</string>
 
     <!-- 2. labels attributi quests -->
     <string name="quest_description_label">Descrizione</string>
@@ -83,6 +83,8 @@
     <!-- 4. Completed quests -->
     <string name="quest_completed_detail_label">Dettagli</string>
     <string name="quest_button_redo_quest">Ricomincia Quest</string>
+    <string name="quest_total_CO2_saved_label">CO₂ RISPARMIATA TOT.</string>
+    <string name="quest_total_reward_points_label">PUNTI PREMIO TOT.</string>
 
 
     <!-- Edit Profile Screen -->
