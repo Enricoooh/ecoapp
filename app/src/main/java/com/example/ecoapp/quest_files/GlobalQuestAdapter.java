@@ -61,7 +61,6 @@ public class GlobalQuestAdapter extends RecyclerView.Adapter<GlobalQuestAdapter.
         });
     }
 
-
     @Override
     public int getItemCount() {
         return questList.size();

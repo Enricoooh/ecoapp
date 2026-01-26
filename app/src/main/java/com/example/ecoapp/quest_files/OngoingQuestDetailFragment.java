@@ -36,12 +36,14 @@ public class OngoingQuestDetailFragment extends Fragment {
     private static final String TAG = "OngoingQuestDetailFragment.java";
     private QuestApiService apiService;
     private int questId;
-    private LinearProgressIndicator progressBar;
-    private TextView txtProgressStatus;
 
+    private boolean isAbandoningOrIsCompleting = false;
+
+    //Progresso
     private int currentProgress = 0;
     private int maxProgress = 0;
-    private int timesCompleted = 0;
+    private LinearProgressIndicator progressBar;
+    private TextView txtProgressStatus;
 
     public OngoingQuestDetailFragment() {}
 
@@ -65,7 +67,7 @@ public class OngoingQuestDetailFragment extends Fragment {
                 .build();
         apiService = retrofit.create(QuestApiService.class);
 
-        //
+        //Recupera QuestID
         Bundle args = getArguments();
         if (args != null) {
             questId = args.getInt("questId", -1);
@@ -76,14 +78,20 @@ public class OngoingQuestDetailFragment extends Fragment {
         view.findViewById(R.id.buttonIncrement).setOnClickListener(v -> setProgress(currentProgress + 1));
         view.findViewById(R.id.buttonDecrement).setOnClickListener(v -> setProgress(currentProgress - 1));
         view.findViewById(R.id.buttonCompleteQuest).setOnClickListener(v -> {
-            //Chiamata al server - resetta progresso a 0 e incrementa completamenti
-            saveFinalStateToServer(0, timesCompleted + 1);
+            //Attiva il flag per bloccare onPause()
+            isAbandoningOrIsCompleting = true;
 
-            Toast.makeText(getContext(), "Missione Completata!", Toast.LENGTH_SHORT).show();
-            // Comunica al GlobalQuestFragment di passare alla tab Completed
+            //Chiamata al server
+            //Resetta progresso a 0 e incrementa completamenti
+            saveFinalStateToServer();
+
+            Toast.makeText(getContext(), "Quest Completata!", Toast.LENGTH_SHORT).show();
+            //Comunica al QuestFragment di passare alla tab Completed
             Bundle result = new Bundle();
             result.putInt("selectedTab", 2); // 2 = Completed
             getParentFragmentManager().setFragmentResult("questAccepted", result);
+
+            //Torna indietro
             Navigation.findNavController(requireView()).popBackStack();
         });
 
@@ -91,62 +99,56 @@ public class OngoingQuestDetailFragment extends Fragment {
         view.findViewById(R.id.buttonAbandonQuest).setOnClickListener(v -> showAbandonConfirmation());
     }
 
+    //PopUp di conferma
     private void showAbandonConfirmation() {
         new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                .setTitle("Abbandona Missione")
-                .setMessage("Sei sicuro di voler abbandonare questa missione? Il progresso verrà perso.")
+                .setTitle("Abbandona Quest")
+                .setMessage("Sei sicuro di voler abbandonare questa quest? Il progresso verrà perso.")
                 .setPositiveButton("Sì, abbandona", (dialog, which) -> abandonQuest())
                 .setNegativeButton("Annulla", null)
                 .show();
     }
 
     private void abandonQuest() {
+        //Attiva il flag per bloccare onPause()
+        isAbandoningOrIsCompleting = true;
         String token = "Bearer " + AuthManager.getInstance(requireContext()).getToken();
 
-        // Reset progresso a 0
-        Map<String, Object> bodyProg = new HashMap<>();
-        bodyProg.put("questId", questId);
-        bodyProg.put("actual_progress", 0);
+        //Per resettare il progress (actual_progress a 0)
+        //E per disattivare la quest (is_currently_active = false)
+        Map<String, Object> body = new HashMap<>();
+        body.put("questId", questId);
+        body.put("actual_progress", 0);
+        body.put("is_currently_active", false);
 
-        // Disattiva la quest (isActive = false)
-        Map<String, Object> bodyActive = new HashMap<>();
-        bodyActive.put("questId", questId);
-        bodyActive.put("is_currently_active", false);
-
-        // Prima resetta il progresso
-        apiService.setActualProgress(token, bodyProg).enqueue(new Callback<Map<String, Object>>() {
+        // Una sola chiamata, zero problemi di "chi arriva prima"
+        apiService.setQuestParameters(token, body).enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
-                // Poi disattiva la quest
-                apiService.setCurrentlyActive(token, bodyActive).enqueue(new Callback<Map<String, Object>>() {
-                    @Override
-                    public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
-                        if (response.isSuccessful()) {
-                            Toast.makeText(getContext(), "Missione abbandonata", Toast.LENGTH_SHORT).show();
-                            Navigation.findNavController(requireView()).popBackStack();
-                        }
-                    }
-                    @Override
-                    public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
-                        Toast.makeText(getContext(), "Errore di connessione", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                if (response.isSuccessful()) {
+                    Toast.makeText(getContext(), "Quest abbandonata", Toast.LENGTH_SHORT).show();
+                    Navigation.findNavController(requireView()).popBackStack();
+                }
             }
+
             @Override
             public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
-                Toast.makeText(getContext(), "Errore di connessione", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Errore di rete", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void loadData(View view, int questId) {
+        //Errore di accesso
         if (AuthManager.getInstance(requireContext()).getToken() == null) {
             Log.e("RetrofitError", "Token mancante");
             return;
         }
 
+        //Salva il token
         String token = "Bearer " + AuthManager.getInstance(requireContext()).getToken();
 
+        //Controlla se non ci sono errori con l'api
         if (apiService == null) {
             Log.e("RetrofitError", "ApiService non inizializzato");
             return;
@@ -179,7 +181,6 @@ public class OngoingQuestDetailFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     for (UserQuest uq : response.body()) {
                         if (uq.getQuestId() == questId) {
-                            timesCompleted = uq.getTimesCompleted();
                             updateProgressBar(uq.getActualProgress(), maxProgress);
                             break;
                         }
@@ -207,7 +208,7 @@ public class OngoingQuestDetailFragment extends Fragment {
         updateProgressBar(newCurrentProgress, maxProgress);
     }
 
-    private void saveFinalStateToServer(int cProgress, int tCompleted) {
+    private void saveFinalStateToServer() {
         String token = "Bearer " + AuthManager.getInstance(requireContext()).getToken();
 
         // Mandiamo progressIncrement = maxProgress per garantire che il server raggiunga il max
@@ -262,6 +263,7 @@ public class OngoingQuestDetailFragment extends Fragment {
         setupEuGoals(v, q);
     }
 
+    /*
     private void setupEuGoals(View view, Quest quest) {
         LinearLayout container = view.findViewById(R.id.containerEuGoals);
         //Verifica che il fragment sia ancora "attaccato" e la vista esista
@@ -292,6 +294,34 @@ public class OngoingQuestDetailFragment extends Fragment {
             }
         }
     }
+    */
+
+    private void setupEuGoals(View view, Quest quest) {
+        LinearLayout container = view.findViewById(R.id.containerEuGoals);
+        if (container == null) return;
+
+        container.removeAllViews();
+
+        // CHIAMATA AL METODO DELLA CLASSE QUEST
+        int[] resIdArray = quest.getEuGoalsResourceIds(requireContext());
+
+        for (int resId : resIdArray) {
+            if (resId != 0) { // Se l'immagine esiste
+                ImageView imageView = new ImageView(requireContext());
+
+                // Impostazioni dimensioni (45dp)
+                int size = (int) (45 * getResources().getDisplayMetrics().density);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
+                params.setMargins(0, 0, (int) (8 * getResources().getDisplayMetrics().density), 0);
+
+                imageView.setLayoutParams(params);
+                imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                imageView.setImageResource(resId);
+
+                container.addView(imageView);
+            }
+        }
+    }
 
     private void updateProgressBar(int current, int max) {
         this.currentProgress = current;
@@ -312,14 +342,19 @@ public class OngoingQuestDetailFragment extends Fragment {
     public void onPause() {
         super.onPause();
 
+        //Per evitare che modifichi i valori
+        if(isAbandoningOrIsCompleting){
+            return;
+        }
+
         // Quando l'utente esce, salva il progresso fatto finora (senza cambiare stato/completamenti)
         String token = "Bearer " + AuthManager.getInstance(requireContext()).getToken();
         Map<String, Object> body = new HashMap<>();
         body.put("questId", questId);
         body.put("actual_progress", currentProgress);
 
-        // Usiamo il nuovo endpoint "set-progress"
-        apiService.setActualProgress(token, body).enqueue(new Callback<Map<String, Object>>() {
+        //Setta solo i parametri richiesti (quindi solo actual_progress in questo caso)
+        apiService.setQuestParameters(token, body).enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
                 Log.d(TAG, "Progresso salvato in uscita");

@@ -5,6 +5,12 @@
       "actual_progress": 2,
       "times_completed": 0,
       "is_currently_active": true
+    },
+    {
+      "questId": 1,
+      "actual_progress": 2,
+      "times_completed": 0,
+      "is_currently_active": true
     }
   ],  
   "userID_1": [

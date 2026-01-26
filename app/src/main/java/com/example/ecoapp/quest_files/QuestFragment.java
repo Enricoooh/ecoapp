@@ -31,17 +31,19 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class GlobalQuestFragment extends Fragment {
+public class QuestFragment extends Fragment {
 
-    private static final String TAG = "GlobalQuestFragment";
+    private static final String TAG = "QuestFragment";
 
+    //TAB
     private static int selectedTabPosition = 0; // 0: Global, 1: Ongoing, 2: Completed
-    private GlobalQuestAdapter globalAdapter; // Rinominiamo il vecchio adapter
-    private OngoingQuestAdapter2 ongoingAdapter; // Il nuovo adapter per le ongoing
 
-    // Richiesti:
-    // Prima: private List<UserQuest> userLocalQuests = new ArrayList<>();
-    // Dopo: Mappa che associa l'ID della Quest al suo oggetto Progresso
+    //ADAPTERS
+    private GlobalQuestAdapter globalAdapter;
+    private OngoingQuestAdapter2 ongoingAdapter;
+    private CompletedQuestAdapter completedAdapter;
+
+    //MAPPE
     private Map<Integer, Quest> allGlobalQuests = new HashMap<>();
     private Map<Integer, LocalQuest> localQuests = new HashMap<>();
     private Map<Integer, LocalQuest> filteredQuests = new HashMap<>();
@@ -58,7 +60,7 @@ public class GlobalQuestFragment extends Fragment {
         //I 3 tab in alto
         TabLayout tabLayout = view.findViewById(R.id.tabLayoutQuests);
 
-        // Ascolta il risultato dall'accettazione quest per cambiare tab
+        //Per cambiare tab in caso di accettazione della quest
         getParentFragmentManager().setFragmentResultListener("questAccepted", this, (requestKey, bundle) -> {
             int targetTab = bundle.getInt("selectedTab", 0);
             selectedTabPosition = targetTab;
@@ -68,7 +70,7 @@ public class GlobalQuestFragment extends Fragment {
             }
         });
 
-        //Serve a ricordarsi in che tab si era
+        //Serve a ricordarsi in che tab si era prima
         TabLayout.Tab tab = tabLayout.getTabAt(selectedTabPosition);
         if (tab != null) {
             tab.select();
@@ -85,7 +87,7 @@ public class GlobalQuestFragment extends Fragment {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 selectedTabPosition = tab.getPosition();
-                applyFilter(); // Questo metodo ora cambierà anche l'adapter
+                applyFilter();
             }
 
             @Override
@@ -166,21 +168,28 @@ public class GlobalQuestFragment extends Fragment {
                     for (UserQuest newUserQuestElement : response.body()) {
                         // Forziamo entrambi a int per essere sicuri al 100%
                         int idDalServer = newUserQuestElement.getQuestId();
-                        Quest globalElement = null;
 
-                        // Cerchiamo manualmente se la mappa contiene questa chiave
+                        // Recuperiamo la quest dal catalogo globale
+                        Quest globalElement = allGlobalQuests.get(idDalServer);
+
+                        /*
+                        Quest globalElement = null;
+                        //Doppio controllo per sicurezza
+                        //Cerchiamo manualmente se la mappa contiene questa chiave
                         for (Integer key : allGlobalQuests.keySet()) {
                             if (key.intValue() == idDalServer) {
                                 globalElement = allGlobalQuests.get(key);
                                 break;
                             }
                         }
+                        */
 
                         if (globalElement != null) {
                             LocalQuest localQuestElement = new LocalQuest(globalElement, newUserQuestElement);
                             localQuests.put(idDalServer, localQuestElement);
                             Log.d(TAG, "MATCH TROVATO! Inserita quest: " + idDalServer);
-                        } else {
+                        }
+                        else {
                             Log.e(TAG, "NESSUN MATCH per ID: " + idDalServer + ". Mappa globale ha chiavi: " + allGlobalQuests.keySet());
                         }
                     }
@@ -210,33 +219,42 @@ public class GlobalQuestFragment extends Fragment {
         //Resetto il filtro
         filteredQuests.clear();
 
-        View view = getView();
-        if (view == null) return;
+        //Esce se non esiste la view
+        if (getView() == null) return;
+
         RecyclerView recyclerView = getView().findViewById(R.id.recyclerQuests);
 
         switch (selectedTabPosition) {
             //Global quests - mostra SOLO le quest MAI iniziate
             case 0:{
                 for(Map.Entry<Integer, Quest> globalElement : allGlobalQuests.entrySet()){
-                    Integer globalQuestId = globalElement.getKey();
-                    LocalQuest localQuest = localQuests.get(globalQuestId);
+                    Integer globalElementId = globalElement.getKey();
+                    LocalQuest localElement = localQuests.get(globalElementId);
                     
                     // Mostra solo se l'utente non ha MAI iniziato questa quest
-                    if (localQuest == null) {
+                    if (localElement == null) {
                         // Nessun UserQuest entry - mai iniziata
-                        filteredQuests.put(globalQuestId, new LocalQuest(globalElement.getValue()));
-                    } else if (localQuest.getTimesCompleted() == 0 
-                               && !localQuest.isCurrentlyActive() 
-                               && localQuest.getActualProgress() == 0) {
+                        filteredQuests.put(globalElementId, new LocalQuest(globalElement.getValue()));
+                    }
+                    //localElement.getActualProgress() == 0 -> tecnicamente inutile, ma lasciato per sicurezza
+                    else if (localElement.getTimesCompleted() == 0
+                               && !localElement.isCurrentlyActive()
+                               && localElement.getActualProgress() == 0) {
                         // Ha entry ma non è mai stata realmente iniziata
-                        filteredQuests.put(globalQuestId, localQuest);
+                        filteredQuests.put(globalElementId, localElement);
                     }
                 }
                 
                 Log.d(TAG, "TAB GLOBAL: filteredQuests.size()=" + filteredQuests.size());
 
-                // Convertiamo filteredQuests.values() in una ArrayList
-                globalAdapter = new GlobalQuestAdapter(new ArrayList<>(filteredQuests.values()), questId -> {
+                // Convertiamo LocalQuest filteredQuests.values() in una ArrayList<Quest>
+                ArrayList<Quest> tempQuestList = new ArrayList<>();
+                for (LocalQuest q : filteredQuests.values()) {
+                    tempQuestList.add(new Quest(q));
+                }
+
+                //globalAdapter richiede una Lista di Quest
+                globalAdapter = new GlobalQuestAdapter(tempQuestList, questId -> {
                     Bundle bundle = new Bundle();
                     bundle.putInt("questId", questId);
                     Navigation.findNavController(requireView())
@@ -249,6 +267,7 @@ public class GlobalQuestFragment extends Fragment {
 
             //Ongoing quests
             case 1:{
+
                 Log.d("DEBUG_QUEST", "Elementi in localQuests: " + localQuests.size());
                 for(Map.Entry<Integer, LocalQuest> localElement : localQuests.entrySet()){
                     Log.d("DEBUG_QUEST", "Quest ID: " + localElement.getKey() + " | Attiva: " + localElement.getValue().isCurrentlyActive());
@@ -260,7 +279,7 @@ public class GlobalQuestFragment extends Fragment {
                 Log.d("DEBUG_QUEST", "Elementi filtrati per Ongoing: " + filteredQuests.size());
 
                 // Passiamo la lista delle quest filtrate e la mappa/lista dei progressi
-                ongoingAdapter = new OngoingQuestAdapter2(new ArrayList<>(filteredQuests.values()), questId -> {
+                ongoingAdapter = new OngoingQuestAdapter2(new ArrayList<LocalQuest>(filteredQuests.values()), questId -> {
                     // Logica al click: navighiamo verso il dettaglio "Ongoing"
                     Bundle bundle = new Bundle();
                     bundle.putInt("questId", questId);
@@ -283,7 +302,7 @@ public class GlobalQuestFragment extends Fragment {
                 }
                 Log.d("DEBUG_QUEST", "Elementi filtrati per Completed: " + filteredQuests.size());
 
-                CompletedQuestAdapter completedAdapter = new CompletedQuestAdapter(new ArrayList<>(filteredQuests.values()), questId -> {
+                completedAdapter = new CompletedQuestAdapter(new ArrayList<>(filteredQuests.values()), questId -> {
                     // Click su quest completata - naviga per permettere Re-do
                     Bundle bundle = new Bundle();
                     bundle.putInt("questId", questId);

@@ -16,7 +16,7 @@
 
         <fragment
             android:id="@+id/questFragment"
-            android:name="com.example.ecoapp.quest_files.GlobalQuestFragment"
+            android:name="com.example.ecoapp.quest_files.QuestFragment"
             android:label="@string/quest_fragment_label"
             tools:layout="@layout/fragment_quest" >
             <action

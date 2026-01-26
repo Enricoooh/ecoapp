@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".quest_files.GlobalQuestFragment"
+    tools:context=".quest_files.QuestFragment"
     android:background="?android:attr/windowBackground">
 
     <!-- Barra dei pulsanti (Tabs) in alto -->

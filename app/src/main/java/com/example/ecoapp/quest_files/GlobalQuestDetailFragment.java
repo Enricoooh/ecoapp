@@ -18,9 +18,11 @@ import androidx.navigation.Navigation;
 
 import com.example.ecoapp.R;
 import com.ecoapp.android.auth.models.Quest;
+import com.ecoapp.android.auth.AuthManager;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -28,62 +30,47 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import com.ecoapp.android.auth.AuthManager; // Verifica che il pacchetto sia questo
-import java.util.HashMap;
-
 public class GlobalQuestDetailFragment extends Fragment {
 
-    private static final String TAG = "GlobalQuestDetailFragment.java";
-
+    private static final String TAG = "GlobalQuestDetail";
     private QuestApiService apiService;
-    private boolean isRedo = false; // Flag per distinguere Accept da Re-do
+    private int questId;
 
-    public GlobalQuestDetailFragment() {
-        // Required empty public constructor
-    }
+    public GlobalQuestDetailFragment() {}
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_quest_global_detail, container, false);
     }
 
-    // Dentro onViewCreated del QuestGlobalDetailFragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // 1. Inizializza il service PRIMA di tutto
+        // 1. Setup Retrofit
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://ecoapp-p5gp.onrender.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         apiService = retrofit.create(QuestApiService.class);
 
-        // 2. Ora che apiService è pronto, recupera l'ID e carica i dettagli
-        Bundle args = getArguments();
-        if (args != null) {
-            int questId = args.getInt("questId", 0);
-            isRedo = args.getBoolean("isRedo", false); // Controlla se è un re-do
+        // 2. Recupero ID dal Bundle
+        if (getArguments() != null) {
+            questId = getArguments().getInt("questId", -1);
             loadQuestDetails(view, questId);
         }
 
-        // 3. Gestione pulsante - cambia testo se è un re-do
+        // 3. Pulsante Accetta (Semplice, senza isRedo)
         Button buttonAccept = view.findViewById(R.id.buttonAcceptQuest);
-        if (isRedo) {
-            buttonAccept.setText(R.string.quest_button_redo_quest);
-        }
         buttonAccept.setOnClickListener(v -> showAcceptConfirmation());
     }
 
+    //Interfaccia di conferma della scelta
     private void showAcceptConfirmation() {
-        String title = isRedo ? "Ricomincia Missione" : "Conferma Missione";
-        String message = isRedo ? "Vuoi ricominciare questa missione?" : "Vuoi davvero iniziare questa missione?";
-        String positive = isRedo ? "Sì, ricomincia" : "Sì, accetta";
-        
         new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton(positive, (dialog, which) -> sendAcceptRequestToServer())
+                .setTitle("Conferma Quest")
+                .setMessage("Vuoi davvero iniziare questa quest?")
+                .setPositiveButton("Sì, accetta", (dialog, which) -> sendAcceptRequestToServer())
                 .setNegativeButton("Annulla", null)
                 .show();
     }
@@ -91,62 +78,65 @@ public class GlobalQuestDetailFragment extends Fragment {
     private void sendAcceptRequestToServer() {
         String token = "Bearer " + AuthManager.getInstance(requireContext()).getToken();
 
-        int questId = -1;
-        if (getArguments() != null) {
-            questId = getArguments().getInt("questId", -1);
-        }
-
-        // Controllo apiService
         if (questId == -1 || apiService == null) return;
 
-        // 2. Prepariamo il corpo per l'endpoint 'update'
-        // Inviamo progressIncrement = 0 così il server la registra senza avanzare
+        // Creiamo il body con la tua logica di "SET"
         Map<String, Object> body = new HashMap<>();
         body.put("questId", questId);
-        body.put("progressIncrement", 0);
+        body.put("actual_progress", 0);        // Forziamo il valore iniziale a 0
+        body.put("times_completed", 0);        // Forziamo il valore iniziale a 0
+        body.put("is_currently_active", true); // Diciamo chiaramente cosa vogliamo settare
 
-        // 3. Usiamo l'endpoint update (cambia il nome del metodo se necessario nell'interfaccia API)
-        apiService.updateQuestProgress(token, body).enqueue(new Callback<Map<String, Object>>() {
+
+        //Metodo specifico
+        apiService.setFirstActivation(token, body).enqueue(new Callback<Map<String, Object>>() {
             @Override
-            public void onResponse( @NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
+            public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(getContext(), "Missione accettata e salvata!", Toast.LENGTH_SHORT).show();
-                    // Comunica al GlobalQuestFragment di passare alla tab Ongoing
+                    Toast.makeText(getContext(), "Quest attivata!", Toast.LENGTH_SHORT).show();
+
+                    // Notifica il cambio tab al Fragment principale
                     Bundle result = new Bundle();
-                    result.putInt("selectedTab", 1); // 1 = Ongoing
+                    result.putInt("selectedTab", 1);
                     getParentFragmentManager().setFragmentResult("questAccepted", result);
+
                     Navigation.findNavController(requireView()).popBackStack();
-                } else {
-                    Toast.makeText(getContext(), "Errore nel salvataggio", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    // Leggiamo il codice di errore (es. 401, 500)
+                    int errorCode = response.code();
+
+                    // Proviamo a leggere il messaggio di errore inviato dal server
+                    String errorMsg = "Errore sconosciuto";
+                    try (okhttp3.ResponseBody body = response.errorBody()){
+                        if (body != null) {
+                            errorMsg = body.string();
+                        }
+                    }
+                    catch (Exception e) {
+                        Log.e(TAG, "Errore durante la lettura del corpo dell'errore", e);
+                    }
+
+                    Log.e(TAG, "ERRORE SERVER: Codice " + errorCode + " - Messaggio: " + errorMsg);
+                    Toast.makeText(getContext(), "Errore " + errorCode + ": " + errorMsg, Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
-                Toast.makeText(getContext(), "Errore di connessione", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "ERRORE CRITICO", t);new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                        .setTitle("Errore di Connessione")
+                        .setMessage(t.toString()) // Ti dirà esattamente se è Timeout, DNS o JSON error
+                        .setPositiveButton("OK", null)
+                        .show();
             }
         });
     }
 
     private void loadQuestDetails(View v, int questId) {
-        // 1. Recupera il token dall'AuthManager
-        com.ecoapp.android.auth.AuthManager authManager = com.ecoapp.android.auth.AuthManager.getInstance(getContext());
-        String token = authManager.getToken();
+        String token = "Bearer " + AuthManager.getInstance(requireContext()).getToken();
 
-        if (token == null) {
-            Log.e("RetrofitError", "Token mancante");
-            return;
-        }
-
-        String authToken = "Bearer " + token;
-
-        if (apiService == null) {
-            Log.e("RetrofitError", "ApiService non inizializzato");
-            return;
-        }
-
-        // 2. Passa authToken come argomento a getGlobalQuests()
-        apiService.getGlobalQuests(authToken).enqueue(new Callback<List<Quest>>() {
+        apiService.getGlobalQuests(token).enqueue(new Callback<List<Quest>>() {
             @Override
             public void onResponse(@NonNull Call<List<Quest>> call, @NonNull Response<List<Quest>> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -157,23 +147,16 @@ public class GlobalQuestDetailFragment extends Fragment {
                         }
                     }
                 }
-                else {
-                    Log.e("RetrofitError", "Errore server: " + response.code());
-                }
             }
-
             @Override
             public void onFailure(@NonNull Call<List<Quest>> call, @NonNull Throwable t) {
-                Log.e("RetrofitError", "Errore connessione: " + t.getMessage());
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), "Errore connessione server", Toast.LENGTH_SHORT).show();
-                }
+                Log.e(TAG, "Errore caricamento dettagli");
             }
         });
     }
 
     private void populateUI(View v, Quest quest) {
-        // Riferimenti agli elementi del layout
+        //Binding
         ImageView img = v.findViewById(R.id.questImage);
         TextView txtName = v.findViewById(R.id.txtQuestName);
         TextView txtType = v.findViewById(R.id.txtQuestType);
@@ -181,55 +164,68 @@ public class GlobalQuestDetailFragment extends Fragment {
         TextView txtCO2 = v.findViewById(R.id.txtCO2saved);
         TextView txtReward = v.findViewById(R.id.txtQuestRewardPoints);
 
-        // Impostazione dati dall'oggetto Quest
-        img.setImageResource(quest.getQuestImageResourceId(getContext()));
+        //""Set"" delle ""Stringe""
         txtName.setText(quest.getName());
         txtType.setText(quest.getType());
         txtDesc.setText(quest.getDescription());
 
-        //Per CO2 con double
-        double co2Valore = quest.getCO2Saved();
-        txtCO2.setText(getString(R.string.quest_CO2_saved, co2Valore));
+        //""Set"" dei ""double""
+        txtCO2.setText(getString(R.string.quest_CO2_saved, quest.getCO2Saved()));
 
-        //Metodo per gli EU goals
-        setupEuGoals(v, quest);
-
-        // Utilizzo della stringa reward_label (Risolve il Warning)
+        //""Set"" degli ""int""
         txtReward.setText(getString(R.string.quest_reward_points, quest.getRewardPoints()));
+
+        //""Set"" delle immagini
+        img.setImageResource(quest.getQuestImageResourceId(requireContext()));
+        setupEuGoals(v, quest);
     }
+
+    /*
+    private void setupEuGoals(View view, Quest quest) {
+        LinearLayout container = view.findViewById(R.id.containerEuGoals);
+        if (container == null || quest.getImagesEuGoals() == null) return;
+
+        container.removeAllViews();
+        for (String imageName : quest.getImagesEuGoals()) {
+            ImageView imageView = new ImageView(requireContext());
+            int resId = getResources().getIdentifier(imageName.trim(), "drawable", requireContext().getPackageName());
+
+            if (resId != 0) {
+                int size = (int) (45 * getResources().getDisplayMetrics().density);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
+                params.setMargins(0, 0, (int) (8 * getResources().getDisplayMetrics().density), 0);
+                imageView.setLayoutParams(params);
+                imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                imageView.setImageResource(resId);
+                container.addView(imageView);
+            }
+        }
+    }
+    */
 
     private void setupEuGoals(View view, Quest quest) {
         LinearLayout container = view.findViewById(R.id.containerEuGoals);
-        if (container == null || quest.getImagesEuGoals() == null || getContext() == null) {
-            Log.d(TAG, "Container o immagini EU Goals nulli");
-            return;
-        }
+        if (container == null) return;
 
         container.removeAllViews();
-        android.content.Context context = getContext();
 
-        for (String imageName : quest.getImagesEuGoals()) {
-            // LOG DI DEBUG: Controlla se i nomi arrivano correttamente dal JSON
-            Log.d(TAG, "Cerco immagine EU Goal: " + imageName);
+        // CHIAMATA AL METODO DELLA CLASSE QUEST
+        int[] resIdArray = quest.getEuGoalsResourceIds(requireContext());
 
-            ImageView imageView = new ImageView(context);
+        for (int resId : resIdArray) {
+            if (resId != 0) { // Se l'immagine esiste
+                ImageView imageView = new ImageView(requireContext());
 
-            // Importante: getIdentifier deve pulire eventuali spazi
-            int resId = context.getResources().getIdentifier(
-                    imageName.trim(), "drawable", context.getPackageName());
-
-            if (resId != 0) {
-                int sizeInPx = (int) (45 * context.getResources().getDisplayMetrics().density); // Un po' più piccoli per farli stare tutti
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(sizeInPx, sizeInPx);
-                params.setMargins(0, 0, (int) (8 * context.getResources().getDisplayMetrics().density), 0);
+                // Impostazioni dimensioni (45dp)
+                int size = (int) (45 * getResources().getDisplayMetrics().density);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
+                params.setMargins(0, 0, (int) (8 * getResources().getDisplayMetrics().density), 0);
 
                 imageView.setLayoutParams(params);
                 imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 imageView.setImageResource(resId);
 
                 container.addView(imageView);
-            } else {
-                Log.e(TAG, "Risorsa non trovata per: " + imageName);
             }
         }
     }

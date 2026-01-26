@@ -47,6 +47,18 @@ public class Quest {
         this.images_eu_goals = images_eu_goals;
     }
 
+    public Quest(LocalQuest lq) {
+        this.id = lq.getId();
+        this.name = lq.getName();
+        this.description = lq.getDescription();
+        this.type = lq.getType();
+        this.max_progress = lq.getMaxProgress();
+        this.CO2_saved = lq.getCO2Saved();
+        this.reward_points = lq.getRewardPoints();
+        this.quest_image = lq.getQuestImage();
+        this.images_eu_goals = lq.getImagesEuGoals();
+    }
+
     /* GETTERS */
     public int getId() {
         return id;

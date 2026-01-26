@@ -40,7 +40,7 @@ public class OngoingQuestAdapter2 extends RecyclerView.Adapter<OngoingQuestAdapt
         holder.questName.setText(lq.getName());
         holder.questType.setText(lq.getType());
 
-        //Imposta i punti (quelli che volevi a destra nel RelativeLayout)
+        //Imposta i punti
         String rewardText = holder.itemView.getContext().getString(R.string.quest_reward_points, lq.getRewardPoints());
         holder.questRewardPoints.setText(rewardText);
 

@@ -35,6 +35,7 @@ public class CompletedQuestAdapter extends RecyclerView.Adapter<CompletedQuestAd
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         LocalQuest lq = questList.get(position);
 
+        //Imposta i testi base
         holder.questName.setText(lq.getName());
         
         // Mostra quante volte è stata completata e i punti guadagnati
