@@ -75,8 +75,10 @@ public class OngoingQuestDetailFragment extends Fragment {
         }
 
         //Setup Listener
-        view.findViewById(R.id.buttonIncrement).setOnClickListener(v -> setProgress(currentProgress + 1));
+        view.findViewById(R.id.buttonDecrement10).setOnClickListener(v -> setProgress(currentProgress - 10));
         view.findViewById(R.id.buttonDecrement).setOnClickListener(v -> setProgress(currentProgress - 1));
+        view.findViewById(R.id.buttonIncrement).setOnClickListener(v -> setProgress(currentProgress + 1));
+        view.findViewById(R.id.buttonIncrement10).setOnClickListener(v -> setProgress(currentProgress + 10));
         view.findViewById(R.id.buttonCompleteQuest).setOnClickListener(v -> {
             //Attiva il flag per bloccare onPause()
             isAbandoningOrIsCompleting = true;
