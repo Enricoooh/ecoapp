@@ -45,6 +45,7 @@
 
         <Button
             android:id="@+id/button_change_photo"
+            android:textColor="@color/eco_text_light"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -153,6 +154,7 @@
         <Button
             android:id="@+id/button_save_profile"
             android:layout_width="0dp"
+            android:backgroundTint="@color/eco_text_light"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:text="Salva Modifiche"
