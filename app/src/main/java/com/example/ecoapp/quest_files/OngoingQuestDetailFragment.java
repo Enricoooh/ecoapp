@@ -332,6 +332,7 @@ public class OngoingQuestDetailFragment extends Fragment {
         // Usa getString direttamente dal fragment
         txtProgressStatus.setText(getString(R.string.quest_current_progress, current, max));
 
+        //Abilita il pulsante "Complete" solo se hai raggiunto il punteggio massimo
         View btnComplete = getView() != null ? getView().findViewById(R.id.buttonCompleteQuest) : null;
         if (btnComplete != null) {
             btnComplete.setEnabled(currentProgress >= maxProgress);

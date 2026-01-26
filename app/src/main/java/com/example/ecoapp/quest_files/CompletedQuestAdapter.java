@@ -37,18 +37,25 @@ public class CompletedQuestAdapter extends RecyclerView.Adapter<CompletedQuestAd
 
         //Imposta i testi base
         holder.questName.setText(lq.getName());
+        holder.questType.setText(lq.getType());
         
-        // Mostra quante volte è stata completata e i punti guadagnati
+        //Calcola il punteggio totale
         int timesCompleted = lq.getTimesCompleted();
         int totalPoints = lq.getRewardPoints() * timesCompleted;
-        holder.questPoints.setText("+" + totalPoints + " pt (" + timesCompleted + "x)");
 
-        // Gestione dell'immagine
-        if (holder.questImage != null) {
-            int imageResId = lq.getQuestImageResourceId(holder.itemView.getContext());
-            holder.questImage.setImageResource(imageResId != 0 ? imageResId : R.drawable.ic_launcher_background);
-        }
+        //Imposta il testo del punteggio totale
+        String totalPointsText = holder.itemView.getContext().getString(R.string.quest_reward_points, totalPoints);
+        holder.questRewardPoints.setText(totalPointsText);
 
+        //Gestione dell'immagine
+        int imageResId = lq.getQuestImageResourceId(holder.itemView.getContext());
+        holder.questImage.setImageResource(imageResId != 0 ? imageResId : R.drawable.ic_launcher_background);
+
+        //Imposta il testo delle volte completate
+        String timesCompletedText = holder.itemView.getContext().getString(R.string.quest_times_completed, timesCompleted);
+        holder.questTimesCompleted.setText(timesCompletedText);
+
+        //Listener per il click sulla card
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onClick(lq.getId());
@@ -63,13 +70,15 @@ public class CompletedQuestAdapter extends RecyclerView.Adapter<CompletedQuestAd
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView questImage;
-        TextView questName, questPoints;
+        TextView questName, questType, questTimesCompleted, questRewardPoints;
 
         ViewHolder(View v) {
             super(v);
             questImage = v.findViewById(R.id.questImage);
             questName = v.findViewById(R.id.quest_name);
-            questPoints = v.findViewById(R.id.quest_points);
+            questType = v.findViewById(R.id.txtQuestType);
+            questRewardPoints = v.findViewById(R.id.txtQuestRewardPoints);
+            questTimesCompleted = v.findViewById(R.id.txtTimeCompleted);
         }
     }
 }
