@@ -20,13 +20,13 @@ public class Badge {
     public String getDescription() { return description; }
     public int getImageResId() {
         switch (id) {
-            case 1: return R.drawable.eu_goals_1;
-            case 2: return R.drawable.eu_goals_2;
-            case 3: return R.drawable.eu_goals_13;
-            case 4: return R.drawable.eu_goals_17;
-            case 5: return R.drawable.eu_goals_7;
-            case 6: return R.drawable.eu_goals_15;
-            default: return R.drawable.eu_goals_1;
+            case 1: return R.drawable.badge01;
+            case 2: return R.drawable.badge02;
+            case 3: return R.drawable.badge03;
+            case 4: return R.drawable.badge04;
+            case 5: return R.drawable.badge05;
+            case 6: return R.drawable.badge06;
+            default: return R.drawable.badge01;
         }
     }
 }
