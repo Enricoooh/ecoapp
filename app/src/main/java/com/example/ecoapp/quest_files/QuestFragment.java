@@ -43,6 +43,8 @@ public class QuestFragment extends Fragment {
     private OngoingQuestAdapter2 ongoingAdapter;
     private CompletedQuestAdapter completedAdapter;
 
+    private String searchQuery = ""; // Memorizza il testo cercato
+
     //MAPPE
     private Map<Integer, Quest> allGlobalQuests = new HashMap<>();
     private Map<Integer, LocalQuest> localQuests = new HashMap<>();
@@ -75,6 +77,22 @@ public class QuestFragment extends Fragment {
         if (tab != null) {
             tab.select();
         }
+
+        //Barra di ricerca
+        androidx.appcompat.widget.SearchView searchView = view.findViewById(R.id.searchQuests);
+        searchView.setOnQueryTextListener(new androidx.appcompat.widget.SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                searchQuery = newText.toLowerCase().trim();
+                applyFilter(); // Riesegue il filtro ogni volta che il testo cambia
+                return true;
+            }
+        });
 
         //La lista di quest
         RecyclerView recyclerView = view.findViewById(R.id.recyclerQuests);
@@ -151,20 +169,6 @@ public class QuestFragment extends Fragment {
                     //svuota la precedente mappa
                     localQuests.clear();
 
-                    /*
-                    //Aggiunge tutti gli elementi della lista all'interno della mappa
-                    for (UserQuest newUserQuestElement: response.body()) {
-                        //Controllo che l'elemento esista nelle quest globali
-                        Quest globalElement = allGlobalQuests.get(newUserQuestElement.getQuestId());
-                        if(globalElement != null){
-                            //Creo un elemento di tipo LocalQuest da aggiungere alla mappa
-                            LocalQuest localQuestElement = new LocalQuest(globalElement, newUserQuestElement);
-                            //Aggiungo alla mappa
-                            localQuests.put(newUserQuestElement.getQuestId(), localQuestElement);
-                        }
-                    }
-                    */
-
                     for (UserQuest newUserQuestElement : response.body()) {
                         // Forziamo entrambi a int per essere sicuri al 100%
                         int idDalServer = newUserQuestElement.getQuestId();
@@ -208,119 +212,125 @@ public class QuestFragment extends Fragment {
     }
 
     private void applyFilter() {
-        //Se il server non ha inviato le quest è inutile filtrarle
+        // 1. CONTROLLO DI SICUREZZA INIZIALE
+        // Se la mappa globale è vuota (es. server lento), inutile procedere
         if (allGlobalQuests == null || allGlobalQuests.isEmpty()) {
-            Log.e(TAG, "applyFilter: allGlobalQuests è vuoto o null!");
+            Log.e(TAG, "applyFilter: Catalogo globale non ancora caricato!");
             return;
         }
-        
-        Log.d(TAG, "applyFilter: allGlobalQuests.size()=" + allGlobalQuests.size() + ", localQuests.size()=" + localQuests.size());
 
-        //Resetto il filtro
-        filteredQuests.clear();
-
-        //Esce se non esiste la view
+        // Recupero del riferimento al RecyclerView dal layout
         if (getView() == null) return;
-
         RecyclerView recyclerView = getView().findViewById(R.id.recyclerQuests);
 
+        // 2. RESET DEI DATI FILTRATI
+        filteredQuests.clear();
+
+        // 3. LOGICA DI FILTRAGGIO (Basata sulla Tab selezionata)
         switch (selectedTabPosition) {
-            //Global quests - mostra SOLO le quest MAI iniziate
-            case 0:{
-                for(Map.Entry<Integer, Quest> globalElement : allGlobalQuests.entrySet()){
-                    Integer globalElementId = globalElement.getKey();
-                    LocalQuest localElement = localQuests.get(globalElementId);
-                    
-                    // Mostra solo se l'utente non ha MAI iniziato questa quest
-                    if (localElement == null) {
-                        // Nessun UserQuest entry - mai iniziata
-                        filteredQuests.put(globalElementId, new LocalQuest(globalElement.getValue()));
-                    }
-                    //localElement.getActualProgress() == 0 -> tecnicamente inutile, ma lasciato per sicurezza
-                    else if (localElement.getTimesCompleted() == 0
-                               && !localElement.isCurrentlyActive()
-                               && localElement.getActualProgress() == 0) {
-                        // Ha entry ma non è mai stata realmente iniziata
-                        filteredQuests.put(globalElementId, localElement);
+            // --- TAB GLOBALI: Mostra solo le quest MAI iniziate ---
+            case 0: {
+                for (Map.Entry<Integer, Quest> entry : allGlobalQuests.entrySet()) {
+                    Integer id = entry.getKey();
+                    Quest globalData = entry.getValue();
+
+                    // Verifica che l'utente ha già un record per questa quest
+                    LocalQuest userLocal = localQuests.get(id);
+
+                    // Una quest è considerata "Globale/Disponibile" se:
+                    // a) Non esiste proprio nei progressi utente (null)
+                    // b) Oppure esiste ma non è attiva e non è mai stata completata (times == 0)
+                    boolean isNew = (userLocal == null) ||
+                            (userLocal.getTimesCompleted() == 0 && !userLocal.isCurrentlyActive());
+
+                    if (isNew) {
+                        // CONTROLLO RICERCA: Applichiamo il filtro stringa (nome o tipo)
+                        if (isQuestMatchingSearch(globalData.getName(), globalData.getType())) {
+                            // Se non esiste localmente, la creiamo per l'adapter
+                            filteredQuests.put(id, userLocal != null ? userLocal : new LocalQuest(globalData));
+                        }
                     }
                 }
-                
-                Log.d(TAG, "TAB GLOBAL: filteredQuests.size()=" + filteredQuests.size());
 
-                // Convertiamo LocalQuest filteredQuests.values() in una ArrayList<Quest>
-                ArrayList<Quest> tempQuestList = new ArrayList<>();
-                for (LocalQuest q : filteredQuests.values()) {
-                    tempQuestList.add(new Quest(q));
+                // Trasformiamo i risultati per l'adapter GlobalQuestAdapter
+                ArrayList<Quest> globalList = new ArrayList<>();
+                for (LocalQuest lq : filteredQuests.values()) {
+                    globalList.add(new Quest(lq)); // Convertiamo in oggetto Quest base
                 }
 
-                //globalAdapter richiede una Lista di Quest
-                globalAdapter = new GlobalQuestAdapter(tempQuestList, questId -> {
+                // Aggiorniamo la UI con l'adapter per le quest Globali
+                globalAdapter = new GlobalQuestAdapter(globalList, questId -> {
                     Bundle bundle = new Bundle();
                     bundle.putInt("questId", questId);
                     Navigation.findNavController(requireView())
                             .navigate(R.id.action_questFragment_to_questGlobalDetailFragment, bundle);
                 });
-
                 recyclerView.setAdapter(globalAdapter);
                 break;
             }
 
-            //Ongoing quests
-            case 1:{
-
-                Log.d("DEBUG_QUEST", "Elementi in localQuests: " + localQuests.size());
-                for(Map.Entry<Integer, LocalQuest> localElement : localQuests.entrySet()){
-                    Log.d("DEBUG_QUEST", "Quest ID: " + localElement.getKey() + " | Attiva: " + localElement.getValue().isCurrentlyActive());
-                    //se è attiva al momento
-                    if(localElement.getValue().isCurrentlyActive()){
-                        filteredQuests.put(localElement.getKey(), localElement.getValue());
+            // --- TAB IN CORSO: Mostra solo le quest attive ---
+            case 1: {
+                for (LocalQuest lq : localQuests.values()) {
+                    // Una quest è "In corso" se il flag isCurrentlyActive è true sul DB
+                    if (lq.isCurrentlyActive()) {
+                        // CONTROLLO RICERCA: Applica il filtro stringa
+                        if (isQuestMatchingSearch(lq.getName(), lq.getType())) {
+                            filteredQuests.put(lq.getId(), lq);
+                        }
                     }
                 }
-                Log.d("DEBUG_QUEST", "Elementi filtrati per Ongoing: " + filteredQuests.size());
 
-                // Passiamo la lista delle quest filtrate e la mappa/lista dei progressi
-                ongoingAdapter = new OngoingQuestAdapter2(new ArrayList<LocalQuest>(filteredQuests.values()), questId -> {
-                    // Logica al click: navighiamo verso il dettaglio "Ongoing"
+                // Aggiorna la UI con l'adapter per le quest Ongoing
+                ongoingAdapter = new OngoingQuestAdapter2(new ArrayList<>(filteredQuests.values()), questId -> {
                     Bundle bundle = new Bundle();
                     bundle.putInt("questId", questId);
                     Navigation.findNavController(requireView())
                             .navigate(R.id.action_questFragment_to_questOngoingDetailFragment, bundle);
                 });
-
                 recyclerView.setAdapter(ongoingAdapter);
                 break;
             }
 
-            //Completed quests
-            case 2:{
-                for(Map.Entry<Integer, LocalQuest> localElement : localQuests.entrySet()){
-                    //se è stata completata almeno una volta E non è attualmente attiva
-                    if(localElement.getValue().getTimesCompleted() > 0 
-                       && !localElement.getValue().isCurrentlyActive()){
-                        filteredQuests.put(localElement.getKey(), localElement.getValue());
+            // --- TAB COMPLETATE: Mostra quest finite almeno una volta ---
+            case 2: {
+                for (LocalQuest lq : localQuests.values()) {
+                    // Una quest è "Completata" se è stata finita > 0 volte e non è attiva ora
+                    if (lq.getTimesCompleted() > 0 && !lq.isCurrentlyActive()) {
+                        // CONTROLLO RICERCA: Applica il filtro stringa
+                        if (isQuestMatchingSearch(lq.getName(), lq.getType())) {
+                            filteredQuests.put(lq.getId(), lq);
+                        }
                     }
                 }
-                Log.d("DEBUG_QUEST", "Elementi filtrati per Completed: " + filteredQuests.size());
 
+                // Aggiorna la UI con l'adapter per le quest Completate
                 completedAdapter = new CompletedQuestAdapter(new ArrayList<>(filteredQuests.values()), questId -> {
-                    // Click su quest completata - naviga per permettere Re-do
                     Bundle bundle = new Bundle();
                     bundle.putInt("questId", questId);
-                    //bundle.putBoolean("isRedo", true); // Flag per indicare che è un re-do
                     Navigation.findNavController(requireView())
                             .navigate(R.id.action_questFragment_to_questCompletedDetailFragment, bundle);
-
                 });
-
                 recyclerView.setAdapter(completedAdapter);
                 break;
             }
 
             default:
-                //error
+                Log.e(TAG, "applyFilter: Posizione tab non valida!");
                 break;
         }
 
+        // 4. LOG DI DEBUG FINALE
+        // Utile per capire se la ricerca ha prodotto risultati nel Logcat
+        Log.d(TAG, "Filtro applicato. Tab: " + selectedTabPosition +
+                " | Query: '" + searchQuery + "' | Risultati: " + filteredQuests.size());
+    }
+
+    // Metodo helper per la ricerca
+    private boolean isQuestMatchingSearch(String name, String type) {
+        if (searchQuery.isEmpty()) return true;
+        return (name != null && name.toLowerCase().contains(searchQuery)) ||
+                (type != null && type.toLowerCase().contains(searchQuery));
     }
 
     @Override
