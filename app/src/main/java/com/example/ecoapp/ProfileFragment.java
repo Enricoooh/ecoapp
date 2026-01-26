@@ -58,8 +58,6 @@ public class ProfileFragment extends Fragment {
         binding.editProfileButton.setOnClickListener(v -> NavHostFragment.findNavController(ProfileFragment.this)
                 .navigate(R.id.action_profileFragment_to_editProfileFragment));
         
-        binding.co2Layout.setOnClickListener(v -> showCO2DetailSheet());
-        
         binding.badgesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
     }
 
@@ -68,15 +66,6 @@ public class ProfileFragment extends Fragment {
         super.onResume();
         // Forza il ricaricamento dei dati ogni volta che torniamo sul profilo
         loadUserProfile();
-    }
-
-    private void showCO2DetailSheet() {
-        String detail = "- Riciclo Plastica: 5.2 kg\n" +
-                "- Mobilità Sostenibile: 8.0 kg\n" +
-                "- Risparmio Energetico: 2.2 kg\n\n" +
-                "Totale calcolato in base alle sfide completate.";
-        
-        showDetailSheet("Dettaglio CO2 Salvata", detail);
     }
 
     private void showDetailSheet(String title, String description) {
@@ -104,8 +93,6 @@ public class ProfileFragment extends Fragment {
                     AuthManager.getInstance(requireContext()).setCurrentUser(updatedUser);
                     updateUI(updatedUser);
                 } else if (response.code() == 401) {
-                    // Token invalido/scaduto: il broadcast viene già inviato dall'interceptor
-                    // ma per sicurezza forziamo il logout anche qui
                     Toast.makeText(requireContext(), "Sessione scaduta, effettua nuovamente l'accesso", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(requireContext(), "Errore nel caricamento profilo", Toast.LENGTH_SHORT).show();

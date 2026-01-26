@@ -26,9 +26,9 @@
     <string name="profile_user_level_placeholder">Livello: Eco-Warrior</string>
     <string name="profile_user_quote_placeholder">\"Ogni gesto conta!\"</string>
     <string name="profile_impact_title">IL TUO IMPATTO (Statistiche)</string>
-    <string name="profile_total_points_value">1250</string>
+    <string name="profile_total_points_value">0</string>
     <string name="profile_total_points_label">Punti Totali</string>
-    <string name="profile_co2_saved_value">15,4 kg</string>
+    <string name="profile_co2_saved_value">0 kg</string>
     <string name="profile_co2_saved_label">CO2 Salvata</string>
     <string name="profile_next_level_label">Prossimo Livello:</string>
     <string name="profile_next_level_percentage">75% completato</string>
@@ -88,7 +88,16 @@
 
 
     <!-- Edit Profile Screen -->
-    <string name="title_edit_profile">Modifica Profilo</string>
+    <string name="edit_profile_title">Modifica Profilo</string>
+    <string name="edit_profile_avatar_preview_desc">Anteprima foto profilo</string>
+    <string name="edit_profile_change_photo">Cambia Foto</string>
+    <string name="edit_profile_nickname">Nickname</string>
+    <string name="edit_profile_bio">Bio</string>
+    <string name="edit_profile_email">Email</string>
+    <string name="edit_profile_new_password">Nuova Password</string>
+    <string name="edit_profile_confirm_password">Conferma Password</string>
+    <string name="edit_profile_save_button">Salva Modifiche</string>
+
     <string name="hint_nickname">Nickname</string>
     <string name="hint_email">Email</string>
     <string name="hint_password">Nuova Password</string>

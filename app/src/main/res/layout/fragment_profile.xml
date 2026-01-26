@@ -141,7 +141,7 @@
                             android:id="@+id/total_points_value"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0"
+                            android:text="@string/profile_total_points_value"
                             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
                             android:textStyle="bold"/>
                         <TextView
@@ -156,15 +156,12 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:gravity="center"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:background="?attr/selectableItemBackground"
                         android:orientation="vertical">
                         <TextView
                             android:id="@+id/co2_saved_value"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0 kg"
+                            android:text="@string/profile_co2_saved_value"
                             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
                             android:textStyle="bold"/>
                         <TextView
@@ -196,7 +193,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="75%"
+                        android:text="@string/profile_next_level_percentage"
                         android:textStyle="bold" />
                 </FrameLayout>
 
@@ -259,7 +256,7 @@
                     android:id="@+id/view_friends"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="VEDI TUTTI >"
+                    android:text="@string/profile_view_all"
                     android:textStyle="bold"
                     android:textColor="@color/eco_text_light" />
             </LinearLayout>

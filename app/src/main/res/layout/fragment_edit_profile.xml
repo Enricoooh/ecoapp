@@ -16,7 +16,7 @@
             android:id="@+id/title_edit_profile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Modifica Profilo"
+            android:text="@string/edit_profile_title"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -40,7 +40,7 @@
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 android:src="@android:drawable/sym_def_app_icon"
-                android:contentDescription="Anteprima foto profilo" />
+                android:contentDescription="@string/edit_profile_avatar_preview_desc" />
         </com.google.android.material.card.MaterialCardView>
 
         <Button
@@ -49,7 +49,7 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cambia Foto"
+            android:text="@string/edit_profile_change_photo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/card_image_preview" />
@@ -61,7 +61,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Nickname"
+            android:hint="@string/edit_profile_nickname"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/button_change_photo">
@@ -80,7 +80,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Bio"
+            android:hint="@string/edit_profile_bio"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/layout_edit_name">
@@ -99,7 +99,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Email"
+            android:hint="@string/edit_profile_email"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/layout_edit_bio">
@@ -118,7 +118,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Nuova Password"
+            android:hint="@string/edit_profile_new_password"
             app:passwordToggleEnabled="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -138,7 +138,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Conferma Password"
+            android:hint="@string/edit_profile_confirm_password"
             app:passwordToggleEnabled="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -157,7 +157,7 @@
             android:backgroundTint="@color/eco_text_light"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
-            android:text="Salva Modifiche"
+            android:text="@string/edit_profile_save_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/layout_confirm_password" />
