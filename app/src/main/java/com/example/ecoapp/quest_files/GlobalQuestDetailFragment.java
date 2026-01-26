@@ -179,35 +179,6 @@ public class GlobalQuestDetailFragment extends Fragment {
         setupEuGoals(v, quest);
     }
 
-    /* PRIMA DI CHIPGROUP
-    private void setupEuGoals(View view, Quest quest) {
-        LinearLayout container = view.findViewById(R.id.containerEuGoals);
-        if (container == null) return;
-
-        container.removeAllViews();
-
-        // CHIAMATA AL METODO DELLA CLASSE QUEST
-        int[] resIdArray = quest.getEuGoalsResourceIds(requireContext());
-
-        for (int resId : resIdArray) {
-            if (resId != 0) { // Se l'immagine esiste
-                ImageView imageView = new ImageView(requireContext());
-
-                // Impostazioni dimensioni (45dp)
-                int size = (int) (45 * getResources().getDisplayMetrics().density);
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
-                params.setMargins(0, 0, (int) (8 * getResources().getDisplayMetrics().density), 0);
-
-                imageView.setLayoutParams(params);
-                imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                imageView.setImageResource(resId);
-
-                container.addView(imageView);
-            }
-        }
-    }
-    */
-
     private void setupEuGoals(View view, Quest quest) {
         // Riferimento a ChipGroup (che è un ViewGroup)
         ViewGroup container = view.findViewById(R.id.containerEuGoals);

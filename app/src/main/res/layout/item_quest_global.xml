@@ -74,7 +74,7 @@
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:text="@string/quest_reward_points"
-                    android:textColor="@android:color/holo_green_dark"
+                    android:textColor="#4CAF50"
                     android:textSize="15sp"
                     android:textStyle="bold"/>
 

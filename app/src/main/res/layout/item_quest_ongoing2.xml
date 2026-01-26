@@ -69,14 +69,13 @@
                     android:id="@+id/txtQuestRewardPoints"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
                     android:paddingHorizontal="2dp"
                     android:paddingVertical="2dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
                     android:text="@string/quest_reward_points"
-                    android:textColor="@android:color/holo_green_dark"
+                    android:textColor="#4CAF50"
                     android:textSize="15sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
 
             </RelativeLayout>
 
@@ -85,7 +84,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:progress="50"
+                android:progress="0"
                 app:trackThickness="8dp"
                 app:trackCornerRadius="4dp"
                 app:indicatorColor="@android:color/holo_blue_dark"
