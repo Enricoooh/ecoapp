@@ -118,9 +118,26 @@ public class FriendProfileFragment extends Fragment {
         }
 
         int points = user.getTotalPoints();
-        int percentage = (points % 1000 * 100) / 1000;
+        int percentage = calculateLevelPercentage(points);
         binding.levelProgress.setProgress(percentage);
         binding.nextLevelPercentage.setText(String.format(Locale.getDefault(), "%d%%", percentage));
+    }
+
+    /**
+     * Calcola la percentuale di progresso verso il prossimo livello.
+     * Soglie: 0 (Novizio) → 1000 (Apprendista) → 2000 (Guerriero) → 5000 (Eroe) → 10000 (Leggenda)
+     */
+    private int calculateLevelPercentage(int points) {
+        int[] thresholds = {0, 1000, 2000, 5000, 10000};
+        
+        for (int i = 0; i < thresholds.length - 1; i++) {
+            if (points < thresholds[i + 1]) {
+                int pointsInLevel = points - thresholds[i];
+                int levelRange = thresholds[i + 1] - thresholds[i];
+                return (pointsInLevel * 100) / levelRange;
+            }
+        }
+        return 100; // Già al livello massimo
     }
 
     private void showBadgeDetail(Badge badge) {
