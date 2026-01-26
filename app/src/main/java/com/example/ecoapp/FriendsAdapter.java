@@ -1,5 +1,9 @@
 package com.example.ecoapp;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
@@ -36,10 +40,29 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
         User friend = friends.get(position);
         
         String displayName = friend.getName();
-        if (friend.getNickname() != null) {
+        if (friend.getNickname() != null && !friend.getNickname().isEmpty()) {
             displayName += " (@" + friend.getNickname() + ")";
         }
         holder.binding.friendName.setText(displayName);
+
+        // Gestione Immagine Profilo Amico
+        String imageStr = friend.getUrlImmagineProfilo();
+        if (imageStr == null || imageStr.isEmpty() || imageStr.equals("default")) {
+            holder.binding.friendAvatar.setImageResource(R.drawable.ic_default_avatar);
+        } else {
+            try {
+                byte[] decodedString = Base64.decode(imageStr, Base64.DEFAULT);
+                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                if (decodedByte != null) {
+                    holder.binding.friendAvatar.setImageBitmap(decodedByte);
+                } else {
+                    holder.binding.friendAvatar.setImageResource(R.drawable.ic_default_avatar);
+                }
+            } catch (Exception e) {
+                Log.e("FriendsAdapter", "Errore decodifica immagine amico", e);
+                holder.binding.friendAvatar.setImageResource(R.drawable.ic_default_avatar);
+            }
+        }
 
         // Click sull'intera riga per vedere il profilo
         holder.itemView.setOnClickListener(v -> {

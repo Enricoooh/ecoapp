@@ -1,5 +1,9 @@
 package com.example.ecoapp;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
@@ -34,7 +38,26 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         User user = requests.get(position);
         holder.binding.reqName.setText(user.getNickname() != null ? user.getNickname() : user.getName());
-        
+
+        // Gestione Immagine Profilo Richiedente
+        String imageStr = user.getUrlImmagineProfilo();
+        if (imageStr == null || imageStr.isEmpty() || imageStr.equals("default")) {
+            holder.binding.reqAvatar.setImageResource(R.drawable.ic_default_avatar);
+        } else {
+            try {
+                byte[] decodedString = Base64.decode(imageStr, Base64.DEFAULT);
+                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                if (decodedByte != null) {
+                    holder.binding.reqAvatar.setImageBitmap(decodedByte);
+                } else {
+                    holder.binding.reqAvatar.setImageResource(R.drawable.ic_default_avatar);
+                }
+            } catch (Exception e) {
+                Log.e("FriendRequestAdapter", "Errore decodifica immagine richiesta", e);
+                holder.binding.reqAvatar.setImageResource(R.drawable.ic_default_avatar);
+            }
+        }
+
         holder.binding.btnAccept.setOnClickListener(v -> listener.onAction(user, "accept"));
         holder.binding.btnDecline.setOnClickListener(v -> listener.onAction(user, "decline"));
     }

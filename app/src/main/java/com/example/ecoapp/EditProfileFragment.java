@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,7 @@ import retrofit2.Response;
 
 public class EditProfileFragment extends Fragment {
 
+    private static final String TAG = "EditProfileFragment";
     private FragmentEditProfileBinding binding;
     private AuthService authService;
     private User currentUser;
@@ -106,7 +108,7 @@ public class EditProfileFragment extends Fragment {
                 binding.editProfileImagePreview.setImageBitmap(bitmap);
                 encodedImage = encodeImage(bitmap);
             } catch (IOException ex) {
-                ex.printStackTrace();
+                Log.e(TAG, "Errore caricamento immagine originale", ex);
             }
         }
     }
@@ -123,14 +125,21 @@ public class EditProfileFragment extends Fragment {
                     
                     // Carica l'anteprima dell'immagine attuale
                     String imageStr = currentUser.getUrlImmagineProfilo();
-                    if (imageStr != null && !imageStr.isEmpty() && !imageStr.startsWith("http")) {
+                    if (imageStr == null || imageStr.isEmpty() || imageStr.equals("default")) {
+                        binding.editProfileImagePreview.setImageResource(R.drawable.ic_default_avatar);
+                    } else {
                         try {
                             byte[] decodedString = Base64.decode(imageStr, Base64.DEFAULT);
                             Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                             if (decodedByte != null) {
                                 binding.editProfileImagePreview.setImageBitmap(decodedByte);
+                            } else {
+                                binding.editProfileImagePreview.setImageResource(R.drawable.ic_default_avatar);
                             }
-                        } catch (Exception e) { e.printStackTrace(); }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Errore decodifica immagine", e);
+                            binding.editProfileImagePreview.setImageResource(R.drawable.ic_default_avatar);
+                        }
                     }
                 }
             }
