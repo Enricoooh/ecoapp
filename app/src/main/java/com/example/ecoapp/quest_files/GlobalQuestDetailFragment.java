@@ -80,7 +80,7 @@ public class GlobalQuestDetailFragment extends Fragment {
 
         if (questId == -1 || apiService == null) return;
 
-        // Creiamo il body con la tua logica di "SET"
+        // Creiamo il body con la logica di "SET"
         Map<String, Object> body = new HashMap<>();
         body.put("questId", questId);
         body.put("actual_progress", 0);        // Forziamo il valore iniziale a 0
@@ -103,10 +103,10 @@ public class GlobalQuestDetailFragment extends Fragment {
                     Navigation.findNavController(requireView()).popBackStack();
                 }
                 else {
-                    // Leggiamo il codice di errore (es. 401, 500)
+                    // Legge il codice di errore (es. 401, 500)
                     int errorCode = response.code();
 
-                    // Proviamo a leggere il messaggio di errore inviato dal server
+                    // Prova a leggere il messaggio di errore inviato dal server
                     String errorMsg = "Errore sconosciuto";
                     try (okhttp3.ResponseBody body = response.errorBody()){
                         if (body != null) {
@@ -179,29 +179,6 @@ public class GlobalQuestDetailFragment extends Fragment {
         img.setImageResource(quest.getQuestImageResourceId(requireContext()));
         setupEuGoals(v, quest);
     }
-
-    /*
-    private void setupEuGoals(View view, Quest quest) {
-        LinearLayout container = view.findViewById(R.id.containerEuGoals);
-        if (container == null || quest.getImagesEuGoals() == null) return;
-
-        container.removeAllViews();
-        for (String imageName : quest.getImagesEuGoals()) {
-            ImageView imageView = new ImageView(requireContext());
-            int resId = getResources().getIdentifier(imageName.trim(), "drawable", requireContext().getPackageName());
-
-            if (resId != 0) {
-                int size = (int) (45 * getResources().getDisplayMetrics().density);
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
-                params.setMargins(0, 0, (int) (8 * getResources().getDisplayMetrics().density), 0);
-                imageView.setLayoutParams(params);
-                imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                imageView.setImageResource(resId);
-                container.addView(imageView);
-            }
-        }
-    }
-    */
 
     private void setupEuGoals(View view, Quest quest) {
         LinearLayout container = view.findViewById(R.id.containerEuGoals);

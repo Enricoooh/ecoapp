@@ -37,6 +37,7 @@ public class OngoingQuestDetailFragment extends Fragment {
     private QuestApiService apiService;
     private int questId;
 
+    //Flag
     private boolean isAbandoningOrIsCompleting = false;
 
     //Progresso
@@ -264,39 +265,6 @@ public class OngoingQuestDetailFragment extends Fragment {
         //Metodo per gli EU goals
         setupEuGoals(v, q);
     }
-
-    /*
-    private void setupEuGoals(View view, Quest quest) {
-        LinearLayout container = view.findViewById(R.id.containerEuGoals);
-        //Verifica che il fragment sia ancora "attaccato" e la vista esista
-        if (container == null || quest.getImagesEuGoals() == null || getContext() == null) return;
-
-        //Contesto sicuro
-        container.removeAllViews();
-        android.content.Context context = getContext();
-
-        for (String imageName : quest.getImagesEuGoals()) {
-            ImageView imageView = new ImageView(context);
-
-            //Recupera l'ID usando la variabile context (Risolve il Warning)
-            int resId = context.getResources().getIdentifier(
-                    imageName, "drawable", context.getPackageName());
-
-            if (resId != 0) {
-                // Calcolo dimensioni (50dp)
-                int sizeInPx = (int) (50 * context.getResources().getDisplayMetrics().density);
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(sizeInPx, sizeInPx);
-                params.setMargins(0, 0, (int) (12 * context.getResources().getDisplayMetrics().density), 0);
-
-                imageView.setLayoutParams(params);
-                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                imageView.setImageResource(resId);
-
-                container.addView(imageView);
-            }
-        }
-    }
-    */
 
     private void setupEuGoals(View view, Quest quest) {
         LinearLayout container = view.findViewById(R.id.containerEuGoals);

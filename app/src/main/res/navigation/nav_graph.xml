@@ -25,6 +25,9 @@
             <action
                 android:id="@+id/action_questFragment_to_questOngoingDetailFragment"
                 app:destination="@id/questOnGoingDetailFragment" />
+            <action
+                android:id="@+id/action_questFragment_to_questCompletedDetailFragment"
+                app:destination="@id/questCompletedDetailFragment" />
         </fragment>
         <fragment
             android:id="@+id/questGlobalDetailFragment"
@@ -36,6 +39,11 @@
             android:name="com.example.ecoapp.quest_files.OngoingQuestDetailFragment"
             android:label="@string/quest_ongoing_detail_label"
             tools:layout="@layout/fragment_quest_ongoing_detail" />
+        <fragment
+            android:id="@+id/questCompletedDetailFragment"
+            android:name="com.example.ecoapp.quest_files.CompletedQuestDetailFragment"
+            android:label="@string/quest_completed_detail_label"
+            tools:layout="@layout/fragment_quest_completed_detail" />
     </navigation>
 
     <fragment

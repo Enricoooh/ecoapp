@@ -304,13 +304,12 @@ public class QuestFragment extends Fragment {
 
                 completedAdapter = new CompletedQuestAdapter(new ArrayList<>(filteredQuests.values()), questId -> {
                     // Click su quest completata - naviga per permettere Re-do
-                    /*
                     Bundle bundle = new Bundle();
                     bundle.putInt("questId", questId);
-                    bundle.putBoolean("isRedo", true); // Flag per indicare che è un re-do
+                    //bundle.putBoolean("isRedo", true); // Flag per indicare che è un re-do
                     Navigation.findNavController(requireView())
-                            .navigate(R.id.action_questFragment_to_questGlobalDetailFragment, bundle);
-                    */
+                            .navigate(R.id.action_questFragment_to_questCompletedDetailFragment, bundle);
+
                 });
 
                 recyclerView.setAdapter(completedAdapter);
