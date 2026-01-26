@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,9 +70,9 @@ public class ProfileFragment extends Fragment {
     }
 
     private void showDetailSheet(String title, String description) {
-        if (!isAdded()) return;
+        if (!isAdded() || binding == null) return;
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
-        View view = getLayoutInflater().inflate(R.layout.layout_item_detail_sheet, null);
+        View view = getLayoutInflater().inflate(R.layout.layout_item_detail_sheet, (ViewGroup) binding.getRoot(), false);
         if (view != null) {
             ((TextView)view.findViewById(R.id.sheet_title)).setText(title);
             ((TextView)view.findViewById(R.id.sheet_description)).setText(description);
@@ -130,7 +131,7 @@ public class ProfileFragment extends Fragment {
                     binding.profileAvatar.setImageResource(R.drawable.ic_default_avatar);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e("ProfileFragment", "Errore decodifica immagine", e);
                 binding.profileAvatar.setImageResource(R.drawable.ic_default_avatar);
             }
         }
@@ -138,9 +139,7 @@ public class ProfileFragment extends Fragment {
         // Badges del profilo
         List<Badge> badges = user.getBadges();
         if (badges != null && !badges.isEmpty()) {
-            BadgesAdapter adapter = new BadgesAdapter(badges, badge -> {
-                showDetailSheet(badge.getName(), badge.getDescription());
-            });
+            BadgesAdapter adapter = new BadgesAdapter(badges, badge -> showDetailSheet(badge.getName(), badge.getDescription()));
             binding.badgesRecyclerView.setAdapter(adapter);
             binding.badgesRecyclerView.setVisibility(View.VISIBLE);
         } else {

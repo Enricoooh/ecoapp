@@ -22,7 +22,7 @@
     <string name="profile_user_name_placeholder">Mario Rossi</string>
     <string name="profile_user_nickname_placeholder">Nickname</string>
     <string name="profile_user_real_name_placeholder">Nome Reale</string>
-    <string name="profile_user_bio_placeholder">Bio dell\'utente...</string>
+    <string name="profile_user_bio_placeholder">Bio dell&#8230;</string>
     <string name="profile_user_level_placeholder">Livello: Eco-Warrior</string>
     <string name="profile_user_quote_placeholder">\"Ogni gesto conta!\"</string>
     <string name="profile_impact_title">IL TUO IMPATTO (Statistiche)</string>
@@ -31,7 +31,7 @@
     <string name="profile_co2_saved_value">0 kg</string>
     <string name="profile_co2_saved_label">CO2 Salvata</string>
     <string name="profile_next_level_label">Prossimo Livello:</string>
-    <string name="profile_next_level_percentage">75% completato</string>
+    <string name="profile_next_level_percentage">75%</string>
     <string name="profile_recent_activity_title">ATTIVITÀ RECENTI</string>
     <string name="profile_my_badges_title">I Miei Badge</string>
     <string name="profile_badge_description">Badge</string>
